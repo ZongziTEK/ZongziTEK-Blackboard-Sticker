@@ -14,6 +14,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 {
     public class ClassIslandConnectorService : IManagedService
     {
+        public bool IsConnected => _isConnected;
         public bool IsTimetableSyncEnabled => _isTimetableSyncEnabled;
         public List<Lesson> TimetableShared => _timetableShared;
 
@@ -22,11 +23,22 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private IConnectService? _connectService;
         private JsonIpcDirectRoutedProvider? _ipcDirectRoutedProvider;
 
+        private bool _isConnected;
         private bool _isTimetableSyncEnabled;
         private List<Lesson> _timetableShared = new();
 
         private void RegisterNotificationHandlers()
         {
+            _ipcDirectRoutedProvider!.AddNotifyHandler(
+                "ZongziTEK_Blackboard_Sticker_Connector.ServiceStarted",
+                OnClassIslandPluginConnectionStarted);
+            ConsoleHelper.WriteLog("订阅 ClassIsland 插件 ConnectService 启动完毕事件", "info");
+
+            _ipcDirectRoutedProvider!.AddNotifyHandler(
+                "ZongziTEK_Blackboard_Sticker_Connector.ServiceStopped",
+                OnClassIslandPluginConnectionStopped);
+            ConsoleHelper.WriteLog("订阅 ClassIsland 插件 ConnectService 停止事件", "info");
+
             _ipcDirectRoutedProvider!.AddNotifyHandler(
                 "ZongziTEK_Blackboard_Sticker_Connector.TimetableUpdated",
                 OnClassIslandTimetableUpdated);
@@ -69,6 +81,26 @@ namespace ZongziTEK_Blackboard_Sticker.Services
                 _ipcDirectRoutedProvider.IpcProvider.Dispose();
                 _ipcDirectRoutedProvider = null;
             }
+        }
+
+        private void OnClassIslandPluginConnectionStarted() // 接收到通知时触发
+        {
+            ConsoleHelper.WriteLog("ClassIsland 插件 ConnectService 启动完毕事件触发", "info");
+            _isConnected = true;
+        }
+
+        private void OnClassIslandPluginConnectionStopped() // 接收到通知时触发
+        {
+            ConsoleHelper.WriteLog("ClassIsland 插件 ConnectService 停止事件触发", "info");
+            _isConnected = false;
+
+            // 还原为展示本地课程表
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                var mainWindow = App.Current.MainWindow as MainWindow;
+                mainWindow.LoadTimetableOrCurriculum();
+                ConsoleHelper.WriteLog("由 ClassIsland Connector 还原为本地课程表", "info");
+            });
         }
 
         private async void OnClassIslandTimetableUpdated()

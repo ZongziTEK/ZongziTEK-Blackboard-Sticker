@@ -1220,7 +1220,7 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             var classIslandConnectorService = App.ServiceManager.GetService<ClassIslandConnectorService>();
 
-            if (classIslandConnectorService == null || !classIslandConnectorService.IsTimetableSyncEnabled) // 加载黑板贴本地课表
+            if (classIslandConnectorService == null || classIslandConnectorService.IsConnected == false || !classIslandConnectorService.IsTimetableSyncEnabled) // 加载黑板贴本地课表
             {
                 if (File.Exists(GetDataPath() + timetableFileName))
                 {
@@ -1231,7 +1231,7 @@ namespace ZongziTEK_Blackboard_Sticker
                     }
                     catch (Exception ex)
                     {
-                        ConsoleHelper.WriteLog("加载本地课程表时遇到错误","error");
+                        ConsoleHelper.WriteLog("加载本地课程表时遇到错误", "error");
                         Console.WriteLine("--- 错误信息 ---");
                         Console.WriteLine(ex);
                         Console.WriteLine("--- 错误信息末尾 ---");
