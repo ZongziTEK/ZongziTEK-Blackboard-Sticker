@@ -1231,7 +1231,10 @@ namespace ZongziTEK_Blackboard_Sticker
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"加载本地课程表时遇到错误：{ex.Message}");
+                        ConsoleHelper.WriteLog("加载本地课程表时遇到错误","error");
+                        Console.WriteLine("--- 错误信息 ---");
+                        Console.WriteLine(ex);
+                        Console.WriteLine("--- 错误信息末尾 ---");
                     }
                 }
 

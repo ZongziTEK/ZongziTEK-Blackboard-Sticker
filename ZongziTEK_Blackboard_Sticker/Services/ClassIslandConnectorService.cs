@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Interfaces;
 using ZongziTEK_Blackboard_Sticker.Shared.IPC;
 
@@ -28,12 +29,12 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             _ipcDirectRoutedProvider!.AddNotifyHandler(
                 "ZongziTEK_Blackboard_Sticker_Connector.TimetableUpdated",
                 OnClassIslandTimetableUpdated);
-            Console.WriteLine($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} 订阅 ClassIsland 课程表变化事件");
+            ConsoleHelper.WriteLog("订阅 ClassIsland 课程表变化事件", "info");
 
             _ipcDirectRoutedProvider!.AddNotifyHandler(
                 "ZongziTEK_Blackboard_Sticker_Connector.IsTimetableSyncEnabledChanged",
                 OnIsTimetableSyncEnabledChanged);
-            Console.WriteLine($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} 订阅 IsTimetableSyncEnabledChanged 事件");
+            ConsoleHelper.WriteLog("订阅 IsTimetableSyncEnabledChanged 事件", "info");
         }
 
         public async Task StartAsync(CancellationToken _)
@@ -46,12 +47,12 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
             // connect
             _ipcDirectRoutedProvider.StartServer();
-            Console.WriteLine($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} 启动 IPC 服务器");
+            ConsoleHelper.WriteLog("启动 IPC 服务器", "info");
 
-            Console.WriteLine($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} 开始连接 ClassIsland 插件");
+            ConsoleHelper.WriteLog("开始连接 ClassIsland 插件", "info");
             _peerProxy = await _ipcProvider.GetAndConnectToPeerAsync("ZongziTEK_Blackboard_Sticker_Connector");
             _connectService = _ipcProvider.CreateIpcProxy<IConnectService>(_peerProxy);
-            Console.WriteLine($"{DateTime.Now:yyyy/MM/dd HH:mm:ss} 连接到 ClassIsland 成功");
+            ConsoleHelper.WriteLog("连接到 ClassIsland 成功", "info");
 
             // get initial value
             _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
@@ -71,7 +72,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
         private async void OnClassIslandTimetableUpdated()
         {
-            Console.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ClassIsland 课程表变化");
+            ConsoleHelper.WriteLog("ClassIsland 课程表变化", "info");
             _timetableShared = await _connectService.GetCurrentTimetable();
 
             UpdateMainWindowTimetable();
@@ -79,7 +80,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
         private async void OnIsTimetableSyncEnabledChanged()
         {
-            Console.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} IsTimetableSyncEnabled 变化");
+            ConsoleHelper.WriteLog("IsTimetableSyncEnabled 变化", "info");
             _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
 
             UpdateMainWindowTimetable();
@@ -91,7 +92,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
                 mainWindow.LoadTimetableOrCurriculum();
-                Console.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} 由 ClassIsland Connector 更新正在显示的课程表");
+                ConsoleHelper.WriteLog("由 ClassIsland Connector 更新正在显示的课程表", "info");
             });
         }
     }
