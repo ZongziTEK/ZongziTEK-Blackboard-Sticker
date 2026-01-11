@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using dotnetCampus.Ipc.Context;
 using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Interfaces;
 using ZongziTEK_Blackboard_Sticker.Shared.IPC;
@@ -39,7 +40,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
         public async Task StartAsync(CancellationToken _)
         {
-            _ipcProvider = new IpcProvider("ZongziTEK_Blackboard_Sticker");
+            _ipcProvider = new IpcProvider("ZongziTEK_Blackboard_Sticker", new IpcConfiguration { AutoReconnectPeers = true });
             _ipcDirectRoutedProvider = new JsonIpcDirectRoutedProvider(_ipcProvider);
 
             // add notify handler
@@ -73,9 +74,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private async void OnClassIslandTimetableUpdated()
         {
             ConsoleHelper.WriteLog("ClassIsland 课程表变化", "info");
-            _timetableShared = await _connectService.GetCurrentTimetable();
-
-            UpdateMainWindowTimetable();
+            await UpdateMainWindowTimetable();
         }
 
         private async void OnIsTimetableSyncEnabledChanged()
@@ -83,11 +82,13 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             ConsoleHelper.WriteLog("IsTimetableSyncEnabled 变化", "info");
             _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
 
-            UpdateMainWindowTimetable();
+            await UpdateMainWindowTimetable();
         }
 
-        private void UpdateMainWindowTimetable()
+        private async Task UpdateMainWindowTimetable()
         {
+            _timetableShared = await _connectService.GetCurrentTimetable();
+
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
