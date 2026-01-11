@@ -1,17 +1,14 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using Sentry;
 using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Data;
-using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
-using AutoUpdaterDotNET;
-using System.Globalization;
 using ZongziTEK_Blackboard_Sticker.Helpers;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using Sentry;
 using ZongziTEK_Blackboard_Sticker.Services;
+using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace ZongziTEK_Blackboard_Sticker
 {
@@ -27,6 +24,8 @@ namespace ZongziTEK_Blackboard_Sticker
 
         public App()
         {
+            ConsoleHelper.WriteZongziTEK();
+
             SentrySdk.Init(o =>
             {
                 // Tells which project in Sentry to send events to:
