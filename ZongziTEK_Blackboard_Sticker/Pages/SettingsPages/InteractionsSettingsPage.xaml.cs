@@ -49,6 +49,9 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             }
 
             MainWindow.SaveSettings();
+
+            var mainWindow = App.Current.MainWindow as MainWindow;
+            if (mainWindow != null) mainWindow.LoadTimetableOrCurriculum();
         }
 
         private void InteractionsSettingsPage_OnUnloaded(object sender, RoutedEventArgs e)

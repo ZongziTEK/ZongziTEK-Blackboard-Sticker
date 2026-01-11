@@ -87,7 +87,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
         private async Task UpdateMainWindowTimetable()
         {
-            _timetableShared = await _connectService.GetCurrentTimetable();
+            if (_connectService != null) _timetableShared = await _connectService.GetCurrentTimetable();
 
             App.Current.Dispatcher.Invoke(() =>
             {

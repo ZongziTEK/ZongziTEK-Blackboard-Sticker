@@ -30,7 +30,8 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             InitializeComponent();
 
-            if (App.ServiceManager.GetService<ClassIslandConnectorService>().IsTimetableSyncEnabled)
+            var classIslandConnectorService = App.ServiceManager.GetService<ClassIslandConnectorService>();
+            if (classIslandConnectorService != null && classIslandConnectorService.IsTimetableSyncEnabled)
             {
                 InfoBarSharedTimetableEnabled.IsOpen = true;
             }

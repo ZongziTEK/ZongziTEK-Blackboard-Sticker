@@ -17,7 +17,7 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <ui:FontIcon Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Icon="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TextBoxCard}, Mode=FindAncestor}, Path=Icon}" FontSize="20"/>
-            <ikw:SimpleStackPanel Spacing="2" Grid.Column="1" VerticalAlignment="Center">
+            <ikw:SimpleStackPanel Spacing="0" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" FontSize="14" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TextBoxCard}, Mode=FindAncestor}, Path=Header}"/>
                 <TextBlock Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextEmptyToCollapsedConverter}}" Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" Opacity="0.75" FontSize="12" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TextBoxCard}, Mode=FindAncestor}, Path=Tip}"/>
             </ikw:SimpleStackPanel>
