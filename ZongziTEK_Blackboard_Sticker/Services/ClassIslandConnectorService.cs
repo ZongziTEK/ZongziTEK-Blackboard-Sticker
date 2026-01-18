@@ -71,6 +71,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             _peerProxy = await _ipcProvider.GetAndConnectToPeerAsync("ZongziTEK_Blackboard_Sticker_Connector");
             _connectService = _ipcProvider.CreateIpcProxy<IConnectService>(_peerProxy);
             ConsoleHelper.WriteLog("连接到 ClassIsland 成功", "info");
+            _isConnected = true;
 
             // get initial value
             _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
@@ -82,6 +83,8 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
         public async Task StopAsync(CancellationToken _)
         {
+            OnClassIslandPluginConnectionStopped();
+
             if (_ipcDirectRoutedProvider != null)
             {
                 _ipcDirectRoutedProvider.IpcProvider.Dispose();
@@ -104,6 +107,8 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
+
+                if (mainWindow == null) return;
 
                 mainWindow.LoadTimetableOrCurriculum();
                 ConsoleHelper.WriteLog("由 ClassIsland Connector 还原为本地课程表", "info");
