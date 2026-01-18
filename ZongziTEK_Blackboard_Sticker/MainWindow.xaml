@@ -13,7 +13,7 @@
         Drop="window_Drop" Activated="window_Activated" StateChanged="window_StateChanged"
         ui:ThemeManager.RequestedTheme="Light" AllowsTransparency="True">
 
-    <Grid>
+    <Grid Name="GridRoot">
         <Grid.LayoutTransform>
             <ScaleTransform x:Name="windowScale" ScaleX="{Binding WindowScaleMultiplier}" ScaleY="{Binding WindowScaleMultiplier}"/>
         </Grid.LayoutTransform>

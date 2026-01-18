@@ -9,4 +9,6 @@ public interface IConnectService
 {
     Task<List<Lesson>> GetCurrentTimetable();
     Task<bool> GetIsTimetableSyncEnabled();
+    Task<double> GetIslandTerritoryHeight();
+    Task<int> GetIslandDockingLocation();
 }

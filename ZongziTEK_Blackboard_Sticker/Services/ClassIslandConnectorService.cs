@@ -48,6 +48,11 @@ namespace ZongziTEK_Blackboard_Sticker.Services
                 "ZongziTEK_Blackboard_Sticker_Connector.IsTimetableSyncEnabledChanged",
                 OnIsTimetableSyncEnabledChanged);
             ConsoleHelper.WriteLog("订阅 IsTimetableSyncEnabledChanged 事件", "info");
+
+            _ipcDirectRoutedProvider!.AddNotifyHandler(
+                "ZongziTEK_Blackboard_Sticker_Connector.IslandTerritoryChanged",
+                OnIslandTerritoryChanged);
+            ConsoleHelper.WriteLog("订阅 IslandTerritoryChanged 事件", "info");
         }
 
         public async Task StartAsync(CancellationToken _)
@@ -72,6 +77,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
 
             // call methods once
             UpdateMainWindowTimetable();
+            OnIslandTerritoryChanged();
         }
 
         public async Task StopAsync(CancellationToken _)
@@ -83,7 +89,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             }
         }
 
-        private void OnClassIslandPluginConnectionStarted() // 接收到通知时触发
+        private async Task OnClassIslandPluginConnectionStarted() // 接收到通知时触发
         {
             ConsoleHelper.WriteLog("ClassIsland 插件 ConnectService 启动完毕事件触发", "info");
             _isConnected = true;
@@ -98,8 +104,12 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
+
                 mainWindow.LoadTimetableOrCurriculum();
                 ConsoleHelper.WriteLog("由 ClassIsland Connector 还原为本地课程表", "info");
+
+                mainWindow.Creep(0, true);
+                ConsoleHelper.WriteLog("取消避让 ClassIsland 主界面", "info");
             });
         }
 
@@ -115,6 +125,21 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
 
             await UpdateMainWindowTimetable();
+        }
+
+        private async void OnIslandTerritoryChanged()
+        {
+            var islandTerritoryHeight = await _connectService.GetIslandTerritoryHeight();
+            var islandDockingLocation = await _connectService.GetIslandDockingLocation();
+            bool isTop = islandDockingLocation <= 2;
+
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                var mainWindow = App.Current.MainWindow as MainWindow;
+                mainWindow.Creep(islandTerritoryHeight - 16, isTop);
+            });
+
+            ConsoleHelper.WriteLog("黑板贴避让 ClassIsland 主界面", "info");
         }
 
         private async Task UpdateMainWindowTimetable()

@@ -213,6 +213,22 @@ namespace ZongziTEK_Blackboard_Sticker
             Top = 0;
         }
 
+        public void Creep(double marginVertical, bool isTop)
+        {
+            var previousMargin = GridRoot.Margin;
+            var newMargin = isTop ? new Thickness(0, marginVertical, 0, 0) : new Thickness(0, 0, 0, marginVertical);
+
+            ThicknessAnimation marginAnimation = new()
+            {
+                From = previousMargin,
+                To = newMargin,
+                Duration = TimeSpan.FromMilliseconds(500),
+                EasingFunction = new CircleEase() { EasingMode = EasingMode.EaseInOut }
+            };
+
+            GridRoot.BeginAnimation(MarginProperty, marginAnimation);
+        }
+
         private async void iconSwitchLeft_MouseDown(object sender, MouseButtonEventArgs e)
         {
             window.BeginAnimation(LeftProperty, null);
