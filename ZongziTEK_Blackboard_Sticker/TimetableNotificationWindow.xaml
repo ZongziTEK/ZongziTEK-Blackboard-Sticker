@@ -6,7 +6,11 @@
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
         xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker"
         mc:Ignorable="d"
-        Title="ZongziTEK 黑板贴 - 通知" Height="192" d:Width="1600" Top="0" Left="0" WindowStyle="None" Background="#00000000" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize"
+        Title="ZongziTEK 黑板贴 - 通知" 
+        Height="192" d:Width="1600" Top="0" Left="0" 
+        WindowStyle="None" 
+        Background="#00000000" 
+        Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize"
         Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid Name="GridNotification">
         <Border Name="BorderShadowEffect" Height="{Binding ActualHeight, ElementName=BorderNotification, Mode=OneWay}" 

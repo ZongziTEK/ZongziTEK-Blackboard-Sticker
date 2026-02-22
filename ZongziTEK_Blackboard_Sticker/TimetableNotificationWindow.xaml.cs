@@ -278,6 +278,10 @@ namespace ZongziTEK_Blackboard_Sticker
 
             await Task.Delay(500);
 
+            Height = BorderNotification.ActualHeight + BorderNotification.Margin.Top;
+            Width = BorderNotification.ActualWidth;
+            Left = (SystemParameters.WorkArea.Width - Width) / 2;
+
             DoubleAnimation barOpacityAppearAnimation = new()
             {
                 From = 0,
