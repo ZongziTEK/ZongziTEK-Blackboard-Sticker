@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Page = iNKORE.UI.WPF.Modern.Controls.Page;
 using Newtonsoft.Json;
 using ZongziTEK_Blackboard_Sticker.Helpers.Weather;
 using static ZongziTEK_Blackboard_Sticker.Helpers.Weather.WeatherHelper;
@@ -33,17 +34,21 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
         {
             InitializeComponent();
 
-            Timer_Tick(null, null);
-
             timer.Interval = TimeSpan.FromMinutes(30);
             timer.Tick += Timer_Tick;
-            timer.Start();
 
-            MainWindow.Settings.InfoBoard.PropertyChanged += InfoBoard_PropertyChanged;
+            Loaded += Page_Loaded;
             Unloaded += Page_Unloaded;
         }
 
         private DispatcherTimer timer = new DispatcherTimer();
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            Timer_Tick(null, null);
+            MainWindow.Settings.InfoBoard.PropertyChanged += InfoBoard_PropertyChanged;
+            timer.Start();
+        }
 
         private ForecastDaily forecastWeather = new();
 
@@ -243,8 +248,6 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
         private void Page_Unloaded(object sender, EventArgs e)
         {
             timer.Stop();
-            timer.Tick -= Timer_Tick;
-            Unloaded -= Page_Unloaded;
             MainWindow.Settings.InfoBoard.PropertyChanged -= InfoBoard_PropertyChanged;
         }
     }

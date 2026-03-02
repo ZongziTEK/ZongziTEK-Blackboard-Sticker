@@ -1,4 +1,4 @@
-﻿<Page x:Class="ZongziTEK_Blackboard_Sticker.Pages.DatePage"
+﻿<ui:Page x:Class="ZongziTEK_Blackboard_Sticker.Pages.DatePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -17,4 +17,4 @@
             </ikw:SimpleStackPanel>
         </Viewbox>
     </Grid>
-</Page>
+</ui:Page>

@@ -3,6 +3,7 @@ using iNKORE.UI.WPF.Modern.Controls.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,24 +70,12 @@ namespace ZongziTEK_Blackboard_Sticker
         private bool isNotificationMinimized = false;
         private bool isNotificationHidden = false;
 
+        private HwndSource? _hwndSource;
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ((HwndSource)PresentationSource.FromVisual(this)).AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
-            {
-                //想要让窗口透明穿透鼠标和触摸等，需要同时设置 WS_EX_LAYERED 和 WS_EX_TRANSPARENT 样式，
-                //确保窗口始终有 WS_EX_LAYERED 这个样式，并在开启穿透时设置 WS_EX_TRANSPARENT 样式
-                //但是WPF窗口在未设置 AllowsTransparency = true 时，会自动去掉 WS_EX_LAYERED 样式（在 HwndTarget 类中)，
-                //如果设置了 AllowsTransparency = true 将使用WPF内置的低性能的透明实现，
-                //所以这里通过 Hook 的方式，在不使用WPF内置的透明实现的情况下，强行保证这个样式存在。
-                if (msg == (int)0x007C && (long)wParam == (long)-20)
-                {
-                    var styleStruct = (WindowsHelper.StyleStruct)Marshal.PtrToStructure(lParam, typeof(WindowsHelper.StyleStruct));
-                    styleStruct.styleNew |= (int)WindowsHelper.WS_EX_LAYERED;
-                    Marshal.StructureToPtr(styleStruct, lParam, false);
-                    handled = true;
-                }
-                return IntPtr.Zero;
-            });
+            _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+            _hwndSource.AddHook(WndProc);
 
             //Timer_Tick(null, null);
             ShowNotification();
@@ -100,10 +89,32 @@ namespace ZongziTEK_Blackboard_Sticker
             RectangleProgressBar.BeginAnimation(WidthProperty, barWidthAnimation);
         }
 
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            //想要让窗口透明穿透鼠标和触摸等，需要同时设置 WS_EX_LAYERED 和 WS_EX_TRANSPARENT 样式，
+            //确保窗口始终有 WS_EX_LAYERED 这个样式，并在开启穿透时设置 WS_EX_TRANSPARENT 样式
+            //但是WPF窗口在未设置 AllowsTransparency = true 时，会自动去掉 WS_EX_LAYERED 样式（在 HwndTarget 类中)，
+            //如果设置了 AllowsTransparency = true 将使用WPF内置的低性能的透明实现，
+            //所以这里通过 Hook 的方式，在不使用WPF内置的透明实现的情况下，强行保证这个样式存在。
+            if (msg == (int)0x007C && (long)wParam == (long)-20)
+            {
+                var styleStruct = (WindowsHelper.StyleStruct)Marshal.PtrToStructure(lParam, typeof(WindowsHelper.StyleStruct));
+                styleStruct.styleNew |= (int)WindowsHelper.WS_EX_LAYERED;
+                Marshal.StructureToPtr(styleStruct, lParam, false);
+                handled = true;
+            }
+            return IntPtr.Zero;
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             timeTimer.Stop();
             timeTimer.Tick -= Timer_Tick;
+
+            if (_hwndSource != null)
+            {
+                _hwndSource.RemoveHook(WndProc);
+            }
         }
 
         private DispatcherTimer timeTimer = new()

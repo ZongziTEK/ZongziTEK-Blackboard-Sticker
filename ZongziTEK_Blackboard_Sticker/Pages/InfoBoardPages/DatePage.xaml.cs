@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Page = iNKORE.UI.WPF.Modern.Controls.Page;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages
 {
@@ -25,17 +26,21 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
         {
             InitializeComponent();
 
-            Timer_Tick(null, null);
-
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(500);
             timer.Tick += Timer_Tick;
-            timer.Start();
 
+            Loaded += Page_Loaded;
             Unloaded += Page_Unloaded;
         }
 
         private DispatcherTimer timer;
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            Timer_Tick(null, null);
+            timer.Start();
+        }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -46,8 +51,6 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
         private void Page_Unloaded(object sender, EventArgs e)
         {
             timer.Stop();
-            timer.Tick -= Timer_Tick;
-            Unloaded -= Page_Unloaded;
         }
     }
 }

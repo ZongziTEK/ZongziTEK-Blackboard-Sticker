@@ -1983,7 +1983,7 @@ namespace ZongziTEK_Blackboard_Sticker
         #endregion
 
         #region InfoBoard
-        public List<Type> frameInfoPages = new();
+        public List<Page> frameInfoPages = new();
         private int frameInfoPageIndex = 0;
         private DispatcherTimer frameInfoNavigationTimer = new DispatcherTimer();
 
@@ -2016,10 +2016,10 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             frameInfoPages.Clear();
 
-            if (Settings.InfoBoard.isDatePageEnabled) frameInfoPages.Add(typeof(DatePage));
-            if (Settings.InfoBoard.isCountdownPageEnabled) frameInfoPages.Add(typeof(CountdownPage));
-            if (Settings.InfoBoard.isWeatherPageEnabled) frameInfoPages.Add(typeof(WeatherPage));
-            if (Settings.InfoBoard.isWeatherForecastPageEnabled) frameInfoPages.Add(typeof(WeatherForecastPage));
+            if (Settings.InfoBoard.isDatePageEnabled) frameInfoPages.Add(new DatePage());
+            if (Settings.InfoBoard.isCountdownPageEnabled) frameInfoPages.Add(new CountdownPage());
+            if (Settings.InfoBoard.isWeatherPageEnabled) frameInfoPages.Add(new WeatherPage());
+            if (Settings.InfoBoard.isWeatherForecastPageEnabled) frameInfoPages.Add(new WeatherForecastPage());
 
             if (frameInfoPages.Count == 0) return;
 

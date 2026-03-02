@@ -1,4 +1,4 @@
-﻿<Page x:Class="ZongziTEK_Blackboard_Sticker.Pages.CountdownPage"
+﻿<ui:Page x:Class="ZongziTEK_Blackboard_Sticker.Pages.CountdownPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -19,4 +19,4 @@
             </StackPanel>
         </Viewbox>
     </Grid>
-</Page>
+</ui:Page>
