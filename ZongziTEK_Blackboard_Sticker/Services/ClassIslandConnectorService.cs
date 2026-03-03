@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using dotnetCampus.Ipc.Context;
+using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Interfaces;
 using ZongziTEK_Blackboard_Sticker.Shared.IPC;

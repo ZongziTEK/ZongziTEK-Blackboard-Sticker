@@ -38,6 +38,11 @@
                         </ComboBox>
                     </card:GenericSettingsCard.CardContent>
                 </card:GenericSettingsCard>
+                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.Desktop_20_Regular}" Header="显示器">
+                    <card:GenericSettingsCard.CardContent>
+                        <ComboBox MinWidth="180" ItemsSource="{Binding Monitors, RelativeSource={RelativeSource AncestorType=local:LookSettingsPage}}" SelectedIndex="{Binding TargetMonitor}" DisplayMemberPath="Name" SelectionChanged="ComboBoxMonitor_SelectionChanged"/>
+                    </card:GenericSettingsCard.CardContent>
+                </card:GenericSettingsCard>
                 <card:ToggleSwitchCard x:Name="ToggleSwitchIsWindowChromeDisabled" 
                                        Icon="{x:Static ui:FluentSystemIcons.Code_20_Regular}" 
                                        Header="禁用 WindowChrome" Tip="开启后，将使用 AllowTransparency 代替 WindowChrome。若黑板贴背景完全不透明，请开启此设置项"

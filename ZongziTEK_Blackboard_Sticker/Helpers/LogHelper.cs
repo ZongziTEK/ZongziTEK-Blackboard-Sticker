@@ -16,11 +16,6 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers
             WriteLogToFile(str, LogType.Info);
         }
 
-        public static void NewLog(Exception ex)
-        {
-
-        }
-
         public static void WriteLogToFile(string str, LogType logType = LogType.Info)
         {
             string strLogType = "Info";

@@ -93,7 +93,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Classes\CornerRadiusAnimation.cs" />
+    <Compile Include="Models\CornerRadiusAnimation.cs" />
     <Compile Include="Helpers\ConsoleHelper.cs" />
     <Compile Include="Helpers\WeatherHelper.cs" />
     <Compile Include="Controls\Cards\GenericSettingsCard.xaml.cs">
@@ -358,7 +358,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Classes\Timetable.cs" />
+    <Compile Include="Models\Timetable.cs" />
     <Compile Include="Helpers\WindowsHelper.cs" />
     <Compile Include="Helpers\FileUtility.cs" />
     <Compile Include="FullScreenClock.xaml.cs">
@@ -367,8 +367,8 @@
     <Compile Include="LauncherEditor.xaml.cs">
       <DependentUpon>LauncherEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Classes\Settings.cs" />
-    <Compile Include="Classes\Curriculums.cs" />
+    <Compile Include="Models\Settings.cs" />
+    <Compile Include="Models\Curriculums.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

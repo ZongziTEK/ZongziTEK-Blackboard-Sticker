@@ -1,6 +1,7 @@
 ﻿using dotnetCampus.Ipc.CompilerServices.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ZongziTEK_Blackboard_Sticker.Models;
 
 namespace ZongziTEK_Blackboard_Sticker.Shared.IPC;
 

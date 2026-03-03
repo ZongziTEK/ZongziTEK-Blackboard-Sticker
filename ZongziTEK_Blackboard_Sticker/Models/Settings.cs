@@ -1,11 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms;
-using Newtonsoft.Json;
-using ZongziTEK_Blackboard_Sticker.Helpers;
 
-namespace ZongziTEK_Blackboard_Sticker
+namespace ZongziTEK_Blackboard_Sticker.Models
 {
     public class Settings : INotifyPropertyChanged
     {
@@ -234,6 +231,20 @@ namespace ZongziTEK_Blackboard_Sticker
                 if (_isWindowChromeDisabled != value)
                 {
                     _isWindowChromeDisabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _targetMonitor = 0;
+        public int TargetMonitor
+        {
+            get => _targetMonitor;
+            set
+            {
+                if (_targetMonitor != value)
+                {
+                    _targetMonitor = value;
                     OnPropertyChanged();
                 }
             }

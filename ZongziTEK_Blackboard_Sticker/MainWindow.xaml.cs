@@ -1,38 +1,35 @@
-﻿using Microsoft.Win32;
+﻿using AutoUpdaterDotNET;
+using iNKORE.UI.WPF.Controls;
+using iNKORE.UI.WPF.Modern;
+using iNKORE.UI.WPF.Modern.Controls;
+using IWshRuntimeLibrary;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Drawing = System.Drawing;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Input.StylusPlugIns;
-using System.Windows.Media;
-using System.Windows.Threading;
-using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
-using File = System.IO.File;
-using IWshRuntimeLibrary;
-using System.Windows.Media.Imaging;
-using System.Threading.Tasks;
-using ZongziTEK_Blackboard_Sticker.Helpers;
-using iNKORE.UI.WPF.Modern;
-using iNKORE.UI.WPF.Modern.Controls;
-using Page = iNKORE.UI.WPF.Modern.Controls.Page;
-using System.Reflection;
-using AutoUpdaterDotNET;
-using System.Windows.Media.Animation;
-using ZongziTEK_Blackboard_Sticker.Pages;
 using System.Windows.Interop;
-using iNKORE.UI.WPF.Controls;
-using ScrollViewerBehavior = ZongziTEK_Blackboard_Sticker.Helpers.ScrollViewerBehavior;
-using Sentry;
-using iNKORE.UI.WPF.Modern.Controls.Helpers;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK_Blackboard_Sticker.Models;
+using ZongziTEK_Blackboard_Sticker.Pages;
 using ZongziTEK_Blackboard_Sticker.Services;
+using Drawing = System.Drawing;
+using File = System.IO.File;
+using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
+using Page = iNKORE.UI.WPF.Modern.Controls.Page;
+using ScrollViewerBehavior = ZongziTEK_Blackboard_Sticker.Helpers.ScrollViewerBehavior;
 
 namespace ZongziTEK_Blackboard_Sticker
 {
@@ -196,16 +193,21 @@ namespace ZongziTEK_Blackboard_Sticker
             }
         }
 
+        // 没用
+        /*
         protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
         {
             base.OnDpiChanged(oldDpi, newDpi);
 
-            //处理 DPI 变化
-            if (MessageBox.Show("检测到系统 DPI 变化，为确保黑板贴显示正常，需要重启黑板贴。\r\n是否立即重启黑板贴？", "ZongziTEK 黑板贴", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            Dispatcher.BeginInvoke(() =>
             {
-                Restart();
-            }
+                if (MessageBox.Show("检测到系统 DPI 变化。为确保黑板贴显示正常，需要重启黑板贴。\r\n是否立即重启黑板贴？", "ZongziTEK 黑板贴", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    Restart();
+                }
+            });
         }
+        */
 
         private void SetWindowVerticalSize()
         {
@@ -236,10 +238,12 @@ namespace ZongziTEK_Blackboard_Sticker
             iconSwitchLeft.Visibility = Visibility.Collapsed;
             iconSwitchRight.Visibility = Visibility.Visible;
 
+            Rect targetWorkArea = GetTargetWorkArea();
+
             DoubleAnimation leftAnimation = new()
             {
                 From = Left,
-                To = 0,
+                To = targetWorkArea.Left,
                 Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CircleEase() { EasingMode = EasingMode.EaseInOut }
             };
@@ -257,10 +261,12 @@ namespace ZongziTEK_Blackboard_Sticker
             iconSwitchRight.Visibility = Visibility.Collapsed;
             iconSwitchLeft.Visibility = Visibility.Visible;
 
+            Rect targetWorkArea = GetTargetWorkArea();
+
             DoubleAnimation leftAnimation = new()
             {
                 From = Left,
-                To = Width,
+                To = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth),
                 Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CircleEase() { EasingMode = EasingMode.EaseInOut }
             };
@@ -2160,12 +2166,43 @@ namespace ZongziTEK_Blackboard_Sticker
             return false;
         }
 
+        public Rect GetTargetWorkArea()
+        {
+            List<Rect> monitorWorkAreas = new();
+            WindowsHelper.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (IntPtr hMonitor, IntPtr hdcMonitor, ref WindowsHelper.RECT lprcMonitor, IntPtr dwData) =>
+            {
+                WindowsHelper.MONITORINFO mi = new WindowsHelper.MONITORINFO();
+                mi.cbSize = Marshal.SizeOf(mi);
+                if (WindowsHelper.GetMonitorInfo(hMonitor, ref mi))
+                {
+                    WindowsHelper.GetDpiForMonitor(hMonitor, WindowsHelper.MonitorDpiType.Effective, out uint dpiX, out uint dpiY);
+                    double scaleX = dpiX / 96.0;
+                    monitorWorkAreas.Add(new Rect(mi.rcWork.Left / scaleX, mi.rcWork.Top / scaleX, (mi.rcWork.Right - mi.rcWork.Left) / scaleX, (mi.rcWork.Bottom - mi.rcWork.Top) / scaleX));
+                }
+                return true;
+            }, IntPtr.Zero);
+
+            int targetIndex = Settings.Look.TargetMonitor;
+            if (monitorWorkAreas.Count == 0)
+            {
+                monitorWorkAreas.Add(SystemParameters.WorkArea);
+                targetIndex = 0;
+            }
+            if (targetIndex < 0 || targetIndex >= monitorWorkAreas.Count) targetIndex = 0;
+            return monitorWorkAreas[targetIndex];
+        }
+
         public void SwitchLookMode(int mode)
         {
+            BeginAnimation(LeftProperty, null);
+
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
-            switch (mode)
-            {
+            Rect targetWorkArea = GetTargetWorkArea();
+
+            Left = targetWorkArea.Left;
+
+            switch (mode)            {
                 case 0: // 默认
                     BorderMain.ClearValue(WidthProperty);
                     BorderMain.ClearValue(HorizontalAlignmentProperty);
@@ -2179,8 +2216,7 @@ namespace ZongziTEK_Blackboard_Sticker
                     SwitchFrameInfoPage();
                     frameInfoNavigationTimer.Start();
 
-                    Width = SystemParameters.WorkArea.Width / 2;
-                    Left = Width;
+                    Width = targetWorkArea.Width / 2;
                     break;
 
                 case 1: // 简约（顶部为时钟）
@@ -2197,7 +2233,6 @@ namespace ZongziTEK_Blackboard_Sticker
                     if (frameInfoPages.Count > 0) FrameInfo.Navigate(frameInfoPages[0]);  // 切换到日期页面防止继续调用天气 API
 
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
-                    Left = SystemParameters.WorkArea.Width - ActualWidth;
                     break;
 
                 case 2: // 简约（顶部为看板）
@@ -2214,9 +2249,17 @@ namespace ZongziTEK_Blackboard_Sticker
                     frameInfoNavigationTimer.Start();
 
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
-                    Left = SystemParameters.WorkArea.Width - ActualWidth;
                     break;
             }
+
+            UpdateLayout();
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
+                Top = targetWorkArea.Top;
+                Height = targetWorkArea.Height;
+            }), DispatcherPriority.Render);
         }
 
         public static bool GetIsLightTheme()
