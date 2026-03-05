@@ -2196,11 +2196,10 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             BeginAnimation(LeftProperty, null);
 
-            double liteModeWidth = ColumnLauncher.ActualWidth;
-
             Rect targetWorkArea = GetTargetWorkArea();
-
             Left = targetWorkArea.Left;
+
+            double liteModeWidth = ColumnLauncher.ActualWidth;
 
             switch (mode)            {
                 case 0: // 默认
