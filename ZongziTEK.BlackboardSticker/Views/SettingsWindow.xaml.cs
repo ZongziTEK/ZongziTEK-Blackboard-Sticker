@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZongziTEK.BlackboardSticker.Pages.SettingsPages;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// SettingsWindow.xaml 的交互逻辑

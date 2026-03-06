@@ -20,7 +20,7 @@ using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK.BlackboardSticker.Services;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// TimetableEditor.xaml 的交互逻辑

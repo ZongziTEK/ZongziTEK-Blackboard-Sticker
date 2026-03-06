@@ -191,19 +191,19 @@
     </Compile>
     <Compile Include="Services\ClassIslandConnectorService.cs" />
     <Compile Include="Services\ServiceManager.cs" />
-    <Compile Include="SettingsWindow.xaml.cs">
+    <Compile Include="Views\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StrongNotificationWindow.xaml.cs">
+    <Compile Include="Views\StrongNotificationWindow.xaml.cs">
       <DependentUpon>StrongNotificationWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TimetableEditor.xaml.cs">
+    <Compile Include="Views\TimetableEditor.xaml.cs">
       <DependentUpon>TimetableEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TimetableNotificationWindow.xaml.cs">
+    <Compile Include="Views\TimetableNotificationWindow.xaml.cs">
       <DependentUpon>TimetableNotificationWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WelcomeWindow.xaml.cs">
+    <Compile Include="Views\WelcomeWindow.xaml.cs">
       <DependentUpon>WelcomeWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\Cards\GenericSettingsCard.xaml">
@@ -230,7 +230,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LauncherEditor.xaml">
+    <Page Include="Views\LauncherEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -330,11 +330,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SettingsWindow.xaml">
+    <Page Include="Views\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StrongNotificationWindow.xaml">
+    <Page Include="Views\StrongNotificationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -346,7 +346,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FullScreenClock.xaml">
+    <Page Include="Views\FullScreenClock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -361,10 +361,10 @@
     <Compile Include="Models\Timetable.cs" />
     <Compile Include="Helpers\WindowsHelper.cs" />
     <Compile Include="Helpers\FileUtility.cs" />
-    <Compile Include="FullScreenClock.xaml.cs">
+    <Compile Include="Views\FullScreenClock.xaml.cs">
       <DependentUpon>FullScreenClock.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LauncherEditor.xaml.cs">
+    <Compile Include="Views\LauncherEditor.xaml.cs">
       <DependentUpon>LauncherEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Settings.cs" />
@@ -373,15 +373,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TimetableEditor.xaml">
+    <Page Include="Views\TimetableEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TimetableNotificationWindow.xaml">
+    <Page Include="Views\TimetableNotificationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WelcomeWindow.xaml">
+    <Page Include="Views\WelcomeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

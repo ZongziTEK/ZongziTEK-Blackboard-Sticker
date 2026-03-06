@@ -25,11 +25,11 @@ using ZongziTEK.BlackboardSticker.Helpers;
 using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK.BlackboardSticker.Pages;
 using ZongziTEK.BlackboardSticker.Services;
+using ZongziTEK.BlackboardSticker.Views;
 using Drawing = System.Drawing;
 using File = System.IO.File;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 using Page = iNKORE.UI.WPF.Modern.Controls.Page;
-using ScrollViewerBehavior = ZongziTEK.BlackboardSticker.Helpers.ScrollViewerBehavior;
 
 namespace ZongziTEK.BlackboardSticker
 {

@@ -16,7 +16,7 @@ using System.Speech.Synthesis;
 using System.Windows.Media.Animation;
 using ZongziTEK.BlackboardSticker.Helpers;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// StrongNotificationWindow.xaml 的交互逻辑

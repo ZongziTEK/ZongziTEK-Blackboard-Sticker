@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZongziTEK.BlackboardSticker.Pages.WelcomePages;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// WelcomeWindow.xaml 的交互逻辑

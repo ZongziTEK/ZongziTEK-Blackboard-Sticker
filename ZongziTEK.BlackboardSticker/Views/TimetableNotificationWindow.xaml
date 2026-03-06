@@ -1,10 +1,10 @@
-﻿<Window x:Class="ZongziTEK.BlackboardSticker.TimetableNotificationWindow"
+﻿<Window x:Class="ZongziTEK.BlackboardSticker.Views.TimetableNotificationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
-        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
+        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker.Views"
         mc:Ignorable="d"
         Title="ZongziTEK 黑板贴 - 通知" 
         Height="192" d:Width="1600" Top="0" Left="0" 
@@ -45,7 +45,7 @@
                         <TextBlock Name="TextTitle" Foreground="White" FontSize="48" d:Text="数学课 即将开始" FontWeight="Bold"/>
                         <TextBlock Name="TextSubtitle" Foreground="White" FontSize="18" d:Text="此课程将从 07:25 开始，到 08:05 结束" Opacity="0.75" Visibility="{Binding Text, Converter={StaticResource TextEmptyToCollapsedConverter}, ElementName=TextSubtitle}"/>
                     </ikw:SimpleStackPanel>
-                    <TextBlock Name="TextTime" Grid.Column="2" Foreground="White" FontSize="64" d:Text="30" VerticalAlignment="Center" Margin="48,0" FontFamily="Resources/Fonts/#Digital-7 Mono"/>
+                    <TextBlock Name="TextTime" Grid.Column="2" Foreground="White" FontSize="64" d:Text="30" VerticalAlignment="Center" Margin="48,0" FontFamily="../Resources/Fonts/#Digital-7 Mono"/>
                 </Grid>
                 <Grid Name="GridSmall" Width="480" Height="48" Visibility="Collapsed" d:Visibility="Visible" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>

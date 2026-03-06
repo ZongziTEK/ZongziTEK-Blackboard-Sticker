@@ -21,7 +21,7 @@ using System.Windows.Threading;
 using ZongziTEK.BlackboardSticker.Helpers;
 using ZongziTEK.BlackboardSticker.Models;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// TimetableNotificationWindow.xaml 的交互逻辑

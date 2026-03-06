@@ -1,9 +1,9 @@
-﻿<Window x:Class="ZongziTEK.BlackboardSticker.FullScreenClock"
+﻿<Window x:Class="ZongziTEK.BlackboardSticker.Views.FullScreenClock"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
+        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker.Views"
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
         mc:Ignorable="d"
         Title="ZongziTEK 黑板贴 - 全屏时钟" d:Height="900" d:Width="1600" Top="0" Left="0" Margin="0,0,2,0"
@@ -13,7 +13,7 @@
         <Grid>
             <Viewbox Name="ViewboxClock" Margin="100">
                 <TextBlock x:Name="textBlockBigClock" Foreground="White"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Resources/Fonts/#Digital-7 Mono" Text="--:--:--"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="../Resources/Fonts/#Digital-7 Mono" Text="--:--:--"
                        x:FieldModifier="public"/>
             </Viewbox>
         </Grid>

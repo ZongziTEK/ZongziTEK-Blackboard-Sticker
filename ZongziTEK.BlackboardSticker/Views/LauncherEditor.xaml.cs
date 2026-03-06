@@ -24,7 +24,7 @@ using Drawing = System.Drawing;
 using File = System.IO.File;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
-namespace ZongziTEK.BlackboardSticker
+namespace ZongziTEK.BlackboardSticker.Views
 {
     /// <summary>
     /// LauncherEditor.xaml 的交互逻辑
