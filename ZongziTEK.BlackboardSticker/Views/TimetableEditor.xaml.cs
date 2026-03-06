@@ -37,11 +37,11 @@ namespace ZongziTEK.BlackboardSticker.Views
                 InfoBarSharedTimetableEnabled.IsOpen = true;
             }
 
-            if (File.Exists(MainWindow.GetDataPath() + MainWindow.timetableFileName))
+            if (File.Exists(MainWindow.GetDataPath() + MainWindow.TimetableFileName))
             {
                 try
                 {
-                    string text = File.ReadAllText(MainWindow.GetDataPath() + MainWindow.timetableFileName);
+                    string text = File.ReadAllText(MainWindow.GetDataPath() + MainWindow.TimetableFileName);
                     Timetable = JsonConvert.DeserializeObject<Timetable>(text);
                 }
                 catch { }
@@ -80,7 +80,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             string text = JsonConvert.SerializeObject(Timetable, Formatting.Indented);
             try
             {
-                File.WriteAllText(MainWindow.GetDataPath() + MainWindow.timetableFileName, text);
+                File.WriteAllText(MainWindow.GetDataPath() + MainWindow.TimetableFileName, text);
             }
             catch { }
             isEdited = false;
@@ -362,7 +362,7 @@ namespace ZongziTEK.BlackboardSticker.Views
         private void AutoSelectTimetableToEdit()
         {
 
-            switch (MainWindow.timetableToShow_index)
+            switch (MainWindow.TimetableToShowIndex)
             {
                 case 1: // 周一
                     ComboBoxDay.SelectedIndex = 0;

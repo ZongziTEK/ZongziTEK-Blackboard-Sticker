@@ -43,33 +43,33 @@ namespace ZongziTEK.BlackboardSticker.Views
 
             Width = SystemParameters.WorkArea.Width;
 
-            totalTime = TimeSpan.FromSeconds(time);
-            timeLeft = totalTime;
-            timeToHide = DateTime.Now.TimeOfDay + timeLeft;
+            _totalTime = TimeSpan.FromSeconds(time);
+            _timeLeft = _totalTime;
+            _timeToHide = DateTime.Now.TimeOfDay + _timeLeft;
 
             TextTitle.Text = title;
             TextSubtitle.Text = subtitle;
 
-            timeTimer.Tick += Timer_Tick;
-            timeTimer.Start();
+            _timeTimer.Tick += Timer_Tick;
+            _timeTimer.Start();
 
             GridNotification.Opacity = 0;
 
             if (!isTextTimeVisible)
-            {
+            { 
                 TextTime.Visibility = Visibility.Hidden;
-                isTimeHidden = true;
+                _isTimeHidden = true;
             }
 
-            TextTime.Text = (timeLeft.TotalSeconds - 1).ToString("00");
+            TextTime.Text = (_timeLeft.TotalSeconds - 1).ToString("00");
         }
 
-        private TimeSpan totalTime;
-        private TimeSpan timeLeft;
-        private TimeSpan timeToHide;
-        private bool isTimeHidden = false;
-        private bool isNotificationMinimized = false;
-        private bool isNotificationHidden = false;
+        private TimeSpan _totalTime;
+        private TimeSpan _timeLeft;
+        private TimeSpan _timeToHide;
+        private bool _isTimeHidden = false;
+        private bool _isNotificationMinimized = false;
+        private bool _isNotificationHidden = false;
 
         private HwndSource? _hwndSource;
 
@@ -85,7 +85,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             {
                 From = BorderNotification.ActualWidth,
                 To = 0,
-                Duration = totalTime
+                Duration = _totalTime
             };
             RectangleProgressBar.BeginAnimation(WidthProperty, barWidthAnimation);
         }
@@ -109,8 +109,8 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            timeTimer.Stop();
-            timeTimer.Tick -= Timer_Tick;
+            _timeTimer.Stop();
+            _timeTimer.Tick -= Timer_Tick;
 
             if (_hwndSource != null)
             {
@@ -118,24 +118,24 @@ namespace ZongziTEK.BlackboardSticker.Views
             }
         }
 
-        private DispatcherTimer timeTimer = new()
+        private DispatcherTimer _timeTimer = new()
         {
             Interval = TimeSpan.FromMilliseconds(10)
         };
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            timeLeft = timeToHide - DateTime.Now.TimeOfDay;
-            TextTime.Text = timeLeft.TotalSeconds.ToString("00");
+            _timeLeft = _timeToHide - DateTime.Now.TimeOfDay;
+            TextTime.Text = _timeLeft.TotalSeconds.ToString("00");
 
-            if (timeLeft.TotalSeconds <= 1)
+            if (_timeLeft.TotalSeconds <= 1)
             {
-                if (!isTimeHidden)
+                if (!_isTimeHidden)
                     HideTime();
             }
-            if (timeLeft <= TimeSpan.Zero)
+            if (_timeLeft <= TimeSpan.Zero)
             {
-                if (!isNotificationHidden)
+                if (!_isNotificationHidden)
                     HideNotification();
             }
         }
@@ -164,7 +164,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private async void HideNotification()
         {
-            isNotificationHidden = true;
+            _isNotificationHidden = true;
 
             DoubleAnimation opacityAnimation = new()
             {
@@ -191,7 +191,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void HideTime()
         {
-            isTimeHidden = true;
+            _isTimeHidden = true;
 
             DoubleAnimation opacityAnimaion = new()
             {
@@ -206,7 +206,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private async void MinimizeNotification()
         {
-            isNotificationMinimized = true;
+            _isNotificationMinimized = true;
 
             if (!MainWindow.Settings.TimetableSettings.IsClickToHideNotificationEnabled) // 当禁用点击隐藏通知时，允许在处于小岛模式时穿透鼠标事件
             {
@@ -304,9 +304,9 @@ namespace ZongziTEK.BlackboardSticker.Views
 
             DoubleAnimation barWidthAnimation = new()
             {
-                From = BorderNotification.ActualWidth * (timeLeft.TotalSeconds / totalTime.TotalSeconds),
+                From = BorderNotification.ActualWidth * (_timeLeft.TotalSeconds / _totalTime.TotalSeconds),
                 To = 0,
-                Duration = timeLeft
+                Duration = _timeLeft
             };
             RectangleProgressBar.BeginAnimation(WidthProperty, barWidthAnimation);
             RectangleProgressBar.BeginAnimation(OpacityProperty, barOpacityAppearAnimation);
@@ -314,11 +314,11 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void BorderNotification_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!isNotificationMinimized)
+            if (!_isNotificationMinimized)
             {
                 MinimizeNotification();
             }
-            else if (!isNotificationHidden)
+            else if (!_isNotificationHidden)
             {
                 if (MainWindow.Settings.TimetableSettings.IsClickToHideNotificationEnabled) HideNotification();
             }

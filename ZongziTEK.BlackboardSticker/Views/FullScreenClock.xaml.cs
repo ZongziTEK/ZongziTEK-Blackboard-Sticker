@@ -59,23 +59,23 @@ namespace ZongziTEK.BlackboardSticker.Views
 
             textBlockBigClock.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
 
-            clockTimer = new DispatcherTimer();
-            clockTimer.Tick += new EventHandler(Clock);
-            clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
-            clockTimer.Start();
+            _clockTimer = new DispatcherTimer();
+            _clockTimer.Tick += new EventHandler(Clock);
+            _clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            _clockTimer.Start();
         }
         private void Clock(object sender, EventArgs e)
         {
             textBlockBigClock.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
         }
 
-        private DispatcherTimer clockTimer;
-        bool isBorderToolBarShowing = false;
+        private DispatcherTimer _clockTimer;
+        private bool _isBorderToolBarShowing = false;
         private async void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!isBorderToolBarShowing)
+            if (!_isBorderToolBarShowing)
             {
-                isBorderToolBarShowing = true;
+                _isBorderToolBarShowing = true;
 
                 var BorderCloseBigClockThicknessAnimation = new ThicknessAnimation()
                 {
@@ -123,7 +123,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
                 BorderToolBar.Visibility = Visibility.Collapsed;
 
-                isBorderToolBarShowing = false;
+                _isBorderToolBarShowing = false;
             }
         }
 

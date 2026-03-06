@@ -37,7 +37,7 @@ namespace ZongziTEK.BlackboardSticker.Pages.SettingsPages
         {
             MainWindow.SaveSettings();
 
-            if (MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled && MainWindow.isSeewoServiceAssistantHided == false)
+            if (MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled && MainWindow.IsSeewoServiceAssistantHidden == false)
                 (Application.Current.MainWindow as MainWindow).timerHideSeewoServiceAssistant.Start();
             else
                 (Application.Current.MainWindow as MainWindow).timerHideSeewoServiceAssistant.Stop();

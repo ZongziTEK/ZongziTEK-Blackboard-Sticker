@@ -36,10 +36,10 @@ namespace ZongziTEK.BlackboardSticker.Views
             BeginSplashScreenAnimation();
         }
 
-        private int lastPageIndex = 0;
-        private int currentPageIndex = 0;
+        private int _lastPageIndex = 0; 
+        private int _currentPageIndex = 0;
 
-        private List<Type> pages = new()
+        private List<Type> _pages = new()
         {
             typeof(WelcomePage0),
             typeof(WelcomePage1),
@@ -50,21 +50,21 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void NavigationViewRoot_SelectionChanged(iNKORE.UI.WPF.Modern.Controls.NavigationView sender, iNKORE.UI.WPF.Modern.Controls.NavigationViewSelectionChangedEventArgs args)
         {
-            currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
+            _currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
 
             CheckButtonState();
 
-            if (currentPageIndex > lastPageIndex) FrameTransitionEffect.Effect = SlideNavigationTransitionEffect.FromRight;
+            if (_currentPageIndex > _lastPageIndex) FrameTransitionEffect.Effect = SlideNavigationTransitionEffect.FromRight;
             else FrameTransitionEffect.Effect = SlideNavigationTransitionEffect.FromLeft;
 
-            FrameRoot.Navigate(pages[currentPageIndex]);
+            FrameRoot.Navigate(_pages[_currentPageIndex]);
 
-            lastPageIndex = currentPageIndex;
+            _lastPageIndex = _currentPageIndex;
         }
 
         private async void CheckButtonState()
         {
-            if (currentPageIndex == 0)
+            if (_currentPageIndex == 0)
             {
                 HideElement(ButtonPrevious);
             }
@@ -72,7 +72,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             {
                 if (ButtonPrevious.Visibility != Visibility.Visible) ShowElement(ButtonPrevious);
             }
-            if (currentPageIndex == pages.Count - 1)
+            if (_currentPageIndex == _pages.Count - 1)
             {
                 HideElement(ButtonNext);
                 await Task.Delay(250);
@@ -91,13 +91,13 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void SwitchToNextPage()
         {
-            if (currentPageIndex < pages.Count - 1)
+            if (_currentPageIndex < _pages.Count - 1)
                 NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem) + 1];
         }
 
         private void SwitchToPreviousPage()
         {
-            if (currentPageIndex > 0)
+            if (_currentPageIndex > 0)
                 NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem) - 1];
         }
 
@@ -190,7 +190,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void ButtonFinish_Click(object sender, RoutedEventArgs e)
         {
-            if (currentPageIndex == pages.Count - 1) Close();
+            if (_currentPageIndex == _pages.Count - 1) Close();
         }
     }
 }

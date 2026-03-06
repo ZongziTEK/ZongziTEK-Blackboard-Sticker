@@ -27,7 +27,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[0];
         }
 
-        private List<Type> pages = new()
+        private List<Type> _pages = new()
         {
             typeof(BehaviorSettingsPage),
             typeof(LookSettingsPage),
@@ -44,7 +44,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
             if (currentPageIndex == -1) currentPageIndex = 6;
 
-            FrameRoot.Navigate(pages[currentPageIndex]);
+            FrameRoot.Navigate(_pages[currentPageIndex]);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
         }
 
-        private bool isAnimationDisabledOnce = false;
+        private bool _isAnimationDisabledOnce = false;
 
         private async void LoadList()
         {
@@ -165,7 +165,7 @@ namespace ZongziTEK.BlackboardSticker.Views
                     // 往编辑器里面添加按钮
                     ListStackPanel.Children.Add(BorderItem);
 
-                    if (!isAnimationDisabledOnce && MainWindow.Settings.Look.IsAnimationEnhanced)
+                    if (!_isAnimationDisabledOnce && MainWindow.Settings.Look.IsAnimationEnhanced)
                     {
                         DoubleAnimation opacityAnimation = new()
                         {
@@ -196,7 +196,7 @@ namespace ZongziTEK.BlackboardSticker.Views
             {
                 MessageBox.Show("加载列表时出现错误：\r\n" + e.Message);
             }
-            isAnimationDisabledOnce = false;
+            _isAnimationDisabledOnce = false;
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -208,7 +208,7 @@ namespace ZongziTEK.BlackboardSticker.Views
                 try
                 {
                     File.Delete(filePath);
-                    isAnimationDisabledOnce = true;
+                    _isAnimationDisabledOnce = true;
                     ButtonRefresh_Click(null, null);
                 }
                 catch (Exception ex) { MessageBox.Show("删除该项时出现错误：\r\n" + ex.Message); }
@@ -305,7 +305,7 @@ namespace ZongziTEK.BlackboardSticker.Views
 
         private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
-            isAnimationDisabledOnce = true;
+            _isAnimationDisabledOnce = true;
             ButtonRefresh_Click(null, null);
         }
     }
