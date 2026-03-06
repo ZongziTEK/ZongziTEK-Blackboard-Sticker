@@ -61,12 +61,15 @@ namespace ZongziTEK.BlackboardSticker.Views
 
             _clockTimer = new DispatcherTimer();
             _clockTimer.Tick += new EventHandler(Clock);
-            _clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            _clockTimer.Interval = TimeSpan.FromMilliseconds(100);
             _clockTimer.Start();
         }
         private void Clock(object sender, EventArgs e)
         {
-            textBlockBigClock.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
+            DateTime now = DateTime.Now;
+            textBlockBigClock.Text = now.ToString(("HH':'mm':'ss"));
+            
+            _clockTimer.Interval = TimeSpan.FromMilliseconds(1000 - now.Millisecond);
         }
 
         private DispatcherTimer _clockTimer;

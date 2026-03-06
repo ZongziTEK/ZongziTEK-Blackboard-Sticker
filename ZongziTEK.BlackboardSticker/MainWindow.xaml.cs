@@ -94,7 +94,7 @@ namespace ZongziTEK.BlackboardSticker
             textBlockTime.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
             _clockTimer = new DispatcherTimer();
             _clockTimer.Tick += ClockTimer_Tick;
-            _clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            _clockTimer.Interval = TimeSpan.FromMilliseconds(100);
             _clockTimer.Start();
 
             LoadFrameInfoPagesList();
@@ -105,7 +105,7 @@ namespace ZongziTEK.BlackboardSticker
             // 课程表
             _timetableTimer = new DispatcherTimer();
             _timetableTimer.Tick += CheckTimetable;
-            _timetableTimer.Interval = new TimeSpan(0, 0, 1);
+            _timetableTimer.Interval = TimeSpan.FromMilliseconds(1000);
             LoadTimetableOrCurriculum();
 
             // 颜色主题
@@ -1451,6 +1451,7 @@ namespace ZongziTEK.BlackboardSticker
                 _lastLessonIndex = _lessonIndex;
             }
 
+            _timetableTimer.Interval = TimeSpan.FromMilliseconds(1010 - DateTime.Now.Millisecond);
             _timetableTimer.Start();
         }
 
@@ -1603,7 +1604,10 @@ namespace ZongziTEK.BlackboardSticker
         #region Clock
         private void ClockTimer_Tick(object sender, EventArgs e)
         {
-            textBlockTime.Text = DateTime.Now.ToString("HH':'mm':'ss");
+            DateTime now = DateTime.Now;
+            textBlockTime.Text = now.ToString("HH':'mm':'ss");
+
+            _clockTimer.Interval = TimeSpan.FromMilliseconds(1000 - now.Millisecond);
         }
 
         private DispatcherTimer _clockTimer;
