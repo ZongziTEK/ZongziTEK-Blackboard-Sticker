@@ -1,0 +1,67 @@
+﻿<Window x:Class="ZongziTEK.BlackboardSticker.WelcomeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
+        mc:Ignorable="d"
+        Title="ZongziTEK 黑板贴 - 初始化设置" Height="600" Width="800" MinHeight="600" MinWidth="800"
+        ui:WindowHelper.FixMaximizedWindow="False" ui:WindowHelper.UseModernWindowStyle="True" ui:WindowHelper.SystemBackdropType="Mica" ui:TitleBar.MaximizeButtonAvailability="Collapsed"
+        ui:TitleBar.Height="48" ui:TitleBar.ExtendViewIntoTitleBar="True" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition/>
+            <RowDefinition Height="72"/>
+        </Grid.RowDefinitions>
+        <Grid Name="GridTitleBar" Grid.Row="0">
+            <Image Source="Resources/AppLogo.png" SnapsToDevicePixels="True" Width="16" HorizontalAlignment="Left" Margin="16,8"/>
+            <Label Margin="44,8" Content="ZongziTEK 黑板贴 - 初始设置" FontSize="12" VerticalAlignment="Center"/>
+        </Grid>
+        
+        <ui:NavigationView Name="NavigationViewRoot" Grid.Row="1" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationViewRoot_SelectionChanged" Margin="0,-12,0,0">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="欢迎"/>
+                <ui:NavigationViewItem Content="行为"/>
+                <ui:NavigationViewItem Content="外观"/>
+                <ui:NavigationViewItem Content="信息看板"/>
+                <ui:NavigationViewItem Content="开始使用"/>
+            </ui:NavigationView.MenuItems>
+            <ui:Frame Name="FrameRoot">
+                <ui:Frame.ContentTransitions>
+                    <ui:TransitionCollection>
+                        <ui:NavigationThemeTransition>
+                            <ui:SlideNavigationTransitionInfo x:Name="FrameTransitionEffect"/>
+                        </ui:NavigationThemeTransition>
+                    </ui:TransitionCollection>
+                </ui:Frame.ContentTransitions>
+            </ui:Frame>
+        </ui:NavigationView>
+        <Button x:Name="ButtonNext" Style="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonStyleKey}}" Grid.Row="2" HorizontalAlignment="Right" Margin="24,0" Height="32" Width="84" Click="ButtonNext_Click">
+            <ikw:SimpleStackPanel Spacing="4" Orientation="Horizontal">
+                <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonForegroundKey}}" Text="继续"/>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowRight_20_Regular}"/>
+            </ikw:SimpleStackPanel>
+        </Button>
+        <Button x:Name="ButtonFinish" Style="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonStyleKey}}" Grid.Row="2" HorizontalAlignment="Right" Margin="24,0" Height="32" Width="84" Click="ButtonFinish_Click" Visibility="Collapsed">
+            <ikw:SimpleStackPanel Spacing="4" Orientation="Horizontal">
+                <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonForegroundKey}}" Text="完成"/>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Checkmark_20_Regular}"/>
+            </ikw:SimpleStackPanel>
+        </Button>
+        <Button x:Name="ButtonPrevious" Grid.Row="2" HorizontalAlignment="Left" Margin="24,0" Height="32" Width="84" Click="ButtonPrevious_Click" Visibility="Collapsed">
+            <ikw:SimpleStackPanel Spacing="4" Orientation="Horizontal">
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowLeft_20_Regular}"/>
+                <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" Text="返回"/>
+            </ikw:SimpleStackPanel>
+        </Button>
+        <Grid x:Name="GridSplashScreen" Grid.RowSpan="3" Background="{DynamicResource OtherPanelsBackgroundColor}" d:Visibility="Visible">
+            <Viewbox x:Name="ViewboxSplashScreen" Margin="200">
+                <ikw:SimpleStackPanel Spacing="24">
+                    <Image Source="Resources/AppLogo.png"/>
+                </ikw:SimpleStackPanel>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</Window>

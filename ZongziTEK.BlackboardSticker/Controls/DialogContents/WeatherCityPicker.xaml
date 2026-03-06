@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="ZongziTEK.BlackboardSticker.Controls.DialogContents.WeatherCityPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+             xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker.Controls.DialogContents"
+             mc:Ignorable="d" 
+             Height="480" Width="480"
+             d:Background="#eff4f9">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBox x:Name="TextBoxSearch" Grid.Row="0" Margin="12" ui:ControlHelper.PlaceholderText="搜索城市或行政区" TextChanged="TextBoxSearch_TextChanged"/>
+        <ui:ProgressRing x:Name="ProgressRing" Grid.Row="1" Visibility="Collapsed" d:Visibility="Visible" IsIndeterminate="True"/>
+        <TextBlock x:Name="TextNoResult" Text="无结果" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.75" Visibility="Collapsed"/>
+        <ui:ScrollViewerEx x:Name="ScrollViewerSearchResult" Grid.Row="1" Margin="12">
+            <ikw:SimpleStackPanel x:Name="StackPanelSearchResult" Spacing="8"/>
+        </ui:ScrollViewerEx>
+    </Grid>
+</UserControl>

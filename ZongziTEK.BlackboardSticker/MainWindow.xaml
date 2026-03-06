@@ -1,0 +1,313 @@
+﻿<Window x:Name="window" x:Class="ZongziTEK.BlackboardSticker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
+        mc:Ignorable="d"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+        Title="ZongziTEK 黑板贴" Height="1080" Width="960" 
+        Background="#00000000" 
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        Icon="Resources/AppLogo.png" WindowStyle="None" Closing="window_Closing" AllowDrop="True" Loaded="window_Loaded"
+        Drop="window_Drop" Activated="window_Activated" StateChanged="window_StateChanged"
+        ui:ThemeManager.RequestedTheme="Light" AllowsTransparency="True">
+
+    <Grid Name="GridRoot">
+        <Grid.LayoutTransform>
+            <ScaleTransform x:Name="windowScale" ScaleX="{Binding WindowScaleMultiplier}" ScaleY="{Binding WindowScaleMultiplier}"/>
+        </Grid.LayoutTransform>
+
+        <Border Name="BorderMain" Margin="8" CornerRadius="8" Background="{DynamicResource WindowBackgroundColor}">
+            <Grid Name="GridMain">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Name="RowMain"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="ColumnCanvas"/>
+                    <ColumnDefinition x:Name="ColumnLauncher" Width="0.425*"/>
+                </Grid.ColumnDefinitions>
+
+                <!--看板-->
+                <Border Height="60" Grid.ColumnSpan="2" Background="{DynamicResource WindowBackgroundColor}" Margin="8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Name="ColumnClock" Width="auto"/>
+                            <ColumnDefinition Name="ColumnInfoBoard"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Viewbox Margin="16,4">
+                            <TextBlock x:Name="textBlockTime" FontSize="40" Foreground="{DynamicResource ForegroundColor}" Text="08:00:00" TextAlignment="Center" VerticalAlignment="Center"/>
+                        </Viewbox>
+                        <ui:Frame Grid.Column="1" Name="FrameInfo">
+                            <ui:Frame.ContentTransitions>
+                                <ui:TransitionCollection>
+                                    <ui:NavigationThemeTransition/>
+                                </ui:TransitionCollection>
+                            </ui:Frame.ContentTransitions>
+                        </ui:Frame>
+                        <Border Name="BorderSwitchFrameInfoPage" Grid.Column="1" Background="#00000000" MouseDown="BorderSwitchFrameInfoPage_MouseDown"/>
+                    </Grid>
+                </Border>
+
+                <!--小黑板-->
+                <Border Grid.RowSpan="3" Grid.Row="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,0,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Border x:Name="borderClearConfirm" Visibility="Collapsed">
+                            <ikw:SimpleStackPanel Spacing="24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="确定清除吗" FontSize="32"/>
+                                <ikw:SimpleStackPanel Spacing="24" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button x:Name="btnClearCancel" Height="32" Foreground="{DynamicResource ForegroundColor}" Content="取消" Click="btnClearCancel_Click"/>
+                                    <Button x:Name="btnClearOK" Height="32" Style="{StaticResource AccentButtonStyle}" Content="确定" Click="btnClearOK_Click"/>
+                                </ikw:SimpleStackPanel>
+                            </ikw:SimpleStackPanel>
+                        </Border>
+                        <Grid Name="touchGrid" ManipulationStarting="touchGrid_ManipulationStarting" ManipulationDelta="touchGrid_ManipulationDelta" Background="#00000000">
+                            <InkCanvas x:Name="inkCanvas" PreviewTouchDown="inkCanvas_PreviewTouchDown" PreviewTouchUp="inkCanvas_PreviewTouchUp" PreviewMouseDown="inkCanvas_PreviewMouseDown"
+                           StrokeCollected="inkCanvas_StrokeCollected" StrokeErased="inkCanvas_StrokeErased"
+                           IsManipulationEnabled="True" Background="{x:Null}"/>
+                        </Grid>
+                        <Border Name="BorderLockBlackboard" Background="#00000000" Visibility="Collapsed" MouseDown="BorderLockBlackboard_MouseDown">
+                            <ikw:SimpleStackPanel Name="StackPanelHighlightBlackboardLockState" Visibility="Collapsed" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="已锁定" FontSize="64" HorizontalAlignment="Center"/>
+                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="请点击工具栏中图标解锁" FontSize="14" Opacity="0.8" HorizontalAlignment="Center"/>
+                            </ikw:SimpleStackPanel>
+                        </Border>
+
+                        <Border Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <Grid>
+                                <Label Content="小黑板" VerticalAlignment="Center" Margin="8,0" FontSize="20"/>
+                                <ikw:SimpleStackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="8,0">
+                                    <Grid>
+                                        <Button Name="penButton" Click="penButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                                Width="32" Height="32" Padding="0"
+                                                HorizontalAlignment="Right" Visibility="{Binding Visibility, ElementName=eraserButton}">
+                                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Edit_20_Regular}" FontSize="24"/>
+                                        </Button>
+                                        <Border Name="borderColorPicker" Margin="-100,-490,-124,36" CornerRadius="8" Width="246" Height="464" Visibility="Collapsed" d:Visibility="Visible" BorderThickness="1"
+                                                Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}">
+                                            <ikw:SimpleStackPanel Margin="16" Spacing="8">
+                                                <Grid >
+                                                    <TextBlock Text="设置画笔" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                                    <Border Name="borderShowColor" HorizontalAlignment="Right" Width="24" Height="24" CornerRadius="12" Background="White" BorderThickness="1" BorderBrush="#33000000"/>
+                                                </Grid>
+                                                <Label Content="颜色" FontSize="12" Opacity="0.75"/>
+                                                <ikw:SquarePicker Name="squarePicker" Height="222" ColorChanged="squarePicker_ColorChanged" SelectedColor="White" 
+                                                                  PreviewMouseUp="squarePicker_PreviewMouseUp"/>
+                                                <ui:TeachingTip x:Name="TeachingTipColorPicker" Target="{Binding ElementName=squarePicker}" Visibility="Collapsed"
+                                                                Title="提示"
+                                                                Subtitle="当画笔处于黑色或白色时，仅调整色相环是不会改变画笔颜色的，需要调整中间的圆点到右上角的彩色位置"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" 
+                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                                                            Background="{DynamicResource ForegroundColor}"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            MouseUp="BorderColorSelector_MouseUp"/>
+                                                    <Border Grid.Column="1" Width="36" Height="36" CornerRadius="18" 
+                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                                                            Background="#EE00AA"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            MouseUp="BorderColorSelector_MouseUp"/>
+                                                    <Border Grid.Column="2" Width="36" Height="36" CornerRadius="18" 
+                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                                                            Background="#EEAA00"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            MouseUp="BorderColorSelector_MouseUp"/>
+                                                    <Border Grid.Column="3" Width="36" Height="36" CornerRadius="18" 
+                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
+                                                            Background="#00CCCC"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            MouseUp="BorderColorSelector_MouseUp"/>
+                                                </Grid>
+                                                <Label Content="大小" FontSize="12" Opacity="0.75"/>
+                                                <Slider x:Name="SliderPenThickness" Minimum="1.75" Maximum="4.75" TickFrequency="0.5" IsSnapToTickEnabled="True" TickPlacement="Both" AutoToolTipPlacement="None" Value="1.75"
+                                                        ValueChanged="SliderPenThickness_ValueChanged"/>
+                                                <Button x:Name="btnCloseColorPicker" Content="关闭" HorizontalAlignment="Stretch" Click="btnCloseColorPicker_Click"/>
+                                            </ikw:SimpleStackPanel>
+                                        </Border>
+                                    </Grid>
+                                    <Button Name="eraserButton" Click="eraserButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                            Width="32" Height="32" Padding="0">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Eraser_20_Regular}" FontSize="24"/>
+                                    </Button>
+                                    <Button Name="clearButton" Click="clearButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                            Width="32" Height="32" Padding="0" Visibility="{Binding Visibility, ElementName=eraserButton}">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Delete_20_Regular}" FontSize="24"/>
+                                        <ui:FlyoutService.Flyout>
+                                            <ui:Flyout>
+                                                <ikw:SimpleStackPanel Spacing="8">
+                                                    <TextBlock TextWrapping="Wrap" Text="此操作将清除小黑板上的所有内容，且不可恢复。确定继续吗？"/>
+                                                    <Button Content="确定" Click="btnClearOK_Click"/>
+                                                </ikw:SimpleStackPanel>
+                                            </ui:Flyout>
+                                        </ui:FlyoutService.Flyout>
+                                    </Button>
+                                    <ToggleButton Name="ToggleButtonLock" BorderThickness="0" Width="32" Height="32" Padding="0" Background="#00000000" Click="ToggleButtonLock_Click">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.LockClosed_20_Regular}" FontSize="24" Foreground="{Binding Foreground, ElementName=ToggleButtonLock}"/>
+                                    </ToggleButton>
+                                </ikw:SimpleStackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!--启动台-->
+                <Border Grid.Row="2" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <ui:ProgressRing Name="ProgressBarLauncher" Grid.Row="0" VerticalAlignment="Bottom" IsIndeterminate="True" Margin="20" Visibility="Collapsed"/>
+                        <ui:ScrollViewerEx Name="ScrollViewerLauncher" PanningMode="VerticalOnly" Grid.Row="0" Margin="8" VerticalAlignment="Bottom" MaxHeight="216">
+                            <ikw:SimpleStackPanel x:Name="StackPanelLauncher" Spacing="8" VerticalAlignment="Bottom">
+                                <Button Name="buttonExplorer" HorizontalAlignment="Stretch" Height="36" Click="buttonExplorer_Click" HorizontalContentAlignment="Left" Background="#00000000" BorderThickness="0">
+                                    <ikw:SimpleStackPanel Spacing="8" Margin="0" Orientation="Horizontal">
+                                        <Image Source="Resources/Icons/ThisPC.ico" Height="19" VerticalAlignment="Center"/>
+                                        <TextBlock Text="此电脑" VerticalAlignment="Center"/>
+                                    </ikw:SimpleStackPanel>
+                                </Button>
+                            </ikw:SimpleStackPanel>
+                        </ui:ScrollViewerEx>
+
+                        <Border Grid.Row="1" Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <Grid>
+                                <Label Content="启动台" VerticalAlignment="Center" Margin="8,0" FontSize="20"/>
+                                <Button BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                            Width="32" Height="32" Padding="0" HorizontalAlignment="Right" Margin="8,0">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
+                                    <ui:FlyoutService.Flyout>
+                                        <ui:MenuFlyout>
+                                            <MenuItem Header="编辑" Click="ButtonEditLauncher_Click"/>
+                                            <MenuItem Header="刷新" Click="ButtonReloadLauncher_Click"/>
+                                        </ui:MenuFlyout>
+                                    </ui:FlyoutService.Flyout>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!--课程表-->
+                <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <ui:ScrollViewerEx Name="ScrollViewerShowCurriculum" PanningMode="VerticalOnly" ScrollChanged="ScrollViewerShowCurriculum_ScrollChanged">
+                            <Grid Margin="16">
+                                <TextBlock Visibility="Collapsed" Name="textBlockCurriculum" TextWrapping="Wrap" FontSize="28" Foreground="{DynamicResource ForegroundColor}" TextAlignment="Center"/>
+                                <ikw:SimpleStackPanel Name="StackPanelShowTimetable" Spacing="4">
+                                    <ikw:SimpleStackPanel.LayoutTransform>
+                                        <ScaleTransform x:Name="ScaleTimetable"/>
+                                    </ikw:SimpleStackPanel.LayoutTransform>
+                                </ikw:SimpleStackPanel>
+                                <Label Name="LabelNoClass" 
+                                       Content="无课程"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Opacity="0.6"
+                                       Visibility="Collapsed"
+                                       d:Visibility="Visible"/>
+                            </Grid>
+                        </ui:ScrollViewerEx>
+                        <ui:ScrollViewerEx x:Name="ScrollViewerCurriculum" Visibility="Collapsed" PanningMode="VerticalOnly">
+                            <ikw:SimpleStackPanel Spacing="8" Margin="24">
+                                <TextBlock Text="编辑课程表" FontSize="36" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBlock Text="在文本框内输入课程，可回车换行，建议一行一节课" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBlock Text="周一" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxMonday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周二" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxTuesday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周三" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxWednesday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周四" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxThursday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周五" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxFriday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周六" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxSaturday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="周日" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxSunday" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+
+                                <TextBlock Text="临时" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
+                                <TextBox x:Name="textBoxTempCurriculums" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
+                            </ikw:SimpleStackPanel>
+                        </ui:ScrollViewerEx>
+                        <Border Grid.Row="1" Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <Grid>
+                                <Label Content="课程表" 
+                                           VerticalAlignment="Center" 
+                                           Margin="8,0" 
+                                           FontSize="20"/>
+                                <Button x:Name="saveCurriculumButton" Click="saveCurriculumButton_Click" Width="32" Height="32" Padding="0" Background="#00000000" BorderThickness="0" HorizontalAlignment="Right" Margin="8,0" Visibility="Collapsed">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Save_20_Regular}" FontSize="24"/>
+                                </Button>
+                                <Button Name="editCurriculumButton" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                            Width="32" Height="32" Padding="0" HorizontalAlignment="Right" Margin="8,0">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
+                                    <ui:FlyoutService.Flyout>
+                                        <ui:MenuFlyout>
+                                            <MenuItem Name="MenuChooseTimetableToShow" Header="选择要展示的课表">
+                                                <MenuItem Name="MenuItemShowMondayTimetable" IsCheckable="True" Header="周一" Click="MenuItemShowMondayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowTuesdayTimetable" IsCheckable="True" Header="周二" Click="MenuItemShowTuesdayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowWednesdayTimetable" IsCheckable="True" Header="周三" Click="MenuItemShowWednesdayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowThursdayTimetable" IsCheckable="True" Header="周四" Click="MenuItemShowThursdayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowFridayTimetable" IsCheckable="True" Header="周五" Click="MenuItemShowFridayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowSaturdayTimetable" IsCheckable="True" Header="周六" Click="MenuItemShowSaturdayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowSundayTimetable" IsCheckable="True" Header="周日" Click="MenuItemShowSundayTimetable_Click"/>
+                                                <MenuItem Name="MenuItemShowTempTimetable" IsCheckable="True" Header="临时" Click="MenuItemShowTempTimetable_Click"/>
+                                            </MenuItem>
+                                            <MenuItem Name="MenuItemTimetableAutoScroll" Header="自动滚动" IsCheckable="True" Click="MenuItemTimetableAutoScroll_Click" IsChecked="True"/>
+                                            <MenuItem Header="编辑" Click="editCurriculumButton_Click"/>
+                                        </ui:MenuFlyout>
+                                    </ui:FlyoutService.Flyout>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!--功能菜单-->
+                <Border Grid.Row="3" Grid.Column="1" Height="40" Margin="8,0,8,8" CornerRadius="8" VerticalAlignment="Bottom" Background="{DynamicResource WindowBackgroundColor}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <ikw:SimpleStackPanel Margin="8,0" Spacing="8" Opacity="0.75" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ui:FontIcon FontSize="24" Height="22" Width="22" Icon="{x:Static ui:FluentSystemIcons.Clock_20_Regular}" MouseDown="iconShowBigClock_MouseDown" Foreground="{DynamicResource ForegroundColor}"/>
+                            <ui:FontIcon Name="iconSwitchLeft" Icon="{x:Static ui:FluentSystemIcons.ChevronLeft_24_Regular}" Height="22" Width="22" FontSize="24" MouseDown="iconSwitchLeft_MouseDown" Foreground="{DynamicResource ForegroundColor}"/>
+                            <ui:FontIcon Name="iconSwitchRight" Visibility="Collapsed" Icon="{x:Static ui:FluentSystemIcons.ChevronRight_24_Regular}" FontSize="24" Width="22" Height="22" MouseDown="iconSwitchRight_MouseDown" Foreground="{DynamicResource ForegroundColor}"/>
+                            <ui:FontIcon Name="iconShowSettingsPanel" FontSize="24" Height="22" Width="22" Icon="{x:Static ui:FluentSystemIcons.Settings_20_Regular}" MouseDown="iconShowSettingsPanel_MouseDown" Foreground="{DynamicResource ForegroundColor}"/>
+                        </ikw:SimpleStackPanel>
+                    </Grid>
+                </Border>
+
+
+                <!--其它-->
+                <Border Name="BorderDragEnter" CornerRadius="8" Background="{DynamicResource OtherPanelsBackgroundColor}" Grid.RowSpan="4" Grid.ColumnSpan="2" Visibility="Collapsed">
+                    <ikw:SimpleStackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="48" Spacing="48">
+                        <Viewbox>
+                            <TextBlock Name="TextBlockDragHint" Text="松手以将文件添加到桌面" Foreground="{DynamicResource ForegroundColor}"/>
+                        </Viewbox>
+                        <ui:ProgressRing Name="ProgressBarDragEnter" IsIndeterminate="True" Margin="48" Visibility="Collapsed"/>
+                    </ikw:SimpleStackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

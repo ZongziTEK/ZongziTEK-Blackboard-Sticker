@@ -1,0 +1,29 @@
+﻿<Page x:Class="ZongziTEK.BlackboardSticker.Pages.WelcomePages.WelcomePage1"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker.Pages.WelcomePages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800" d:Background="White"
+      Title="WelcomePage1">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+            需要黑板贴<LineBreak/>在开机时启动吗？
+        </TextBlock>
+        <ikw:SimpleStackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center" Margin="36">
+            <Border x:Name="BorderYes" CornerRadius="4" Padding="12" BorderThickness="1" Background="Transparent" MouseUp="BorderYes_MouseUp">
+                <Label Content="需要"/>
+            </Border>
+            <Border x:Name="BorderNo" CornerRadius="4" Padding="12" BorderThickness="1" Background="Transparent" MouseUp="BorderNo_MouseUp">
+                <Label Content="不需要"/>
+            </Border>
+        </ikw:SimpleStackPanel>
+    </Grid>
+</Page>

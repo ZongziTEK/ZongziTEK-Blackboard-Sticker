@@ -1,6 +1,6 @@
 <div align="center">
 
-[![LOGO](https://github.com/STBBRD/ZongziTEK-Blackboard-Sticker/blob/master/ZongziTEK_Blackboard_Sticker/黑板贴.png?raw=true "LOGO")](# "LOGO")
+[![LOGO](https://github.com/STBBRD/ZongziTEK-Blackboard-Sticker/blob/master/ZongziTEK_Blackboard_Sticker/Resources/AppLogo.png?raw=true "LOGO")](# "LOGO")
 
 # ZongziTEK 黑板贴  
 

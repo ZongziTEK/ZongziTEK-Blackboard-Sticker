@@ -1,0 +1,27 @@
+﻿<Page x:Class="ZongziTEK.BlackboardSticker.Pages.SettingsPages.AutomationSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      xmlns:card="clr-namespace:ZongziTEK.BlackboardSticker.Controls.Cards"
+      xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker.Pages.SettingsPages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="AutomationSettingsPage">
+
+    <Grid>
+        <ui:ScrollViewerEx>
+            <ikw:SimpleStackPanel Spacing="8" Margin="24">
+                <Label FontSize="24" Content="自动" Margin="12,8" FontWeight="Bold"/>
+                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.SlideHide_20_Regular}" Header="自动隐藏 “希沃管家助手”" Tip="防止黑板贴被遮挡，如果无效，可以使用下面的方法"
+                                       IsOn="{Binding IsAutoHideHugoAssistantEnabled, Mode=TwoWay}" Toggled="ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled"/>
+                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.SlideSettings_20_Regular}" Header="将希沃管家设置为纯净模式" Tip="此方法需要修改注册表，但隐藏 “希沃管家助手” 更加稳定，推荐使用">
+                    <card:GenericSettingsCard.CardContent>
+                        <ui:HyperlinkButton Content="下载注册表文件" PreviewMouseUp="HyperlinkButton_PreviewMouseUp" Cursor="Hand"/>
+                    </card:GenericSettingsCard.CardContent>
+                </card:GenericSettingsCard>
+            </ikw:SimpleStackPanel>
+        </ui:ScrollViewerEx>
+    </Grid>
+</Page>

@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="ZongziTEK.BlackboardSticker.TimetableEditorItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+             xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
+    <UserControl.Resources>
+        <Style TargetType="local:TimeTextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="ui:TextBoxHelper.IsDeleteButtonVisible" Value="False" />
+        </Style>
+    </UserControl.Resources>
+    <Border HorizontalAlignment="Stretch" Height="48"
+            Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
+            CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="48"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="8,6">
+                <Label x:Name="TextBlockHintSubject" Content="在此处输入课程名称" Opacity="0.4" FontSize="14" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox x:Name="TextBoxSubject" BorderThickness="0"
+                         Text="{Binding Subject, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                         TextAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}"
+                         TextChanged="TextBoxSubject_TextChanged" GotFocus="TextBoxSubject_GotFocus" LostFocus="TextBoxSubject_LostFocus"/>
+            </Grid>
+            <local:TimeTextBox x:Name="StartTimeTextBox" BorderThickness="0" Grid.Column="1" Margin="8,6" 
+                               Text="{Binding StartTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               VerticalContentAlignment="Center" Background="{x:Null}"
+                               TextChanged="StartTimeTextBox_TextChanged"/>
+            <local:TimeTextBox x:Name="EndTimeTextBox" BorderThickness="0" Grid.Column="2" Margin="8,6" 
+                               Text="{Binding EndTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               VerticalContentAlignment="Center" Background="{x:Null}"
+                               TextChanged="EndTimeTextBox_TextChanged"/>
+            <Button Grid.Column="3" Padding="0" Background="Transparent" BorderThickness="0" HorizontalAlignment="Right" Margin="16,8" Opacity="0.75">
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}"/>
+                <ui:FlyoutService.Flyout>
+                    <ui:MenuFlyout>
+                        <MenuItem x:Name="MenuItemSplit" Header="在这节课下方添加空隙" IsCheckable="True" Click="MenuItemSplit_Click">
+                            <MenuItem.Icon>
+                                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.SplitHorizontal_20_Regular}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="MenuItemStrongNotification" Header="加强下课提醒" IsCheckable="True" Click="MenuItemStrongNotification_Click">
+                            <MenuItem.Icon>
+                                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Alert_20_Regular}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="删除" Click="MenuItemDelete_Click">
+                            <MenuItem.Icon>
+                                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Delete_20_Regular}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ui:MenuFlyout>
+                </ui:FlyoutService.Flyout>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>
