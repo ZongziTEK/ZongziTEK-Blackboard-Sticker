@@ -1,671 +1,161 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Newtonsoft.Json;
 
 namespace ZongziTEK.BlackboardSticker.Models
 {
-    public class Settings : INotifyPropertyChanged
+    public partial class Settings : ObservableObject
     {
-        private Storage _storage = new Storage();
-        public Storage Storage
-        {
-            get => _storage;
-            set
-            {
-                if (_storage != value)
-                {
-                    _storage = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private Storage _storage = new();
 
-        private Look _look = new Look();
-        public Look Look
-        {
-            get => _look;
-            set
-            {
-                if (_look != value)
-                {
-                    _look = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private Look _look = new();
 
-        private TimetableSettings _timetableSettings = new TimetableSettings();
-        public TimetableSettings TimetableSettings
-        {
-            get => _timetableSettings;
-            set
-            {
-                if (_timetableSettings != value)
-                {
-                    _timetableSettings = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private TimetableSettings _timetableSettings = new();
 
-        private Blackboard _blackboard = new Blackboard();
-        public Blackboard Blackboard
-        {
-            get => _blackboard;
-            set
-            {
-                if (_blackboard != value)
-                {
-                    _blackboard = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private Blackboard _blackboard = new();
 
-        private InfoBoard _infoBoard = new InfoBoard();
-        public InfoBoard InfoBoard
-        {
-            get => _infoBoard;
-            set
-            {
-                if (_infoBoard != value)
-                {
-                    _infoBoard = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private InfoBoard _infoBoard = new();
 
-        private Automation _automation = new Automation();
-        public Automation Automation
-        {
-            get => _automation;
-            set
-            {
-                if (_automation != value)
-                {
-                    _automation = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private Automation _automation = new();
 
-        private Update _update = new Update();
-        public Update Update
-        {
-            get => _update;
-            set
-            {
-                if (_update != value)
-                {
-                    _update = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private Update _update = new();
 
-        private Interactions _interactions = new Interactions();
-        public Interactions Interactions
-        {
-            get => _interactions;
-            set
-            {
-                if (_interactions != value)
-                {
-                    _interactions = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        [ObservableProperty]
+        private Interactions _interactions = new();
     }
 
-    public class Storage : INotifyPropertyChanged
+    public partial class Storage : ObservableObject
     {
+        [ObservableProperty]
         private bool _isFilesSavingWithProgram = true;
-        public bool IsFilesSavingWithProgram
-        {
-            get => _isFilesSavingWithProgram;
-            set
-            {
-                if (_isFilesSavingWithProgram != value)
-                {
-                    _isFilesSavingWithProgram = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private string _dataPath = "D:\\ZongziTEK_Blackboard_Sticker_Data";
-        public string DataPath
-        {
-            get => _dataPath;
-            set
-            {
-                if (_dataPath != value)
-                {
-                    _dataPath = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class Look : INotifyPropertyChanged
+    public partial class Look : ObservableObject
     {
+        [ObservableProperty]
         private double _windowScaleMultiplier = 1;
-        public double WindowScaleMultiplier
-        {
-            get => _windowScaleMultiplier;
-            set
-            {
-                if (_windowScaleMultiplier != value)
-                {
-                    _windowScaleMultiplier = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _theme = 0;
-        public int Theme
-        {
-            get => _theme;
-            set
-            {
-                if (_theme != value)
-                {
-                    _theme = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isAnimationEnhanced = true;
-        public bool IsAnimationEnhanced
-        {
-            get => _isAnimationEnhanced;
-            set
-            {
-                if (_isAnimationEnhanced != value)
-                {
-                    _isAnimationEnhanced = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _lookMode = 0;
-        public int LookMode
-        {
-            get => _lookMode;
-            set
-            {
-                if (_lookMode != value)
-                {
-                    _lookMode = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isWindowChromeDisabled = false;
-        public bool IsWindowChromeDisabled
-        {
-            get => _isWindowChromeDisabled;
-            set
-            {
-                if (_isWindowChromeDisabled != value)
-                {
-                    _isWindowChromeDisabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _targetMonitor = 0;
-        public int TargetMonitor
-        {
-            get => _targetMonitor;
-            set
-            {
-                if (_targetMonitor != value)
-                {
-                    _targetMonitor = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class TimetableSettings : INotifyPropertyChanged
+    public partial class TimetableSettings : ObservableObject
     {
+        [ObservableProperty]
         private bool _isTimetableEnabled = true;
-        public bool IsTimetableEnabled
-        {
-            get => _isTimetableEnabled;
-            set
-            {
-                if (_isTimetableEnabled != value)
-                {
-                    _isTimetableEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isTimetableNotificationEnabled = true;
-        public bool IsTimetableNotificationEnabled
-        {
-            get => _isTimetableNotificationEnabled;
-            set
-            {
-                if (_isTimetableNotificationEnabled != value)
-                {
-                    _isTimetableNotificationEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private double _fontSize = 24;
-        public double FontSize
-        {
-            get => _fontSize;
-            set
-            {
-                if (_fontSize != value)
-                {
-                    _fontSize = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private double _beginNotificationTime = 60;
-        public double BeginNotificationTime
-        {
-            get => _beginNotificationTime;
-            set
-            {
-                if (_beginNotificationTime != value)
-                {
-                    _beginNotificationTime = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isBeginSpeechEnabled = false;
-        public bool IsBeginSpeechEnabled
-        {
-            get => _isBeginSpeechEnabled;
-            set
-            {
-                if (_isBeginSpeechEnabled != value)
-                {
-                    _isBeginSpeechEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private double _overNotificationTime = 10;
-        public double OverNotificationTime
-        {
-            get => _overNotificationTime;
-            set
-            {
-                if (_overNotificationTime != value)
-                {
-                    _overNotificationTime = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isOverSpeechEnabled = false;
-        public bool IsOverSpeechEnabled
-        {
-            get => _isOverSpeechEnabled;
-            set
-            {
-                if (_isOverSpeechEnabled != value)
-                {
-                    _isOverSpeechEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _voice = 55;
-        public int Voice
-        {
-            get => _voice;
-            set
-            {
-                if (_voice != value)
-                {
-                    _voice = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private double _timeOffset = 0;
-        public double TimeOffset
-        {
-            get => _timeOffset;
-            set
-            {
-                if (_timeOffset != value)
-                {
-                    _timeOffset = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isClickToHideNotificationEnabled = true;
-        public bool IsClickToHideNotificationEnabled
-        {
-            get => _isClickToHideNotificationEnabled;
-            set
-            {
-                if (_isClickToHideNotificationEnabled != value)
-                {
-                    _isClickToHideNotificationEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class Blackboard : INotifyPropertyChanged
+    public partial class Blackboard : ObservableObject
     {
+        [ObservableProperty]
         private bool _isLocked = false;
-        public bool IsLocked
-        {
-            get => _isLocked;
-            set
-            {
-                if (_isLocked != value)
-                {
-                    _isLocked = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class InfoBoard : INotifyPropertyChanged
+    public partial class InfoBoard : ObservableObject
     {
+        [ObservableProperty]
+        [property: JsonProperty("isCountdownPageEnabled")]
         private bool _isCountdownPageEnabled = true;
-        public bool isCountdownPageEnabled
-        {
-            get => _isCountdownPageEnabled;
-            set
-            {
-                if (_isCountdownPageEnabled != value)
-                {
-                    _isCountdownPageEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
+        [property: JsonProperty("isDatePageEnabled")]
         private bool _isDatePageEnabled = true;
-        public bool isDatePageEnabled
-        {
-            get => _isDatePageEnabled;
-            set
-            {
-                if (_isDatePageEnabled != value)
-                {
-                    _isDatePageEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
+        [property: JsonProperty("isWeatherPageEnabled")]
         private bool _isWeatherPageEnabled = true;
-        public bool isWeatherPageEnabled
-        {
-            get => _isWeatherPageEnabled;
-            set
-            {
-                if (_isWeatherPageEnabled != value)
-                {
-                    _isWeatherPageEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
+        [property: JsonProperty("isWeatherForecastPageEnabled")]
         private bool _isWeatherForecastPageEnabled = true;
-        public bool isWeatherForecastPageEnabled
-        {
-            get => _isWeatherForecastPageEnabled;
-            set
-            {
-                if (_isWeatherForecastPageEnabled != value)
-                {
-                    _isWeatherForecastPageEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private string _countdownName = "高考";
-        public string CountdownName
-        {
-            get => _countdownName;
-            set
-            {
-                if (_countdownName != value)
-                {
-                    _countdownName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private DateTime _countdownDate = DateTime.Parse("2025/6/7");
-        public DateTime CountdownDate
-        {
-            get => _countdownDate;
-            set
-            {
-                if (_countdownDate != value)
-                {
-                    _countdownDate = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _countdownWarnDays = 30;
-        public int CountdownWarnDays
-        {
-            get => _countdownWarnDays;
-            set
-            {
-                if (_countdownWarnDays != value)
-                {
-                    _countdownWarnDays = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private string _weatherCity = "101010100";
-        public string WeatherCity
-        {
-            get => _weatherCity;
-            set
-            {
-                if (_weatherCity != value)
-                {
-                    _weatherCity = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isRainForecastOnly = false;
-        public bool IsRainForecastOnly
-        {
-            get => _isRainForecastOnly;
-            set
-            {
-                if (_isRainForecastOnly != value)
-                {
-                    _isRainForecastOnly = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class Automation : INotifyPropertyChanged
+    public partial class Automation : ObservableObject
     {
+        [ObservableProperty]
         private bool _isAutoHideHugoAssistantEnabled = false;
-        public bool IsAutoHideHugoAssistantEnabled
-        {
-            get => _isAutoHideHugoAssistantEnabled;
-            set
-            {
-                if (_isAutoHideHugoAssistantEnabled != value)
-                {
-                    _isAutoHideHugoAssistantEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private bool _isBottomMost = true;
-        public bool IsBottomMost
-        {
-            get => _isBottomMost;
-            set
-            {
-                if (_isBottomMost != value)
-                {
-                    _isBottomMost = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class Update : INotifyPropertyChanged
+    public partial class Update : ObservableObject
     {
+        [ObservableProperty]
         private bool _isUpdateAutomatic = true;
-        public bool IsUpdateAutomatic
-        {
-            get => _isUpdateAutomatic;
-            set
-            {
-                if (_isUpdateAutomatic != value)
-                {
-                    _isUpdateAutomatic = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private int _updateChannel = 0;
-        public int UpdateChannel
-        {
-            get => _updateChannel;
-            set
-            {
-                if (_updateChannel != value)
-                {
-                    _updateChannel = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
-    public class Interactions : INotifyPropertyChanged
+    public partial class Interactions : ObservableObject
     {
+        [ObservableProperty]
         private bool _isClassIslandConnectorEnabled = false;
-
-        public bool IsClassIslandConnectorEnabled
-        {
-            get => _isClassIslandConnectorEnabled;
-            set
-            {
-                if (_isClassIslandConnectorEnabled != value)
-                {
-                    _isClassIslandConnectorEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

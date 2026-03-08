@@ -25,19 +25,19 @@
                         <ikw:SimpleStackPanel Spacing="16">
                             <Grid>
                                 <Label Content="日期" VerticalAlignment="Center"/>
-                                <CheckBox Name="CheckBoxDate" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding isDatePageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                                <CheckBox Name="CheckBoxDate" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding IsDatePageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
                             </Grid>
                             <Grid>
                                 <Label Content="倒数日" VerticalAlignment="Center"/>
-                                <CheckBox Name="CheckBoxCountdown" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding isCountdownPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                                <CheckBox Name="CheckBoxCountdown" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding IsCountdownPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
                             </Grid>
                             <Grid>
                                 <Label Content="实况天气" VerticalAlignment="Center"/>
-                                <CheckBox Name="CheckBoxLiveWeather" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding isWeatherPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                                <CheckBox Name="CheckBoxLiveWeather" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding IsWeatherPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
                             </Grid>
                             <Grid>
                                 <Label Content="天气预报" VerticalAlignment="Center"/>
-                                <CheckBox Name="CheckBoxCastWeather" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding isWeatherForecastPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                                <CheckBox Name="CheckBoxCastWeather" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0" MinHeight="0" IsChecked="{Binding IsWeatherForecastPageEnabled, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
                             </Grid>
                         </ikw:SimpleStackPanel>
                     </Expander>

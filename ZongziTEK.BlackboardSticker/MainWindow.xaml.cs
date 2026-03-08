@@ -2026,10 +2026,10 @@ namespace ZongziTEK.BlackboardSticker
         {
             _frameInfoPages.Clear();
 
-            if (Settings.InfoBoard.isDatePageEnabled) _frameInfoPages.Add(new DatePage());
-            if (Settings.InfoBoard.isCountdownPageEnabled) _frameInfoPages.Add(new CountdownPage());
-            if (Settings.InfoBoard.isWeatherPageEnabled) _frameInfoPages.Add(new WeatherPage());
-            if (Settings.InfoBoard.isWeatherForecastPageEnabled) _frameInfoPages.Add(new WeatherForecastPage());
+            if (Settings.InfoBoard.IsDatePageEnabled) _frameInfoPages.Add(new DatePage());
+            if (Settings.InfoBoard.IsCountdownPageEnabled) _frameInfoPages.Add(new CountdownPage());
+            if (Settings.InfoBoard.IsWeatherPageEnabled) _frameInfoPages.Add(new WeatherPage());
+            if (Settings.InfoBoard.IsWeatherForecastPageEnabled) _frameInfoPages.Add(new WeatherForecastPage());
 
             if (_frameInfoPages.Count == 0) return;
 
