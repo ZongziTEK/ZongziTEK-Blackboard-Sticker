@@ -25,6 +25,7 @@ using ZongziTEK.BlackboardSticker.Helpers;
 using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK.BlackboardSticker.Pages;
 using ZongziTEK.BlackboardSticker.Services;
+using ZongziTEK.BlackboardSticker.ViewModels;
 using ZongziTEK.BlackboardSticker.Views;
 using Drawing = System.Drawing;
 using File = System.IO.File;
@@ -38,13 +39,13 @@ namespace ZongziTEK.BlackboardSticker
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DrawingAttributes _drawingAttributes;
+        private MainViewModel _viewModel;
 
-        private bool _isSettingsLoaded = false;
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = Settings;
+            _viewModel = new MainViewModel();
+            DataContext = _viewModel;
 
             // 小黑板 1
             _drawingAttributes = new DrawingAttributes();
@@ -60,9 +61,6 @@ namespace ZongziTEK.BlackboardSticker
             // 窗体
             SetWindowVerticalSize();
 
-            /*windowTimer.Tick += windowTimer_Tick; // 强力置底，可能导致界面闪烁，故注释
-            windowTimer.Start();*/
-
             // 加载文件
             LoadSettings();
             LoadStrokes();
@@ -75,7 +73,7 @@ namespace ZongziTEK.BlackboardSticker
             });
 
             SetTheme();
-            SetWindowScaleTransform(Settings.Look.WindowScaleMultiplier);
+            // SetWindowScaleTransform(Settings.Look.WindowScaleMultiplier);
 
             // 设置透明窗口
             if (Settings.Look.IsWindowChromeDisabled) // AllowTransparency
@@ -89,13 +87,6 @@ namespace ZongziTEK.BlackboardSticker
 
             // 检查更新
             if (Settings.Update.IsUpdateAutomatic) CheckUpdate();
-
-            // 看板
-            textBlockTime.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
-            _clockTimer = new DispatcherTimer();
-            _clockTimer.Tick += ClockTimer_Tick;
-            _clockTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _clockTimer.Start();
 
             LoadFrameInfoPagesList();
             _frameInfoNavigationTimer.Tick += FrameInfoNavigationTimer_Tick;
@@ -276,19 +267,12 @@ namespace ZongziTEK.BlackboardSticker
 
             window.BeginAnimation(LeftProperty, null);
         }
-
-        /*private DispatcherTimer windowTimer = new DispatcherTimer() // 强力置底，可能导致界面闪烁
-        {
-            Interval = new TimeSpan(0, 0, 0, 0, 500)
-        };
-
-        private void windowTimer_Tick(object sender, EventArgs e)
-        {
-            WindowsHelper.SetBottom(window);
-        }*/
         #endregion
 
         #region Blackboard
+
+        private DrawingAttributes _drawingAttributes;
+
         private void penButton_Click(object sender, RoutedEventArgs e)
         {
             if (inkCanvas.EditingMode == InkCanvasEditingMode.Ink)
@@ -1602,16 +1586,6 @@ namespace ZongziTEK.BlackboardSticker
         #endregion
 
         #region Clock
-        private void ClockTimer_Tick(object sender, EventArgs e)
-        {
-            DateTime now = DateTime.Now;
-            textBlockTime.Text = now.ToString("HH':'mm':'ss");
-
-            _clockTimer.Interval = TimeSpan.FromMilliseconds(1000 - now.Millisecond);
-        }
-
-        private DispatcherTimer _clockTimer;
-
         private void iconShowBigClock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             new FullScreenClock().Show();
@@ -1823,6 +1797,9 @@ namespace ZongziTEK.BlackboardSticker
             iconShowSettingsPanel.Visibility = Visibility.Visible;
         }
         #endregion
+
+        private bool _isSettingsLoaded = false;
+
         private void LoadSettings()
         {
             if (File.Exists(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + SettingsFileName))
@@ -1848,7 +1825,7 @@ namespace ZongziTEK.BlackboardSticker
 
             _isSettingsLoaded = true;
         }
-        public static Settings Settings = new Settings();
+        public static Settings Settings = new();
         public const string SettingsFileName = "Settings.json";
         public static void SaveSettings()
         {
@@ -2080,13 +2057,13 @@ namespace ZongziTEK.BlackboardSticker
             return path;
         }
 
-        public static void SetWindowScaleTransform(double multiplier)
+        /*public static void SetWindowScaleTransform(double multiplier)
         {
             MainWindow window = Application.Current.MainWindow as MainWindow;
 
             window.windowScale.ScaleX = multiplier;
             window.windowScale.ScaleY = multiplier;
-        }
+        }*/
 
         public static void SetTheme()
         {
@@ -2205,7 +2182,8 @@ namespace ZongziTEK.BlackboardSticker
 
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
-            switch (mode)            {
+            switch (mode)
+            {
                 case 0: // 默认
                     BorderMain.ClearValue(WidthProperty);
                     BorderMain.ClearValue(HorizontalAlignmentProperty);

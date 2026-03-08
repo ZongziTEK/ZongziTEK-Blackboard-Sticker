@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:ZongziTEK.BlackboardSticker.ViewModels"
         xmlns:local="clr-namespace:ZongziTEK.BlackboardSticker"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
@@ -11,11 +12,12 @@
         ResizeMode="NoResize" ShowInTaskbar="False"
         Icon="Resources/AppLogo.png" WindowStyle="None" Closing="window_Closing" AllowDrop="True" Loaded="window_Loaded"
         Drop="window_Drop" Activated="window_Activated" StateChanged="window_StateChanged"
-        ui:ThemeManager.RequestedTheme="Light" AllowsTransparency="True">
+        ui:ThemeManager.RequestedTheme="Light" AllowsTransparency="True"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=True}">
 
     <Grid Name="GridRoot">
         <Grid.LayoutTransform>
-            <ScaleTransform x:Name="windowScale" ScaleX="{Binding WindowScaleMultiplier}" ScaleY="{Binding WindowScaleMultiplier}"/>
+            <ScaleTransform x:Name="windowScale" ScaleX="{Binding Settings.Look.WindowScaleMultiplier}" ScaleY="{Binding Settings.Look.WindowScaleMultiplier}"/>
         </Grid.LayoutTransform>
 
         <Border Name="BorderMain" Margin="8" CornerRadius="8" Background="{DynamicResource WindowBackgroundColor}">
@@ -40,7 +42,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Viewbox Margin="16,4">
-                            <TextBlock x:Name="textBlockTime" FontSize="40" Foreground="{DynamicResource ForegroundColor}" Text="08:00:00" TextAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="textBlockTime" FontSize="40" Foreground="{DynamicResource ForegroundColor}" Text="{Binding CurrentTime}" TextAlignment="Center" VerticalAlignment="Center"/>
                         </Viewbox>
                         <ui:Frame Grid.Column="1" Name="FrameInfo">
                             <ui:Frame.ContentTransitions>

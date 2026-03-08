@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
+using System;
 
 namespace ZongziTEK.BlackboardSticker.Models
 {
