@@ -100,7 +100,6 @@ namespace ZongziTEK.BlackboardSticker.Pages.SettingsPages
         private void SliderWindowScaleMultiplier_ValueChanged(object sender, RoutedEventArgs e)
         {
             MainWindow.SaveSettings();
-            // MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeStart(object sender, RoutedEventArgs e)

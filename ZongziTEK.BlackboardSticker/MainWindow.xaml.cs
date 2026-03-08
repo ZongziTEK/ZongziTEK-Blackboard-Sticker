@@ -73,7 +73,6 @@ namespace ZongziTEK.BlackboardSticker
             });
 
             SetTheme();
-            // SetWindowScaleTransform(Settings.Look.WindowScaleMultiplier);
 
             // 设置透明窗口
             if (Settings.Look.IsWindowChromeDisabled) // AllowTransparency
@@ -2057,14 +2056,6 @@ namespace ZongziTEK.BlackboardSticker
             return path;
         }
 
-        /*public static void SetWindowScaleTransform(double multiplier)
-        {
-            MainWindow window = Application.Current.MainWindow as MainWindow;
-
-            window.windowScale.ScaleX = multiplier;
-            window.windowScale.ScaleY = multiplier;
-        }*/
-
         public static void SetTheme()
         {
             MainWindow window = Application.Current.MainWindow as MainWindow;
@@ -2112,11 +2103,6 @@ namespace ZongziTEK.BlackboardSticker
                     }
                 }
             }
-        }
-
-        private void Hyperlink_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start("https://github.com/STBBRD/ZongziTEK-Blackboard-Sticker");
         }
 
         public static bool StartAutomaticallyCreate(string exeName)
