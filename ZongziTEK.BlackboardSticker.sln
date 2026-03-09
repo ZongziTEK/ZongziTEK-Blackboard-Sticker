@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11415.280 d18.0
+VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZongziTEK.BlackboardSticker", "ZongziTEK.BlackboardSticker\ZongziTEK.BlackboardSticker.csproj", "{01ACAAF3-0138-4CE5-815E-D3BC58764234}"
 EndProject
@@ -14,8 +14,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU.ActiveCfg = ZongziTEK_Blackboard_Sticker|Any CPU
-		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU.Build.0 = ZongziTEK_Blackboard_Sticker|Any CPU
+		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU.ActiveCfg = NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU
+		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU.Build.0 = NoDebug-ZongziTEK_Blackboard_Sticker|Any CPU
 		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01ACAAF3-0138-4CE5-815E-D3BC58764234}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

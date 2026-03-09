@@ -42,7 +42,7 @@ namespace ZongziTEK.BlackboardSticker.Views
         private void NavigationViewRoot_SelectionChanged(iNKORE.UI.WPF.Modern.Controls.NavigationView sender, iNKORE.UI.WPF.Modern.Controls.NavigationViewSelectionChangedEventArgs args)
         {
             int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
-            if (currentPageIndex == -1) currentPageIndex = 6;
+            if (currentPageIndex == -1) currentPageIndex = 7;
 
             FrameRoot.Navigate(_pages[currentPageIndex]);
         }
