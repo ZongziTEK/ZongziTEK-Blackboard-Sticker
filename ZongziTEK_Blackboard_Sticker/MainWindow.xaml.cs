@@ -1610,7 +1610,7 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void iconShowBigClock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            new FullScreenClock().Show();
+            new FullScreenClock(GetTargetWorkArea()).Show();
         }
         #endregion
 
