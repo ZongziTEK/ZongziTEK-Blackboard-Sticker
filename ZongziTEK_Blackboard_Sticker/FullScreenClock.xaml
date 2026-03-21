@@ -1,4 +1,4 @@
-﻿<Window x:Class="ZongziTEK_Blackboard_Sticker.FullScreenClock"
+<Window x:Class="ZongziTEK_Blackboard_Sticker.FullScreenClock"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker"
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
         mc:Ignorable="d"
-        Title="ZongziTEK 黑板贴 - 全屏时钟" d:Height="900" d:Width="1600" Top="0" Left="0" Margin="0,0,2,0"
-        ResizeMode="NoResize" WindowStyle="None" WindowState="Maximized" Loaded="Window_Loaded" AllowsTransparency="True" 
+        Title="ZongziTEK 黑板贴 - 全屏时钟" d:Height="900" d:Width="1600" Margin="0,0,2,0"
+        ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="Manual" Loaded="Window_Loaded" AllowsTransparency="True" 
         ui:ThemeManager.RequestedTheme="Dark">
     <Grid Background="Black" MouseDown="Grid_MouseDown">
         <Grid>
