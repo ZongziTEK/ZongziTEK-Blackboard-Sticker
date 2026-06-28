@@ -2197,7 +2197,6 @@ namespace ZongziTEK_Blackboard_Sticker
             BeginAnimation(LeftProperty, null);
 
             Rect targetWorkArea = GetTargetWorkArea();
-            Left = targetWorkArea.Left;
 
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
@@ -2253,12 +2252,16 @@ namespace ZongziTEK_Blackboard_Sticker
 
             UpdateLayout();
 
-            Dispatcher.BeginInvoke(new Action(() =>
+            Action alignWindowToTarget = () =>
             {
                 Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
                 Top = targetWorkArea.Top;
                 Height = targetWorkArea.Height;
-            }), DispatcherPriority.Render);
+            };
+
+            alignWindowToTarget();
+
+            Dispatcher.BeginInvoke(alignWindowToTarget, DispatcherPriority.Render);
         }
 
         public static bool GetIsLightTheme()
