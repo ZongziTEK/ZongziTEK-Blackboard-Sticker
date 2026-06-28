@@ -160,6 +160,11 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             ConsoleHelper.WriteLog("黑板贴避让 ClassIsland 主界面", "info");
         }
 
+        public Task RefreshIslandTerritory()
+        {
+            return OnIslandTerritoryChanged();
+        }
+
         private async Task UpdateMainWindowTimetable()
         {
             _timetableShared = await InvokeConnectService(

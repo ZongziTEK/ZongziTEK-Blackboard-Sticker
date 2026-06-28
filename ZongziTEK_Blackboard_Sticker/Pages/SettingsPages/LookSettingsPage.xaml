@@ -43,11 +43,17 @@
                                        Header="显示启动台" Tip="关闭后隐藏底部启动台区域"
                                        IsOn="{Binding IsLauncherEnabled, Mode=TwoWay}"
                                        Toggled="ToggleSwitchIsLauncherEnabled_Toggled"/>
+                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.ScaleFit_20_Regular}"
+                                       Header="自定义主面板高度" Tip="关闭时使用全高窗口并应用 ClassIsland 避让"
+                                       IsOn="{Binding IsWindowHeightAdjustmentEnabled, Mode=TwoWay}"
+                                       Toggled="ToggleSwitchIsWindowHeightAdjustmentEnabled_Toggled"/>
                 <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.ScaleFit_20_Regular}" Header="主面板高度" Tip="设置黑板贴占用目标屏幕高度的百分比"
+                                 IsEnabled="{Binding IsWindowHeightAdjustmentEnabled}"
                                  Value="{Binding WindowHeightPercent, Mode=TwoWay}"
                                  Minimum="30" Maximum="100" TickFrequency="1"
                                  ValueChanged="SliderWindowHeightPercent_ValueChanged"/>
-                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.ContentViewGallery_20_Regular}" Header="垂直对齐">
+                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.ContentViewGallery_20_Regular}" Header="垂直对齐"
+                                          IsEnabled="{Binding IsWindowHeightAdjustmentEnabled}">
                     <card:GenericSettingsCard.CardContent>
                         <ComboBox Width="180" SelectedIndex="{Binding WindowVerticalAlignment}" SelectionChanged="ComboBoxWindowVerticalAlignment_SelectionChanged">
                             <ComboBoxItem>上对齐</ComboBoxItem>

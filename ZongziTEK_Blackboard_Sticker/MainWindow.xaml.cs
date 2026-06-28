@@ -217,6 +217,13 @@ namespace ZongziTEK_Blackboard_Sticker
 
         public void Creep(double marginVertical, bool isTop)
         {
+            if (Settings.Look.IsWindowHeightAdjustmentEnabled)
+            {
+                GridRoot.BeginAnimation(MarginProperty, null);
+                GridRoot.Margin = new Thickness(0);
+                return;
+            }
+
             var previousMargin = GridRoot.Margin;
             var newMargin = isTop ? new Thickness(0, marginVertical, 0, 0) : new Thickness(0, 0, 0, marginVertical);
 
@@ -2202,14 +2209,17 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void ApplyWindowBounds(Rect targetWorkArea)
         {
-            double heightPercent = Settings.Look.WindowHeightPercent;
-            if (double.IsNaN(heightPercent) || heightPercent <= 0) heightPercent = 100;
-            heightPercent = Math.Max(30, Math.Min(100, heightPercent));
-
-            double targetHeight = targetWorkArea.Height * heightPercent / 100;
+            double targetHeight = targetWorkArea.Height;
+            if (Settings.Look.IsWindowHeightAdjustmentEnabled)
+            {
+                double heightPercent = Settings.Look.WindowHeightPercent;
+                if (double.IsNaN(heightPercent) || heightPercent <= 0) heightPercent = 100;
+                heightPercent = Math.Max(30, Math.Min(100, heightPercent));
+                targetHeight = targetWorkArea.Height * heightPercent / 100;
+            }
 
             Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
-            Top = Settings.Look.WindowVerticalAlignment == 1
+            Top = Settings.Look.IsWindowHeightAdjustmentEnabled && Settings.Look.WindowVerticalAlignment == 1
                 ? targetWorkArea.Top + targetWorkArea.Height - targetHeight
                 : targetWorkArea.Top;
             Height = targetHeight;

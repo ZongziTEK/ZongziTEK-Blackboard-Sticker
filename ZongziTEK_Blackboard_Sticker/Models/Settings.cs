@@ -236,6 +236,20 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             }
         }
 
+        private bool _isWindowHeightAdjustmentEnabled = false;
+        public bool IsWindowHeightAdjustmentEnabled
+        {
+            get => _isWindowHeightAdjustmentEnabled;
+            set
+            {
+                if (_isWindowHeightAdjustmentEnabled != value)
+                {
+                    _isWindowHeightAdjustmentEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private double _windowHeightPercent = 100;
         public double WindowHeightPercent
         {

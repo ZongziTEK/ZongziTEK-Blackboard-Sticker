@@ -16,6 +16,7 @@ using System.Windows.Threading;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK_Blackboard_Sticker.Services;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
@@ -120,6 +121,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             ApplyLookSettings();
         }
 
+        private void ToggleSwitchIsWindowHeightAdjustmentEnabled_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplyLookSettings();
+        }
+
         private void SliderWindowHeightPercent_ValueChanged(object sender, RoutedEventArgs e)
         {
             ApplyLookSettings();
@@ -158,6 +164,9 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             MainWindow.SaveSettings();
             mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+
+            var classIslandConnectorService = App.ServiceManager.GetService<ClassIslandConnectorService>();
+            if (classIslandConnectorService != null) _ = classIslandConnectorService.RefreshIslandTerritory();
         }
 
         private void ToggleSwitchIsWindowChromeDisabled_Toggled(object sender, RoutedEventArgs e)
