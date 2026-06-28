@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using ZongziTEK_Blackboard_Sticker.Helpers;
@@ -25,13 +26,30 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     public partial class LookSettingsPage : Page
     {
         public ObservableCollection<MonitorItem> Monitors { get; set; } = new();
+        private bool isPageReady = false;
 
         public LookSettingsPage()
         {
             InitializeComponent();
 
-            DataContext = MainWindow.Settings.Look;
             LoadMonitors();
+            DataContext = MainWindow.Settings.Look;
+
+            Loaded += LookSettingsPage_Loaded;
+            Unloaded += LookSettingsPage_Unloaded;
+        }
+
+        private void LookSettingsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                isPageReady = true;
+            }), DispatcherPriority.Loaded);
+        }
+
+        private void LookSettingsPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            isPageReady = false;
         }
 
         private void LoadMonitors()
@@ -78,8 +96,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ComboBoxMonitor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainWindow.SaveSettings();
-            mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+            ApplyLookSettings();
         }
 
         private bool isCurrentWindowChromeDisabled = MainWindow.Settings.Look.IsWindowChromeDisabled;
@@ -87,34 +104,66 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ComboBoxTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!isPageReady) return;
+
             MainWindow.SaveSettings();
             MainWindow.SetTheme();
         }
 
         private void ComboBoxLookMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainWindow.SaveSettings();
-            mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+            ApplyLookSettings();
+        }
+
+        private void ToggleSwitchIsLauncherEnabled_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplyLookSettings();
+        }
+
+        private void SliderWindowHeightPercent_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            ApplyLookSettings();
+        }
+
+        private void ComboBoxWindowVerticalAlignment_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyLookSettings();
         }
 
         private void SliderWindowScaleMultiplier_ValueChanged(object sender, RoutedEventArgs e)
         {
+            if (!isPageReady) return;
+
             MainWindow.SaveSettings();
             MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeStart(object sender, RoutedEventArgs e)
         {
+            if (!isPageReady || mainWindow == null) return;
+
             if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(0);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeEnd(object sender, RoutedEventArgs e)
         {
+            if (!isPageReady || mainWindow == null) return;
+
             if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+        }
+
+        private void ApplyLookSettings()
+        {
+            if (!isPageReady || mainWindow == null) return;
+
+            MainWindow.SaveSettings();
+            mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
         }
 
         private void ToggleSwitchIsWindowChromeDisabled_Toggled(object sender, RoutedEventArgs e)
         {
+            if (!isPageReady) return;
+
             MainWindow.SaveSettings();
 
             if (ToggleSwitchIsWindowChromeDisabled.IsOn != isCurrentWindowChromeDisabled) MessageBox.Show("此更改需重启黑板贴后生效", "ZongziTEK 黑板贴", MessageBoxButton.OK, MessageBoxImage.Information);

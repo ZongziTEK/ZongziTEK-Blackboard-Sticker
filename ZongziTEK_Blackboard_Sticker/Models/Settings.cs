@@ -222,6 +222,48 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             }
         }
 
+        private bool _isLauncherEnabled = true;
+        public bool IsLauncherEnabled
+        {
+            get => _isLauncherEnabled;
+            set
+            {
+                if (_isLauncherEnabled != value)
+                {
+                    _isLauncherEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _windowHeightPercent = 100;
+        public double WindowHeightPercent
+        {
+            get => _windowHeightPercent;
+            set
+            {
+                if (_windowHeightPercent != value)
+                {
+                    _windowHeightPercent = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _windowVerticalAlignment = 0;
+        public int WindowVerticalAlignment
+        {
+            get => _windowVerticalAlignment;
+            set
+            {
+                if (_windowVerticalAlignment != value)
+                {
+                    _windowVerticalAlignment = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private bool _isWindowChromeDisabled = false;
         public bool IsWindowChromeDisabled
         {

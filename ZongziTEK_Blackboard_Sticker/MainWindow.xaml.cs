@@ -2192,12 +2192,35 @@ namespace ZongziTEK_Blackboard_Sticker
             return monitorWorkAreas[targetIndex];
         }
 
+        private void ApplyPanelVisibility(int mode)
+        {
+            bool isTimetableOnly = mode == 3;
+
+            BorderTopPanel.Visibility = isTimetableOnly ? Visibility.Collapsed : Visibility.Visible;
+            BorderLauncher.Visibility = Settings.Look.IsLauncherEnabled ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ApplyWindowBounds(Rect targetWorkArea)
+        {
+            double heightPercent = Settings.Look.WindowHeightPercent;
+            if (double.IsNaN(heightPercent) || heightPercent <= 0) heightPercent = 100;
+            heightPercent = Math.Max(30, Math.Min(100, heightPercent));
+
+            double targetHeight = targetWorkArea.Height * heightPercent / 100;
+
+            Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
+            Top = Settings.Look.WindowVerticalAlignment == 1
+                ? targetWorkArea.Top + targetWorkArea.Height - targetHeight
+                : targetWorkArea.Top;
+            Height = targetHeight;
+        }
+
         public void SwitchLookMode(int mode)
         {
             BeginAnimation(LeftProperty, null);
 
             Rect targetWorkArea = GetTargetWorkArea();
-            Left = targetWorkArea.Left;
+            ApplyPanelVisibility(mode);
 
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
@@ -2249,16 +2272,34 @@ namespace ZongziTEK_Blackboard_Sticker
 
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
                     break;
+
+                case 3: // 简约（仅课程表）
+                    BorderMain.Width = liteModeWidth;
+                    BorderMain.HorizontalAlignment = HorizontalAlignment.Right;
+                    iconSwitchLeft.Visibility = Visibility.Collapsed;
+                    iconSwitchRight.Visibility = Visibility.Collapsed;
+
+                    ColumnCanvas.Width = new GridLength(0);
+                    ColumnClock.Width = new GridLength(0);
+                    ColumnInfoBoard.Width = new GridLength(0);
+
+                    frameInfoNavigationTimer.Stop();
+                    if (frameInfoPages.Count > 0) FrameInfo.Navigate(frameInfoPages[0]);  // 切换到日期页面防止继续调用天气 API
+
+                    Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
+                    break;
             }
 
             UpdateLayout();
 
-            Dispatcher.BeginInvoke(new Action(() =>
+            Action alignWindowToTarget = () =>
             {
-                Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
-                Top = targetWorkArea.Top;
-                Height = targetWorkArea.Height;
-            }), DispatcherPriority.Render);
+                ApplyWindowBounds(targetWorkArea);
+            };
+
+            alignWindowToTarget();
+
+            Dispatcher.BeginInvoke(alignWindowToTarget, DispatcherPriority.Render);
         }
 
         public static bool GetIsLightTheme()

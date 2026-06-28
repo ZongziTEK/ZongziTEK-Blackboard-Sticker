@@ -32,7 +32,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!--看板-->
-                <Border Height="60" Grid.ColumnSpan="2" Background="{DynamicResource WindowBackgroundColor}" Margin="8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="BorderTopPanel" Height="60" Grid.ColumnSpan="2" Background="{DynamicResource WindowBackgroundColor}" Margin="8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Name="ColumnClock" Width="auto"/>
@@ -161,7 +161,7 @@
                 </Border>
 
                 <!--启动台-->
-                <Border Grid.Row="2" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="BorderLauncher" Grid.Row="2" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
