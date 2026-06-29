@@ -2129,9 +2129,80 @@ namespace ZongziTEK_Blackboard_Sticker
             border.BorderThickness = new Thickness(0);
         }
 
+        private static Color GetResourceColor(object backgroundResourceKey, Color fallbackColor)
+        {
+            object resource = Application.Current.TryFindResource(backgroundResourceKey);
+
+            if (resource is SolidColorBrush solidColorBrush) return solidColorBrush.Color;
+            if (resource is Color color) return color;
+
+            return fallbackColor;
+        }
+
+        private static Color ParseBackgroundColor(string colorText, Color fallbackColor)
+        {
+            if (string.IsNullOrWhiteSpace(colorText)) return fallbackColor;
+
+            try
+            {
+                object convertedColor = ColorConverter.ConvertFromString(colorText.Trim());
+                if (convertedColor is Color color)
+                {
+                    return Color.FromRgb(color.R, color.G, color.B);
+                }
+            }
+            catch
+            {
+            }
+
+            return Color.FromRgb(fallbackColor.R, fallbackColor.G, fallbackColor.B);
+        }
+
+        private static byte GetOpacityByte(double opacity)
+        {
+            double normalizedOpacity = ClampRange(opacity, 0, 100, 60);
+            return (byte)Math.Round(normalizedOpacity * 255 / 100);
+        }
+
+        private static void ApplyCustomPanelBackground(Border border, BackgroundElementStyle style, object fallbackResourceKey, double borderThickness)
+        {
+            Color fallbackColor = GetResourceColor(fallbackResourceKey, Colors.Transparent);
+            Color color = ParseBackgroundColor(style?.Color, fallbackColor);
+            byte alpha = GetOpacityByte(style?.Opacity ?? 60);
+
+            border.Background = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+            border.SetResourceReference(Border.BorderBrushProperty, "BorderBrush");
+            border.BorderThickness = alpha == 0 ? new Thickness(0) : new Thickness(borderThickness);
+        }
+
+        private void ApplyCustomBackgroundStyle()
+        {
+            CustomBackgroundStyle customStyle = Settings.Look.CustomBackgroundStyle;
+
+            ApplyCustomPanelBackground(BorderMain, customStyle.MainPanel, "WindowBackgroundColor", 0);
+            ApplyCustomPanelBackground(BorderTopPanel, customStyle.TopPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderBlackboard, customStyle.BlackboardPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderLauncher, customStyle.LauncherPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderTimetable, customStyle.TimetablePanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderFunctionMenu, customStyle.FunctionMenu, "WindowBackgroundColor", 1);
+
+            ApplyCustomPanelBackground(BorderBlackboardTitleBar, customStyle.BlackboardTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            ApplyCustomPanelBackground(BorderLauncherTitleBar, customStyle.LauncherTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            ApplyCustomPanelBackground(BorderTimetableTitleBar, customStyle.TimetableTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+        }
+
+        private void MakeComponentPanelsTransparent()
+        {
+            MakePanelTransparent(BorderTopPanel);
+            MakePanelTransparent(BorderBlackboard);
+            MakePanelTransparent(BorderLauncher);
+            MakePanelTransparent(BorderTimetable);
+            MakePanelTransparent(BorderFunctionMenu);
+        }
+
         public void ApplyBackgroundStyle()
         {
-            int backgroundStyle = Convert.ToInt32(ClampRange(Settings.Look.BackgroundStyle, 0, 3, 0));
+            int backgroundStyle = Convert.ToInt32(ClampRange(Settings.Look.BackgroundStyle, 0, 4, 0));
             Settings.Look.BackgroundStyle = backgroundStyle;
 
             RestorePanelBackground(BorderMain, "WindowBackgroundColor", 0);
@@ -2145,6 +2216,12 @@ namespace ZongziTEK_Blackboard_Sticker
             RestorePanelBackground(BorderLauncherTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
             RestorePanelBackground(BorderTimetableTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
 
+            if (backgroundStyle == 4)
+            {
+                ApplyCustomBackgroundStyle();
+                return;
+            }
+
             if (backgroundStyle >= 1)
             {
                 MakePanelTransparent(BorderBlackboardTitleBar);
@@ -2157,13 +2234,9 @@ namespace ZongziTEK_Blackboard_Sticker
                 MakePanelTransparent(BorderMain);
             }
 
-            if (backgroundStyle >= 3)
+            if (backgroundStyle == 1 || backgroundStyle >= 3)
             {
-                MakePanelTransparent(BorderTopPanel);
-                MakePanelTransparent(BorderBlackboard);
-                MakePanelTransparent(BorderLauncher);
-                MakePanelTransparent(BorderTimetable);
-                MakePanelTransparent(BorderFunctionMenu);
+                MakeComponentPanelsTransparent();
             }
         }
 

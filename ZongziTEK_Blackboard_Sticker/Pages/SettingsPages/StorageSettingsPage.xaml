@@ -16,6 +16,7 @@
                 <Label FontSize="24" Content="存储" Margin="12,8" FontWeight="Bold"/>
                 <card:ToggleSwitchCard x:Name="ToggleSwitchIsFilesSavingWithProgram" Icon="{x:Static ui:FluentSystemIcons.Attach_20_Regular}" Header="将数据与本程序保存在同一位置"
                                        OnContent="是" OffContent="否" IsOn="{Binding IsFilesSavingWithProgram, Mode=TwoWay}"
+                                       IsResetButtonVisible="True" ResetClicked="ToggleSwitchIsFilesSavingWithProgram_ResetClicked"
                                        Toggled="ToggleSwitchIsFilesSavingWithProgram_Toggled"/>
                 <Border HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
                         CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0">
@@ -23,10 +24,27 @@
                               Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}" Style="{DynamicResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" IsExpanded="True" 
                               Visibility="{Binding ElementName=ToggleSwitchIsFilesSavingWithProgram, Path=IsOn, Converter={StaticResource InverseBoolToVisibilityConverter}}" MinHeight="68">
                         <Expander.Header>
-                            <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="14">
-                                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Storage_20_Regular}" FontSize="20" Margin="-2,0,0,0"/>
-                                <Label Content="数据保存位置" VerticalContentAlignment="Center"/>
-                            </ikw:SimpleStackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ikw:SimpleStackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Storage_20_Regular}" FontSize="20" Margin="-2,0,0,0"/>
+                                    <Label Content="数据保存位置" VerticalContentAlignment="Center"/>
+                                </ikw:SimpleStackPanel>
+                                <Button x:Name="ButtonResetDataPath"
+                                        Grid.Column="1"
+                                        Width="32"
+                                        Height="32"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="恢复默认"
+                                        Click="ButtonResetDataPath_Click">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" FontSize="18"/>
+                                </Button>
+                            </Grid>
                         </Expander.Header>
 
                         <Grid>

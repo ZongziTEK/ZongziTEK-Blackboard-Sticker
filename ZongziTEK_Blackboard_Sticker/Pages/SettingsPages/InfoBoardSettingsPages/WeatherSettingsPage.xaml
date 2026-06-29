@@ -20,9 +20,10 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="天气" Margin="12,8" FontWeight="Bold"/>
-                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.Location_20_Regular}" 
+                <card:GenericSettingsCard x:Name="CardWeatherCity" Icon="{x:Static ui:FluentSystemIcons.Location_20_Regular}" 
                                           Header="天气城市" 
-                                          Tip="选择用于查询天气的城市或行政区">
+                                          Tip="选择用于查询天气的城市或行政区"
+                                          IsResetButtonVisible="True" ResetClicked="CardWeatherCity_ResetClicked">
                     <card:GenericSettingsCard.CardContent>
                         <ikw:SimpleStackPanel Spacing="8" Orientation="Horizontal">
                             <TextBlock Text="{Binding WeatherCity, Converter={StaticResource CityCodeToNameConverter}}" d:Text="浙江.杭州" FontSize="14" VerticalAlignment="Center"/>
@@ -37,6 +38,7 @@
                                        Header="仅显示雨天预报"
                                        Tip="使用雨天预报替代完整的天气预报，实况天气页面不受影响"
                                        IsOn="{Binding IsRainForecastOnly, Mode=TwoWay}"
+                                       IsResetButtonVisible="True" ResetClicked="ToggleSwitchIsRainForecastOnly_ResetClicked"
                                        Toggled="ToggleSwitchIsRainForecastOnly_Toggled"/>
             </ikw:SimpleStackPanel>
         </ui:ScrollViewerEx>

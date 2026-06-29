@@ -66,5 +66,36 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         // Using a DependencyProperty as the backing store for CardContent.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CardContentProperty =
             DependencyProperty.Register("CardContent", typeof(UIElement), typeof(GenericSettingsCard));
+
+        public bool IsResetButtonVisible
+        {
+            get { return (bool)GetValue(IsResetButtonVisibleProperty); }
+            set { SetValue(IsResetButtonVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetButtonVisibleProperty =
+            DependencyProperty.Register("IsResetButtonVisible", typeof(bool), typeof(GenericSettingsCard), new PropertyMetadata(false));
+
+        public bool IsResetEnabled
+        {
+            get { return (bool)GetValue(IsResetEnabledProperty); }
+            set { SetValue(IsResetEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetEnabledProperty =
+            DependencyProperty.Register("IsResetEnabled", typeof(bool), typeof(GenericSettingsCard), new PropertyMetadata(true));
+
+        public static readonly RoutedEvent ResetClickedEvent = EventManager.RegisterRoutedEvent("ResetClicked", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(GenericSettingsCard));
+
+        public event RoutedEventHandler ResetClicked
+        {
+            add { AddHandler(ResetClickedEvent, value); }
+            remove { RemoveHandler(ResetClickedEvent, value); }
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(ResetClickedEvent, this));
+        }
     }
 }

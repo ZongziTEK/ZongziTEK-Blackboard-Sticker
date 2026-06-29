@@ -23,6 +23,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     /// </summary>
     public partial class InteractionsSettingsPage : Page
     {
+        private readonly Settings defaultSettings = new Settings();
         public Interactions InteractionsSettings { get; set; }
 
         public InteractionsSettingsPage()
@@ -33,6 +34,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             InteractionsSettings.PropertyChanged += InteractionsSettings_PropertyChanged;
 
             DataContext = this;
+            UpdateResetButtons();
         }
 
         private void InteractionsSettings_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -50,11 +52,25 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             }
 
             MainWindow.SaveSettings();
+            UpdateResetButtons();
         }
 
         private void InteractionsSettingsPage_OnUnloaded(object sender, RoutedEventArgs e)
         {
             InteractionsSettings.PropertyChanged -= InteractionsSettings_PropertyChanged;
+        }
+
+        private void CardIsClassIslandConnectorEnabled_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            InteractionsSettings.IsClassIslandConnectorEnabled = defaultSettings.Interactions.IsClassIslandConnectorEnabled;
+            UpdateResetButtons();
+        }
+
+        private void UpdateResetButtons()
+        {
+            if (CardIsClassIslandConnectorEnabled == null) return;
+
+            CardIsClassIslandConnectorEnabled.IsResetEnabled = InteractionsSettings.IsClassIslandConnectorEnabled != defaultSettings.Interactions.IsClassIslandConnectorEnabled;
         }
     }
 }

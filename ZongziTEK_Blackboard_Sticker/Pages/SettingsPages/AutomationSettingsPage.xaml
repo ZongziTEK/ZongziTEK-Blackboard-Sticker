@@ -14,8 +14,10 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="自动" Margin="12,8" FontWeight="Bold"/>
-                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.SlideHide_20_Regular}" Header="自动隐藏 “希沃管家助手”" Tip="防止黑板贴被遮挡，如果无效，可以使用下面的方法"
-                                       IsOn="{Binding IsAutoHideHugoAssistantEnabled, Mode=TwoWay}" Toggled="ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled"/>
+                <card:ToggleSwitchCard x:Name="CardIsAutoHideHugoAssistantEnabled" Icon="{x:Static ui:FluentSystemIcons.SlideHide_20_Regular}" Header="自动隐藏 “希沃管家助手”" Tip="防止黑板贴被遮挡，如果无效，可以使用下面的方法"
+                                       IsOn="{Binding IsAutoHideHugoAssistantEnabled, Mode=TwoWay}"
+                                       IsResetButtonVisible="True" ResetClicked="CardIsAutoHideHugoAssistantEnabled_ResetClicked"
+                                       Toggled="ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled"/>
                 <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.SlideSettings_20_Regular}" Header="将希沃管家设置为纯净模式" Tip="此方法需要修改注册表，但隐藏 “希沃管家助手” 更加稳定，推荐使用">
                     <card:GenericSettingsCard.CardContent>
                         <ui:HyperlinkButton Content="下载注册表文件" PreviewMouseUp="HyperlinkButton_PreviewMouseUp" Cursor="Hand"/>

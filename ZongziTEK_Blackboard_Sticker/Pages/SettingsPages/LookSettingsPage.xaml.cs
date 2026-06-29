@@ -14,8 +14,12 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Services;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
@@ -27,6 +31,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     public partial class LookSettingsPage : Page
     {
         public ObservableCollection<MonitorItem> Monitors { get; set; } = new();
+        public ObservableCollection<BackgroundStyleCategoryEditor> BackgroundStyleCategories { get; } = new();
+        private readonly Settings defaultSettings = new Settings();
         private bool isPageReady = false;
 
         public LookSettingsPage()
@@ -34,6 +40,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             InitializeComponent();
 
             LoadMonitors();
+            BuildBackgroundStyleCategories();
             DataContext = MainWindow.Settings.Look;
 
             Loaded += LookSettingsPage_Loaded;
@@ -45,6 +52,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 isPageReady = true;
+                UpdateCustomBackgroundEditorVisibility();
+                UpdateResetButtons();
             }), DispatcherPriority.Loaded);
         }
 
@@ -105,14 +114,17 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ComboBoxTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!isPageReady) return;
-
-            MainWindow.SaveSettings();
-            MainWindow.SetTheme();
+            ApplyThemeSettings();
         }
 
         private void ComboBoxBackgroundStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (sender is ComboBox comboBox && comboBox.SelectedIndex >= 0)
+            {
+                MainWindow.Settings.Look.BackgroundStyle = comboBox.SelectedIndex;
+            }
+
+            UpdateCustomBackgroundEditorVisibility();
             ApplyVisualSettings();
         }
 
@@ -152,6 +164,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             MainWindow.SaveSettings();
             MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
+            UpdateResetButtons();
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeStart(object sender, RoutedEventArgs e)
@@ -177,6 +190,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             var classIslandConnectorService = App.ServiceManager.GetService<ClassIslandConnectorService>();
             if (classIslandConnectorService != null) _ = classIslandConnectorService.RefreshIslandTerritory();
+
+            UpdateResetButtons();
         }
 
         private void ApplyVisualSettings()
@@ -185,6 +200,16 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             MainWindow.SaveSettings();
             mainWindow.ApplyVisualSettings();
+            UpdateResetButtons();
+        }
+
+        private void ApplyThemeSettings()
+        {
+            if (!isPageReady) return;
+
+            MainWindow.SaveSettings();
+            MainWindow.SetTheme();
+            UpdateResetButtons();
         }
 
         private void ToggleSwitchIsWindowChromeDisabled_Toggled(object sender, RoutedEventArgs e)
@@ -192,8 +217,369 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             if (!isPageReady) return;
 
             MainWindow.SaveSettings();
+            UpdateResetButtons();
 
-            if (ToggleSwitchIsWindowChromeDisabled.IsOn != isCurrentWindowChromeDisabled) MessageBox.Show("此更改需重启黑板贴后生效", "ZongziTEK 黑板贴", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (MainWindow.Settings.Look.IsWindowChromeDisabled != isCurrentWindowChromeDisabled) MessageBox.Show("此更改需重启黑板贴后生效", "ZongziTEK 黑板贴", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void UpdateResetButtons()
+        {
+            Look settings = MainWindow.Settings.Look;
+            Look defaults = defaultSettings.Look;
+
+            CardWindowScaleMultiplier.IsResetEnabled = !AreClose(settings.WindowScaleMultiplier, defaults.WindowScaleMultiplier);
+            CardTheme.IsResetEnabled = settings.Theme != defaults.Theme;
+            CardBackgroundStyle.IsResetEnabled = settings.BackgroundStyle != defaults.BackgroundStyle || !AreCustomBackgroundStylesEqual(settings.CustomBackgroundStyle, defaults.CustomBackgroundStyle);
+            CardIsComponentTitleTextHidden.IsResetEnabled = settings.IsComponentTitleTextHidden != defaults.IsComponentTitleTextHidden;
+            CardLookMode.IsResetEnabled = settings.LookMode != defaults.LookMode;
+            CardIsLauncherEnabled.IsResetEnabled = settings.IsLauncherEnabled != defaults.IsLauncherEnabled;
+            CardWindowHeightAdjustment.IsResetEnabled = settings.IsWindowHeightAdjustmentEnabled != defaults.IsWindowHeightAdjustmentEnabled || !AreClose(settings.WindowHeightPercent, defaults.WindowHeightPercent);
+            CardWindowVerticalAlignment.IsResetEnabled = settings.WindowVerticalAlignment != defaults.WindowVerticalAlignment;
+            CardTargetMonitor.IsResetEnabled = settings.TargetMonitor != defaults.TargetMonitor;
+            ToggleSwitchIsWindowChromeDisabled.IsResetEnabled = settings.IsWindowChromeDisabled != defaults.IsWindowChromeDisabled;
+        }
+
+        private static bool AreClose(double a, double b)
+        {
+            return Math.Abs(a - b) < 0.0000001;
+        }
+
+        private static bool AreBackgroundElementStylesEqual(BackgroundElementStyle current, BackgroundElementStyle defaults)
+        {
+            if (current == null || defaults == null) return current == defaults;
+
+            return string.Equals(NormalizeColorText(current.Color, "#FEFEFE"), NormalizeColorText(defaults.Color, "#FEFEFE"), StringComparison.OrdinalIgnoreCase)
+                && AreClose(current.Opacity, defaults.Opacity);
+        }
+
+        private static bool AreCustomBackgroundStylesEqual(CustomBackgroundStyle current, CustomBackgroundStyle defaults)
+        {
+            if (current == null || defaults == null) return current == defaults;
+
+            return AreBackgroundElementStylesEqual(current.MainPanel, defaults.MainPanel)
+                && AreBackgroundElementStylesEqual(current.TopPanel, defaults.TopPanel)
+                && AreBackgroundElementStylesEqual(current.BlackboardPanel, defaults.BlackboardPanel)
+                && AreBackgroundElementStylesEqual(current.LauncherPanel, defaults.LauncherPanel)
+                && AreBackgroundElementStylesEqual(current.TimetablePanel, defaults.TimetablePanel)
+                && AreBackgroundElementStylesEqual(current.FunctionMenu, defaults.FunctionMenu)
+                && AreBackgroundElementStylesEqual(current.BlackboardTitleBar, defaults.BlackboardTitleBar)
+                && AreBackgroundElementStylesEqual(current.LauncherTitleBar, defaults.LauncherTitleBar)
+                && AreBackgroundElementStylesEqual(current.TimetableTitleBar, defaults.TimetableTitleBar);
+        }
+
+        private void BuildBackgroundStyleCategories()
+        {
+            BackgroundStyleCategories.Clear();
+
+            CustomBackgroundStyle customStyle = MainWindow.Settings.Look.CustomBackgroundStyle;
+
+            BackgroundStyleCategories.Add(new BackgroundStyleCategoryEditor("主容器",
+                new BackgroundStyleItemEditor("主面板", customStyle.MainPanel)));
+
+            BackgroundStyleCategories.Add(new BackgroundStyleCategoryEditor("内容面板",
+                new BackgroundStyleItemEditor("顶部看板", customStyle.TopPanel),
+                new BackgroundStyleItemEditor("小黑板", customStyle.BlackboardPanel),
+                new BackgroundStyleItemEditor("启动台", customStyle.LauncherPanel),
+                new BackgroundStyleItemEditor("课程表", customStyle.TimetablePanel),
+                new BackgroundStyleItemEditor("功能菜单", customStyle.FunctionMenu)));
+
+            BackgroundStyleCategories.Add(new BackgroundStyleCategoryEditor("标题栏",
+                new BackgroundStyleItemEditor("小黑板标题栏", customStyle.BlackboardTitleBar),
+                new BackgroundStyleItemEditor("启动台标题栏", customStyle.LauncherTitleBar),
+                new BackgroundStyleItemEditor("课程表标题栏", customStyle.TimetableTitleBar)));
+        }
+
+        private void UpdateCustomBackgroundEditorVisibility()
+        {
+            if (CustomBackgroundEditorExpander == null) return;
+
+            int backgroundStyle = MainWindow.Settings.Look.BackgroundStyle;
+            if (backgroundStyle != 4)
+            {
+                CustomBackgroundEditorExpander.IsExpanded = false;
+            }
+        }
+
+        private void ButtonExpandCustomBackgroundEditor_Click(object sender, RoutedEventArgs e)
+        {
+            CustomBackgroundEditorExpander.IsExpanded = true;
+        }
+
+        private static string NormalizeColorText(string colorText, string fallbackColor)
+        {
+            string fallback = string.IsNullOrWhiteSpace(fallbackColor) ? "#FEFEFE" : fallbackColor.Trim();
+            string normalizedText = colorText?.Trim();
+
+            if (string.IsNullOrWhiteSpace(normalizedText)) return fallback;
+
+            if (!normalizedText.StartsWith("#") && (normalizedText.Length == 3 || normalizedText.Length == 6 || normalizedText.Length == 8))
+            {
+                normalizedText = "#" + normalizedText;
+            }
+
+            try
+            {
+                object convertedColor = ColorConverter.ConvertFromString(normalizedText);
+                if (convertedColor is Color color)
+                {
+                    return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+                }
+            }
+            catch
+            {
+            }
+
+            return fallback;
+        }
+
+        private static double ClampOpacity(double opacity)
+        {
+            if (double.IsNaN(opacity) || double.IsInfinity(opacity)) return 60;
+            if (opacity < 0) return 0;
+            if (opacity > 100) return 100;
+            return opacity;
+        }
+
+        private void CommitCustomBackgroundColorTextBox(TextBox textBox)
+        {
+            if (textBox == null) return;
+
+            if (textBox.DataContext is BackgroundStyleItemEditor item)
+            {
+                item.Style.Color = NormalizeColorText(textBox.Text, item.Style.Color);
+                SaveCustomBackgroundStyle();
+                return;
+            }
+
+            if (textBox.DataContext is BackgroundStyleCategoryEditor category)
+            {
+                category.BatchColor = NormalizeColorText(textBox.Text, category.BatchColor);
+            }
+        }
+
+        private void CustomBackgroundColorTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CommitCustomBackgroundColorTextBox(sender as TextBox);
+        }
+
+        private void CustomBackgroundColorTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            CommitCustomBackgroundColorTextBox(sender as TextBox);
+            Keyboard.ClearFocus();
+            e.Handled = true;
+        }
+
+        private void CustomBackgroundItem_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is BackgroundStyleItemEditor item)
+            {
+                item.Style.Opacity = ClampOpacity(item.Style.Opacity);
+            }
+
+            SaveCustomBackgroundStyle();
+        }
+
+        private void ButtonApplyBackgroundCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is FrameworkElement element) || !(element.DataContext is BackgroundStyleCategoryEditor category)) return;
+
+            category.BatchColor = NormalizeColorText(category.BatchColor, "#FEFEFE");
+            category.BatchOpacity = ClampOpacity(category.BatchOpacity);
+
+            foreach (BackgroundStyleItemEditor item in category.Items)
+            {
+                item.Style.Color = category.BatchColor;
+                item.Style.Opacity = category.BatchOpacity;
+            }
+
+            SaveCustomBackgroundStyle();
+        }
+
+        private void SaveCustomBackgroundStyle()
+        {
+            if (!isPageReady || mainWindow == null) return;
+
+            MainWindow.SaveSettings();
+            mainWindow.ApplyVisualSettings();
+            UpdateResetButtons();
+        }
+
+        private void CardWindowScaleMultiplier_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.WindowScaleMultiplier = defaultSettings.Look.WindowScaleMultiplier;
+            SliderWindowScaleMultiplier_ValueChanged(sender, e);
+        }
+
+        private void CardTheme_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.Theme = defaultSettings.Look.Theme;
+            ApplyThemeSettings();
+        }
+
+        private void CardBackgroundStyle_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.BackgroundStyle = defaultSettings.Look.BackgroundStyle;
+            MainWindow.Settings.Look.CustomBackgroundStyle = new CustomBackgroundStyle();
+            BuildBackgroundStyleCategories();
+            UpdateCustomBackgroundEditorVisibility();
+            ApplyVisualSettings();
+        }
+
+        private void CardIsComponentTitleTextHidden_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.IsComponentTitleTextHidden = defaultSettings.Look.IsComponentTitleTextHidden;
+            ApplyVisualSettings();
+        }
+
+        private void CardLookMode_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.LookMode = defaultSettings.Look.LookMode;
+            ApplyLookSettings();
+        }
+
+        private void CardIsLauncherEnabled_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.IsLauncherEnabled = defaultSettings.Look.IsLauncherEnabled;
+            ApplyLookSettings();
+        }
+
+        private void CardWindowHeightAdjustment_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.IsWindowHeightAdjustmentEnabled = defaultSettings.Look.IsWindowHeightAdjustmentEnabled;
+            MainWindow.Settings.Look.WindowHeightPercent = defaultSettings.Look.WindowHeightPercent;
+            ApplyLookSettings();
+        }
+
+        private void CardWindowVerticalAlignment_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.WindowVerticalAlignment = defaultSettings.Look.WindowVerticalAlignment;
+            ApplyLookSettings();
+        }
+
+        private void CardTargetMonitor_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.TargetMonitor = defaultSettings.Look.TargetMonitor;
+            ApplyLookSettings();
+        }
+
+        private void ToggleSwitchIsWindowChromeDisabled_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Look.IsWindowChromeDisabled = defaultSettings.Look.IsWindowChromeDisabled;
+            ToggleSwitchIsWindowChromeDisabled_Toggled(sender, e);
+        }
+
+        public class BackgroundStyleCategoryEditor : INotifyPropertyChanged
+        {
+            public BackgroundStyleCategoryEditor(string header, params BackgroundStyleItemEditor[] items)
+            {
+                Header = header;
+
+                foreach (BackgroundStyleItemEditor item in items)
+                {
+                    Items.Add(item);
+                }
+
+                if (Items.Count > 0)
+                {
+                    BatchColor = Items[0].Style.Color;
+                    BatchOpacity = Items[0].Style.Opacity;
+                }
+            }
+
+            public string Header { get; }
+            public ObservableCollection<BackgroundStyleItemEditor> Items { get; } = new ObservableCollection<BackgroundStyleItemEditor>();
+
+            private string _batchColor = "#FEFEFE";
+            public string BatchColor
+            {
+                get => _batchColor;
+                set
+                {
+                    if (_batchColor != value)
+                    {
+                        _batchColor = value;
+                        OnPropertyChanged();
+                    }
+                }
+            }
+
+            private double _batchOpacity = 60;
+            public double BatchOpacity
+            {
+                get => _batchOpacity;
+                set
+                {
+                    if (_batchOpacity != value)
+                    {
+                        _batchOpacity = value;
+                        OnPropertyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public class BackgroundStyleItemEditor
+        {
+            public BackgroundStyleItemEditor(string header, BackgroundElementStyle style)
+            {
+                Header = header;
+                Style = style;
+            }
+
+            public string Header { get; }
+            public BackgroundElementStyle Style { get; }
+        }
+    }
+
+    public class HexColorBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string colorText = value as string;
+
+            if (string.IsNullOrWhiteSpace(colorText)) return Brushes.Transparent;
+
+            try
+            {
+                object convertedColor = ColorConverter.ConvertFromString(colorText.Trim());
+                if (convertedColor is Color color)
+                {
+                    return new SolidColorBrush(Color.FromRgb(color.R, color.G, color.B));
+                }
+            }
+            catch
+            {
+            }
+
+            return Brushes.Transparent;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class CustomBackgroundStyleVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int backgroundStyle && backgroundStyle == 4) return Visibility.Visible;
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
 }

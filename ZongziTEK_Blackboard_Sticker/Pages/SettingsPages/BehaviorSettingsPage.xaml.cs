@@ -48,6 +48,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             {
                 MainWindow.StartAutomaticallyDel("ZongziTEK_Blackboard_Sticker");
             }
+
+            UpdateResetButtons();
         }
 
         private void LoadSettings()
@@ -56,6 +58,20 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             {
                 ToggleSwitchRunOnStartup.IsOn = true;
             }
+
+            UpdateResetButtons();
+        }
+
+        private void ToggleSwitchRunOnStartup_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            ToggleSwitchRunOnStartup.IsOn = false;
+            MainWindow.StartAutomaticallyDel("ZongziTEK_Blackboard_Sticker");
+            UpdateResetButtons();
+        }
+
+        private void UpdateResetButtons()
+        {
+            ToggleSwitchRunOnStartup.IsResetEnabled = File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + "\\ZongziTEK_Blackboard_Sticker" + ".lnk");
         }
     }
 }

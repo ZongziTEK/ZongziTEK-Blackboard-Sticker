@@ -306,6 +306,24 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             }
         }
 
+        private CustomBackgroundStyle _customBackgroundStyle = new CustomBackgroundStyle();
+        public CustomBackgroundStyle CustomBackgroundStyle
+        {
+            get
+            {
+                if (_customBackgroundStyle == null) _customBackgroundStyle = new CustomBackgroundStyle();
+                return _customBackgroundStyle;
+            }
+            set
+            {
+                if (_customBackgroundStyle != value)
+                {
+                    _customBackgroundStyle = value ?? new CustomBackgroundStyle();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private bool _isComponentTitleTextHidden = false;
         public bool IsComponentTitleTextHidden
         {
@@ -329,6 +347,190 @@ namespace ZongziTEK_Blackboard_Sticker.Models
                 if (_targetMonitor != value)
                 {
                     _targetMonitor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class CustomBackgroundStyle : INotifyPropertyChanged
+    {
+        private BackgroundElementStyle _mainPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle MainPanel
+        {
+            get => _mainPanel;
+            set
+            {
+                if (_mainPanel != value)
+                {
+                    _mainPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _topPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle TopPanel
+        {
+            get => _topPanel;
+            set
+            {
+                if (_topPanel != value)
+                {
+                    _topPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _blackboardPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle BlackboardPanel
+        {
+            get => _blackboardPanel;
+            set
+            {
+                if (_blackboardPanel != value)
+                {
+                    _blackboardPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _launcherPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle LauncherPanel
+        {
+            get => _launcherPanel;
+            set
+            {
+                if (_launcherPanel != value)
+                {
+                    _launcherPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _timetablePanel = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle TimetablePanel
+        {
+            get => _timetablePanel;
+            set
+            {
+                if (_timetablePanel != value)
+                {
+                    _timetablePanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _functionMenu = new BackgroundElementStyle("#FEFEFE", 60);
+        public BackgroundElementStyle FunctionMenu
+        {
+            get => _functionMenu;
+            set
+            {
+                if (_functionMenu != value)
+                {
+                    _functionMenu = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _blackboardTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        public BackgroundElementStyle BlackboardTitleBar
+        {
+            get => _blackboardTitleBar;
+            set
+            {
+                if (_blackboardTitleBar != value)
+                {
+                    _blackboardTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _launcherTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        public BackgroundElementStyle LauncherTitleBar
+        {
+            get => _launcherTitleBar;
+            set
+            {
+                if (_launcherTitleBar != value)
+                {
+                    _launcherTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _timetableTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        public BackgroundElementStyle TimetableTitleBar
+        {
+            get => _timetableTitleBar;
+            set
+            {
+                if (_timetableTitleBar != value)
+                {
+                    _timetableTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class BackgroundElementStyle : INotifyPropertyChanged
+    {
+        public BackgroundElementStyle()
+        {
+        }
+
+        public BackgroundElementStyle(string color, double opacity)
+        {
+            _color = color;
+            _opacity = opacity;
+        }
+
+        private string _color = "#FEFEFE";
+        public string Color
+        {
+            get => _color;
+            set
+            {
+                if (_color != value)
+                {
+                    _color = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _opacity = 60;
+        public double Opacity
+        {
+            get => _opacity;
+            set
+            {
+                if (_opacity != value)
+                {
+                    _opacity = value;
                     OnPropertyChanged();
                 }
             }

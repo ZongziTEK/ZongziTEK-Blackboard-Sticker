@@ -67,7 +67,25 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(TextBoxCard), new PropertyMetadata(""));
 
-        
+        public bool IsResetButtonVisible
+        {
+            get { return (bool)GetValue(IsResetButtonVisibleProperty); }
+            set { SetValue(IsResetButtonVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetButtonVisibleProperty =
+            DependencyProperty.Register("IsResetButtonVisible", typeof(bool), typeof(TextBoxCard), new PropertyMetadata(false));
+
+        public bool IsResetEnabled
+        {
+            get { return (bool)GetValue(IsResetEnabledProperty); }
+            set { SetValue(IsResetEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetEnabledProperty =
+            DependencyProperty.Register("IsResetEnabled", typeof(bool), typeof(TextBoxCard), new PropertyMetadata(true));
+
+
         // TextChanged Event
         public static readonly RoutedEvent TextChangedEvent = EventManager.RegisterRoutedEvent("TextChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxCard));
 
@@ -81,6 +99,19 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             RoutedEventArgs routedEventArgs = new RoutedEventArgs(TextChangedEvent, this);
             RaiseEvent(routedEventArgs);
+        }
+
+        public static readonly RoutedEvent ResetClickedEvent = EventManager.RegisterRoutedEvent("ResetClicked", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxCard));
+
+        public event RoutedEventHandler ResetClicked
+        {
+            add { AddHandler(ResetClickedEvent, value); }
+            remove { RemoveHandler(ResetClickedEvent, value); }
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(ResetClickedEvent, this));
         }
     }
 }

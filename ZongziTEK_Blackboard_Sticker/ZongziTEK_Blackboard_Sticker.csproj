@@ -99,6 +99,9 @@
     <Compile Include="Controls\Cards\GenericSettingsCard.xaml.cs">
       <DependentUpon>GenericSettingsCard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Cards\NumberSettingEditor.xaml.cs">
+      <DependentUpon>NumberSettingEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Cards\SliderCard.xaml.cs">
       <DependentUpon>SliderCard.xaml</DependentUpon>
     </Compile>
@@ -207,6 +210,10 @@
       <DependentUpon>WelcomeWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\Cards\GenericSettingsCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Cards\NumberSettingEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

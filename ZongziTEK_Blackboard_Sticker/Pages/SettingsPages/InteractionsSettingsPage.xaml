@@ -16,9 +16,10 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="联动" Margin="12,8" FontWeight="Bold"/>
-                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.Link_20_Regular}" 
+                <card:ToggleSwitchCard x:Name="CardIsClassIslandConnectorEnabled" Icon="{x:Static ui:FluentSystemIcons.Link_20_Regular}" 
                                        Header="连接到 ClassIsland"
                                        Tip="在 ClassIsland 中安装 ZongziTEK 黑板贴连接器插件后，开启此开关"
+                                       IsResetButtonVisible="True" ResetClicked="CardIsClassIslandConnectorEnabled_ResetClicked"
                                        IsOn="{Binding InteractionsSettings.IsClassIslandConnectorEnabled, Mode=TwoWay}"/>
             </ikw:SimpleStackPanel>
         </ui:ScrollViewerEx>

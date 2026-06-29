@@ -18,7 +18,10 @@
             <Image Source="黑板贴.png" SnapsToDevicePixels="True" Width="16" HorizontalAlignment="Left" Margin="16,8"/>
             <Label Margin="44,8" Content="ZongziTEK 黑板贴 - 设置" FontSize="12" VerticalAlignment="Center"/>
         </Grid>
-        <ui:NavigationView Name="NavigationViewRoot" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneDisplayMode="LeftCompact" SelectionChanged="NavigationViewRoot_SelectionChanged">
+        <ui:NavigationView Name="NavigationViewRoot" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneDisplayMode="LeftCompact" UseLayoutRounding="True" SnapsToDevicePixels="True" SelectionChanged="NavigationViewRoot_SelectionChanged">
+            <ui:NavigationView.Resources>
+                <Duration x:Key="{x:Static ui:ThemeKeys.SplitViewPaneAnimationCloseDurationKey}">0:0:0</Duration>
+            </ui:NavigationView.Resources>
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="行为">
                     <ui:NavigationViewItem.Icon>

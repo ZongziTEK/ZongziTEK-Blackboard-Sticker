@@ -92,6 +92,24 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         public static readonly DependencyProperty IconProperty =
             DependencyProperty.Register("Icon", typeof(FontIconData), typeof(ToggleSwitchCard), new PropertyMetadata(FluentSystemIcons.EmojiLaugh_20_Regular));
 
+        public bool IsResetButtonVisible
+        {
+            get { return (bool)GetValue(IsResetButtonVisibleProperty); }
+            set { SetValue(IsResetButtonVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetButtonVisibleProperty =
+            DependencyProperty.Register("IsResetButtonVisible", typeof(bool), typeof(ToggleSwitchCard), new PropertyMetadata(false));
+
+        public bool IsResetEnabled
+        {
+            get { return (bool)GetValue(IsResetEnabledProperty); }
+            set { SetValue(IsResetEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetEnabledProperty =
+            DependencyProperty.Register("IsResetEnabled", typeof(bool), typeof(ToggleSwitchCard), new PropertyMetadata(true));
+
 
         // Toggled Event
         public static readonly RoutedEvent ToggledEvent = EventManager.RegisterRoutedEvent("Toggled", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(ToggleSwitchCard));
@@ -106,6 +124,19 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             RoutedEventArgs routedEventArgs = new RoutedEventArgs(ToggledEvent, this);
             RaiseEvent(routedEventArgs);
+        }
+
+        public static readonly RoutedEvent ResetClickedEvent = EventManager.RegisterRoutedEvent("ResetClicked", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(ToggleSwitchCard));
+
+        public event RoutedEventHandler ResetClicked
+        {
+            add { AddHandler(ResetClickedEvent, value); }
+            remove { RemoveHandler(ResetClickedEvent, value); }
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(ResetClickedEvent, this));
         }
     }
 }

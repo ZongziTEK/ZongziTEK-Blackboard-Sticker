@@ -41,10 +41,10 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void NavigationViewRoot_SelectionChanged(iNKORE.UI.WPF.Modern.Controls.NavigationView sender, iNKORE.UI.WPF.Modern.Controls.NavigationViewSelectionChangedEventArgs args)
         {
-            int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
+            int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(args.SelectedItem);
             if (currentPageIndex == -1)
             {
-                int footerPageIndex = NavigationViewRoot.FooterMenuItems.IndexOf(NavigationViewRoot.SelectedItem);
+                int footerPageIndex = NavigationViewRoot.FooterMenuItems.IndexOf(args.SelectedItem);
                 if (footerPageIndex == -1) return;
 
                 currentPageIndex = NavigationViewRoot.MenuItems.Count + footerPageIndex;

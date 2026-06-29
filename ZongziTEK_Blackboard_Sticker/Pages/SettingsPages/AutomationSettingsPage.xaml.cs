@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Models;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 {
@@ -21,11 +22,14 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     /// </summary>
     public partial class AutomationSettingsPage : Page
     {
+        private readonly Settings defaultSettings = new Settings();
+
         public AutomationSettingsPage()
         {
             InitializeComponent();
 
             DataContext = MainWindow.Settings.Automation;
+            UpdateResetButtons();
         }
 
         private void HyperlinkButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)
@@ -41,6 +45,21 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
                 (Application.Current.MainWindow as MainWindow).timerHideSeewoServiceAssistant.Start();
             else
                 (Application.Current.MainWindow as MainWindow).timerHideSeewoServiceAssistant.Stop();
+
+            UpdateResetButtons();
+        }
+
+        private void CardIsAutoHideHugoAssistantEnabled_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled = defaultSettings.Automation.IsAutoHideHugoAssistantEnabled;
+            ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled(sender, e);
+        }
+
+        private void UpdateResetButtons()
+        {
+            if (CardIsAutoHideHugoAssistantEnabled == null) return;
+
+            CardIsAutoHideHugoAssistantEnabled.IsResetEnabled = MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled != defaultSettings.Automation.IsAutoHideHugoAssistantEnabled;
         }
     }
 }

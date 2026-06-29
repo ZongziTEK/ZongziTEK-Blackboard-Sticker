@@ -6,7 +6,7 @@
              xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
              xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker.Controls.Cards"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Loaded="SliderCard_Loaded">
+             d:DesignHeight="450" d:DesignWidth="800">
     <Border HorizontalAlignment="Stretch" Height="68"
             Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
             CornerRadius="4" BorderBrush="{DynamicResource {x:Static ui:ThemeKeys.CardStrokeColorDefaultBrushKey}}" BorderThickness="1">
@@ -15,26 +15,38 @@
                 <ColumnDefinition Width="48"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <ui:FontIcon Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Icon="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Icon}" FontSize="20"/>
             <ikw:SimpleStackPanel Spacing="0" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" FontSize="14" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Header}"/>
                 <TextBlock Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextEmptyToCollapsedConverter}}" Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" Opacity="0.75" FontSize="12" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Tip}"/>
             </ikw:SimpleStackPanel>
-            <Button Grid.Column="2" Margin="12,0" Height="32" Content="调整该项设置" Background="Transparent" Foreground="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonBackgroundKey}}" BorderThickness="0">
-                <ui:FlyoutService.Flyout>
-                    <ui:Flyout>
-                        <Grid Width="400">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="40"/>
-                            </Grid.ColumnDefinitions>
-                            <Slider x:Name="MainSlider" Grid.Column="0" ValueChanged="MainSlider_ValueChanged" PreviewMouseDown="MainSlider_PreviewMouseDown" PreviewMouseUp="MainSlider_PreviewMouseUp"
-                                    IsSnapToTickEnabled="True" VerticalAlignment="Center" TickPlacement="Both" AutoToolTipPlacement="None"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Path=Value,Source={x:Reference Name=MainSlider}}" Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
-                        </Grid>
-                    </ui:Flyout>
-                </ui:FlyoutService.Flyout>
+            <local:NumberSettingEditor x:Name="MainEditor"
+                                       Grid.Column="2"
+                                       Margin="12,0,4,0"
+                                       Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Value, Mode=TwoWay}"
+                                       Minimum="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Minimum}"
+                                       Maximum="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Maximum}"
+                                       TickFrequency="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=TickFrequency}"
+                                       Unit="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=Unit}"
+                                       NumberFormat="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=NumberFormat}"
+                                       InputWidth="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=InputWidth}"
+                                       ValueChanged="MainEditor_ValueChanged"
+                                       ValueChangeStart="MainEditor_ValueChangeStart"
+                                       ValueChangeEnd="MainEditor_ValueChangeEnd"/>
+            <Button Grid.Column="3"
+                    Width="32"
+                    Height="32"
+                    Margin="0,0,12,0"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    ToolTip="恢复默认"
+                    IsEnabled="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=IsResetEnabled}"
+                    Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:SliderCard}, Mode=FindAncestor}, Path=IsResetButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Click="ResetButton_Click">
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" FontSize="18"/>
             </Button>
         </Grid>
     </Border>

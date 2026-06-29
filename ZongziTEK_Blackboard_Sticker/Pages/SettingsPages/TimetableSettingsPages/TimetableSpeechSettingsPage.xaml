@@ -20,7 +20,24 @@
                     <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ui:ControlHelper.CornerRadius="4" 
                               Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}" Style="{DynamicResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" IsExpanded="True">
                         <Expander.Header>
-                            <Label Content="选择需要的语音提醒"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="选择需要的语音提醒"/>
+                                <Button x:Name="ButtonResetSpeechSelection"
+                                        Grid.Column="1"
+                                        Width="32"
+                                        Height="32"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="恢复默认"
+                                        Click="ButtonResetSpeechSelection_Click">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" FontSize="18"/>
+                                </Button>
+                            </Grid>
                         </Expander.Header>
 
                         <ikw:SimpleStackPanel Spacing="16">
@@ -42,17 +59,28 @@
                     <Expander x:Name="CodeExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ui:ControlHelper.CornerRadius="4" 
                               Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}" Style="{DynamicResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" IsExpanded="True">
                         <Expander.Header>
-                            <Label Content="语音提醒音色"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="语音提醒音色"/>
+                                <Button x:Name="ButtonResetVoice"
+                                        Grid.Column="1"
+                                        Width="32"
+                                        Height="32"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="恢复默认"
+                                        Click="ButtonResetVoice_Click">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" FontSize="18"/>
+                                </Button>
+                            </Grid>
                         </Expander.Header>
 
                         <ikw:SimpleStackPanel Spacing="8">
                             <ComboBox x:Name="ComboBoxVoice" HorizontalAlignment="Stretch" SelectionChanged="ComboBoxVoice_SelectionChanged"/>
-                            <Button x:Name="ButtonResetVoice" Background="Transparent" BorderThickness="0" Click="ButtonResetVoice_Click">
-                                <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
-                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" VerticalAlignment="Center"/>
-                                    <TextBlock FontSize="12" Text="恢复默认" VerticalAlignment="Center"/>
-                                </ikw:SimpleStackPanel>
-                            </Button>
                             <Button x:Name="ButtonPreviewVoice" Background="Transparent" BorderThickness="0" Click="ButtonPreviewVoice_Click">
                                 <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
                                     <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Play_20_Regular}" VerticalAlignment="Center"/>

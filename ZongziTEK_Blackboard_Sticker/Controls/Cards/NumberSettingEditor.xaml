@@ -1,0 +1,62 @@
+<UserControl x:Class="ZongziTEK_Blackboard_Sticker.Controls.Cards.NumberSettingEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+             xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+             xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker.Controls.Cards"
+             mc:Ignorable="d"
+             d:DesignHeight="40" d:DesignWidth="220"
+             Loaded="NumberSettingEditor_Loaded">
+    <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+        <TextBox x:Name="ValueTextBox"
+                 Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NumberSettingEditor}, Mode=FindAncestor}, Path=InputWidth}"
+                 Height="32"
+                 VerticalContentAlignment="Center"
+                 LostFocus="ValueTextBox_LostFocus"
+                 KeyDown="ValueTextBox_KeyDown"/>
+        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NumberSettingEditor}, Mode=FindAncestor}, Path=Unit}"
+                   Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextEmptyToCollapsedConverter}}"
+                   Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}"
+                   VerticalAlignment="Center"
+                   Margin="2,0,4,0"/>
+        <Button Width="32"
+                Height="32"
+                Padding="0"
+                Background="Transparent"
+                BorderThickness="0"
+                ToolTip="使用滑条调整">
+            <Button.Content>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.SlideSettings_20_Regular}" FontSize="18"/>
+            </Button.Content>
+            <ui:FlyoutService.Flyout>
+                <ui:Flyout>
+                    <Grid Width="400">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="56"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="MainSlider"
+                                Grid.Column="0"
+                                ValueChanged="MainSlider_ValueChanged"
+                                PreviewMouseDown="MainSlider_PreviewMouseDown"
+                                PreviewMouseUp="MainSlider_PreviewMouseUp"
+                                PreviewTouchDown="MainSlider_PreviewTouchDown"
+                                PreviewTouchUp="MainSlider_PreviewTouchUp"
+                                IsSnapToTickEnabled="True"
+                                VerticalAlignment="Center"
+                                TickPlacement="Both"
+                                AutoToolTipPlacement="None"/>
+                        <TextBlock x:Name="SliderValueTextBlock"
+                                   Grid.Column="1"
+                                   Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Margin="12,0,0,0"/>
+                    </Grid>
+                </ui:Flyout>
+            </ui:FlyoutService.Flyout>
+        </Button>
+    </ikw:SimpleStackPanel>
+</UserControl>
