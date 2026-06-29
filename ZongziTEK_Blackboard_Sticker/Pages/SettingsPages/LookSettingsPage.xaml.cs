@@ -111,6 +111,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             MainWindow.SetTheme();
         }
 
+        private void ComboBoxBackgroundStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyVisualSettings();
+        }
+
         private void ComboBoxLookMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplyLookSettings();
@@ -119,6 +124,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         private void ToggleSwitchIsLauncherEnabled_Toggled(object sender, RoutedEventArgs e)
         {
             ApplyLookSettings();
+        }
+
+        private void ToggleSwitchIsComponentTitleTextHidden_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplyVisualSettings();
         }
 
         private void ToggleSwitchIsWindowHeightAdjustmentEnabled_Toggled(object sender, RoutedEventArgs e)
@@ -167,6 +177,14 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             var classIslandConnectorService = App.ServiceManager.GetService<ClassIslandConnectorService>();
             if (classIslandConnectorService != null) _ = classIslandConnectorService.RefreshIslandTerritory();
+        }
+
+        private void ApplyVisualSettings()
+        {
+            if (!isPageReady || mainWindow == null) return;
+
+            MainWindow.SaveSettings();
+            mainWindow.ApplyVisualSettings();
         }
 
         private void ToggleSwitchIsWindowChromeDisabled_Toggled(object sender, RoutedEventArgs e)

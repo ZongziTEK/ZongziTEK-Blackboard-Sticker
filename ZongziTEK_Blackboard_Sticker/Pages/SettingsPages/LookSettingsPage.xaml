@@ -29,6 +29,22 @@
                         </ComboBox>
                     </card:GenericSettingsCard.CardContent>
                 </card:GenericSettingsCard>
+                <Label FontSize="14" Margin="12,8,0,0" Content="背景" Opacity="0.8"/>
+                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.PaintBrush_20_Regular}" Header="背景风格">
+                    <card:GenericSettingsCard.CardContent>
+                        <ComboBox Width="180" SelectedIndex="{Binding BackgroundStyle}" SelectionChanged="ComboBoxBackgroundStyle_SelectionChanged">
+                            <ComboBoxItem>原生</ComboBoxItem>
+                            <ComboBoxItem>清爽</ComboBoxItem>
+                            <ComboBoxItem>简化</ComboBoxItem>
+                            <ComboBoxItem>全透</ComboBoxItem>
+                        </ComboBox>
+                    </card:GenericSettingsCard.CardContent>
+                </card:GenericSettingsCard>
+                <Label FontSize="14" Margin="12,8,0,0" Content="标题栏" Opacity="0.8"/>
+                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.TextFontSize_20_Regular}"
+                                       Header="隐藏组件标题文字" Tip="隐藏后，组件底部标题栏背景会收缩到按钮区域"
+                                       IsOn="{Binding IsComponentTitleTextHidden, Mode=TwoWay}"
+                                       Toggled="ToggleSwitchIsComponentTitleTextHidden_Toggled"/>
                 <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.ContentViewGallery_20_Regular}" Header="显示模式" Tip="此设置项决定要显示的内容，如需隐藏小黑板，请设置为简约模式">
                     <card:GenericSettingsCard.CardContent>
                         <ComboBox Width="180" SelectedIndex="{Binding LookMode}" SelectionChanged="ComboBoxLookMode_SelectionChanged">
@@ -43,15 +59,34 @@
                                        Header="显示启动台" Tip="关闭后隐藏底部启动台区域"
                                        IsOn="{Binding IsLauncherEnabled, Mode=TwoWay}"
                                        Toggled="ToggleSwitchIsLauncherEnabled_Toggled"/>
-                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.ScaleFit_20_Regular}"
-                                       Header="自定义主面板高度" Tip="关闭时使用全高窗口并应用 ClassIsland 避让"
-                                       IsOn="{Binding IsWindowHeightAdjustmentEnabled, Mode=TwoWay}"
-                                       Toggled="ToggleSwitchIsWindowHeightAdjustmentEnabled_Toggled"/>
-                <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.ScaleFit_20_Regular}" Header="主面板高度" Tip="设置黑板贴占用目标屏幕高度的百分比"
-                                 IsEnabled="{Binding IsWindowHeightAdjustmentEnabled}"
-                                 Value="{Binding WindowHeightPercent, Mode=TwoWay}"
-                                 Minimum="30" Maximum="100" TickFrequency="1"
-                                 ValueChanged="SliderWindowHeightPercent_ValueChanged"/>
+                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.ScaleFit_20_Regular}"
+                                          Header="自定义主面板高度" Tip="关闭时使用全高窗口并应用 ClassIsland 避让">
+                    <card:GenericSettingsCard.CardContent>
+                        <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="调整该项设置" Visibility="{Binding IsWindowHeightAdjustmentEnabled, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ui:FlyoutService.Flyout>
+                                    <ui:Flyout>
+                                        <Grid Width="400">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="40"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Slider Grid.Column="0"
+                                                    Minimum="30" Maximum="100" TickFrequency="1"
+                                                    Value="{Binding WindowHeightPercent, Mode=TwoWay}"
+                                                    ValueChanged="SliderWindowHeightPercent_ValueChanged"
+                                                    IsSnapToTickEnabled="True" VerticalAlignment="Center" TickPlacement="Both" AutoToolTipPlacement="None"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding WindowHeightPercent, StringFormat={}{0:0}}"
+                                                       Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
+                                        </Grid>
+                                    </ui:Flyout>
+                                </ui:FlyoutService.Flyout>
+                            </Button>
+                            <ui:ToggleSwitch MinWidth="0" IsOn="{Binding IsWindowHeightAdjustmentEnabled, Mode=TwoWay}"
+                                             Toggled="ToggleSwitchIsWindowHeightAdjustmentEnabled_Toggled"/>
+                        </ikw:SimpleStackPanel>
+                    </card:GenericSettingsCard.CardContent>
+                </card:GenericSettingsCard>
                 <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.ContentViewGallery_20_Regular}" Header="垂直对齐"
                                           IsEnabled="{Binding IsWindowHeightAdjustmentEnabled}">
                     <card:GenericSettingsCard.CardContent>

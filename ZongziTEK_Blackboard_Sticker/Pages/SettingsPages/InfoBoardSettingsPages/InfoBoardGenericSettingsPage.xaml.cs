@@ -37,6 +37,12 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private List<CheckBox> CheckBoxes = new List<CheckBox>();
 
+        private void SliderSwitchInterval_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            MainWindow.SaveSettings();
+            (Application.Current.MainWindow as MainWindow)?.ApplyInfoBoardSwitchInterval();
+        }
+
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             MainWindow.SaveSettings();

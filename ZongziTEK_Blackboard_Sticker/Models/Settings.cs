@@ -292,6 +292,34 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             }
         }
 
+        private int _backgroundStyle = 0;
+        public int BackgroundStyle
+        {
+            get => _backgroundStyle;
+            set
+            {
+                if (_backgroundStyle != value)
+                {
+                    _backgroundStyle = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isComponentTitleTextHidden = false;
+        public bool IsComponentTitleTextHidden
+        {
+            get => _isComponentTitleTextHidden;
+            set
+            {
+                if (_isComponentTitleTextHidden != value)
+                {
+                    _isComponentTitleTextHidden = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private int _targetMonitor = 0;
         public int TargetMonitor
         {
@@ -611,6 +639,20 @@ namespace ZongziTEK_Blackboard_Sticker.Models
                 if (_isRainForecastOnly != value)
                 {
                     _isRainForecastOnly = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _switchIntervalSeconds = 4;
+        public double SwitchIntervalSeconds
+        {
+            get => _switchIntervalSeconds;
+            set
+            {
+                if (_switchIntervalSeconds != value)
+                {
+                    _switchIntervalSeconds = value;
                     OnPropertyChanged();
                 }
             }

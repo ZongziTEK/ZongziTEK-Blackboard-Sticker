@@ -24,9 +24,9 @@
                 <ikw:SimpleStackPanel Spacing="8" Visibility="{Binding ElementName=ToggleSwitchUseTimetable, Path=IsOn, Converter={StaticResource BoolToVisibilityConverter}}">
                     <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.Alert_20_Regular}" Header="上下课提醒" Tip="此设置不会影响语音播报" OnContent="启用" OffContent="禁用"
                                        IsOn="{Binding IsTimetableNotificationEnabled, Mode=TwoWay}" Toggled="ToggleSwitchIsTimetableNotificationEnabled_Toggled"/>
-                    <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.ArrowEnter_20_Regular}" Header="课前通知持续时间（秒）" Minimum="20" Maximum="180" TickFrequency="2.5"
+                    <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.ArrowEnter_20_Regular}" Header="课前通知持续时间（秒）" Minimum="5" Maximum="180" TickFrequency="1"
                                  Value="{Binding BeginNotificationTime, Mode=TwoWay}" ValueChanged="SliderBeginNotificationTime_ValueChanged"/>
-                    <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.PersonRunning_20_Regular}" Header="下课通知持续时间（秒）" Minimum="4" Maximum="60" TickFrequency="1"
+                    <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.PersonRunning_20_Regular}" Header="下课通知持续时间（秒）" Minimum="5" Maximum="180" TickFrequency="1"
                                  Value="{Binding OverNotificationTime, Mode=TwoWay}" ValueChanged="SliderOverNotificationTime_ValueChanged"/>
                     <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.ShiftsActivity_20_Regular}" 
                                  Header="时间补偿（秒）" Tip="当学校铃声时间与黑板贴上下课提醒出现时间不一致时，请修改此值。正值为提前，负值为延后"

@@ -14,6 +14,10 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="信息看板" Margin="12,8" FontWeight="Bold"/>
+                <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.Clock_20_Regular}" Header="切换频率（秒）"
+                                 Value="{Binding SwitchIntervalSeconds, Mode=TwoWay}"
+                                 Minimum="1" Maximum="60" TickFrequency="1"
+                                 ValueChanged="SliderSwitchInterval_ValueChanged"/>
                 <Border HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
                         CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0">
                     <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ui:ControlHelper.CornerRadius="4" 

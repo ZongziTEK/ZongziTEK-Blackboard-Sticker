@@ -54,7 +54,7 @@
                 </Border>
 
                 <!--小黑板-->
-                <Border Grid.RowSpan="3" Grid.Row="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,0,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="BorderBlackboard" Grid.RowSpan="3" Grid.Row="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,0,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Border x:Name="borderClearConfirm" Visibility="Collapsed">
                             <ikw:SimpleStackPanel Spacing="24" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -77,10 +77,10 @@
                             </ikw:SimpleStackPanel>
                         </Border>
 
-                        <Border Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <Border x:Name="BorderBlackboardTitleBar" Height="40" Margin="8" Padding="8,0" CornerRadius="4" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <Grid>
-                                <Label Content="小黑板" VerticalAlignment="Center" Margin="8,0" FontSize="20"/>
-                                <ikw:SimpleStackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="8,0">
+                                <Label x:Name="LabelBlackboardTitle" Content="小黑板" VerticalAlignment="Center" Margin="0" FontSize="20"/>
+                                <ikw:SimpleStackPanel x:Name="StackPanelBlackboardTitleButtons" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0">
                                     <Grid>
                                         <Button Name="penButton" Click="penButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
                                                 Width="32" Height="32" Padding="0"
@@ -179,19 +179,21 @@
                             </ikw:SimpleStackPanel>
                         </ui:ScrollViewerEx>
 
-                        <Border Grid.Row="1" Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <Border x:Name="BorderLauncherTitleBar" Grid.Row="1" Height="40" Margin="8" Padding="8,0" CornerRadius="4" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <Grid>
-                                <Label Content="启动台" VerticalAlignment="Center" Margin="8,0" FontSize="20"/>
-                                <Button BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
-                                            Width="32" Height="32" Padding="0" HorizontalAlignment="Right" Margin="8,0">
-                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
-                                    <ui:FlyoutService.Flyout>
-                                        <ui:MenuFlyout>
-                                            <MenuItem Header="编辑" Click="ButtonEditLauncher_Click"/>
-                                            <MenuItem Header="刷新" Click="ButtonReloadLauncher_Click"/>
-                                        </ui:MenuFlyout>
-                                    </ui:FlyoutService.Flyout>
-                                </Button>
+                                <Label x:Name="LabelLauncherTitle" Content="启动台" VerticalAlignment="Center" Margin="0" FontSize="20"/>
+                                <ikw:SimpleStackPanel x:Name="StackPanelLauncherTitleButtons" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0">
+                                    <Button x:Name="ButtonLauncherTitleActions" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                                Width="32" Height="32" Padding="0">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
+                                        <ui:FlyoutService.Flyout>
+                                            <ui:MenuFlyout>
+                                                <MenuItem Header="编辑" Click="ButtonEditLauncher_Click"/>
+                                                <MenuItem Header="刷新" Click="ButtonReloadLauncher_Click"/>
+                                            </ui:MenuFlyout>
+                                        </ui:FlyoutService.Flyout>
+                                    </Button>
+                                </ikw:SimpleStackPanel>
                             </Grid>
                         </Border>
                     </Grid>
@@ -251,42 +253,44 @@
                                 <TextBox x:Name="textBoxTempCurriculums" AcceptsReturn="True" TextWrapping="Wrap" FontSize="16" Foreground="{DynamicResource ForegroundColor}"/>
                             </ikw:SimpleStackPanel>
                         </ui:ScrollViewerEx>
-                        <Border Grid.Row="1" Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <Border x:Name="BorderTimetableTitleBar" Grid.Row="1" Height="40" Margin="8" Padding="8,0" CornerRadius="4" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <Grid>
-                                <Label Content="课程表" 
+                                <Label x:Name="LabelTimetableTitle" Content="课程表" 
                                            VerticalAlignment="Center" 
-                                           Margin="8,0" 
+                                           Margin="0" 
                                            FontSize="20"/>
-                                <Button x:Name="saveCurriculumButton" Click="saveCurriculumButton_Click" Width="32" Height="32" Padding="0" Background="#00000000" BorderThickness="0" HorizontalAlignment="Right" Margin="8,0" Visibility="Collapsed">
-                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Save_20_Regular}" FontSize="24"/>
-                                </Button>
-                                <Button Name="editCurriculumButton" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
-                                            Width="32" Height="32" Padding="0" HorizontalAlignment="Right" Margin="8,0">
-                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
-                                    <ui:FlyoutService.Flyout>
-                                        <ui:MenuFlyout>
-                                            <MenuItem Name="MenuChooseTimetableToShow" Header="选择要展示的课表">
-                                                <MenuItem Name="MenuItemShowMondayTimetable" IsCheckable="True" Header="周一" Click="MenuItemShowMondayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowTuesdayTimetable" IsCheckable="True" Header="周二" Click="MenuItemShowTuesdayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowWednesdayTimetable" IsCheckable="True" Header="周三" Click="MenuItemShowWednesdayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowThursdayTimetable" IsCheckable="True" Header="周四" Click="MenuItemShowThursdayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowFridayTimetable" IsCheckable="True" Header="周五" Click="MenuItemShowFridayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowSaturdayTimetable" IsCheckable="True" Header="周六" Click="MenuItemShowSaturdayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowSundayTimetable" IsCheckable="True" Header="周日" Click="MenuItemShowSundayTimetable_Click"/>
-                                                <MenuItem Name="MenuItemShowTempTimetable" IsCheckable="True" Header="临时" Click="MenuItemShowTempTimetable_Click"/>
-                                            </MenuItem>
-                                            <MenuItem Name="MenuItemTimetableAutoScroll" Header="自动滚动" IsCheckable="True" Click="MenuItemTimetableAutoScroll_Click" IsChecked="True"/>
-                                            <MenuItem Header="编辑" Click="editCurriculumButton_Click"/>
-                                        </ui:MenuFlyout>
-                                    </ui:FlyoutService.Flyout>
-                                </Button>
+                                <ikw:SimpleStackPanel x:Name="StackPanelTimetableTitleButtons" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0">
+                                    <Button x:Name="saveCurriculumButton" Click="saveCurriculumButton_Click" Width="32" Height="32" Padding="0" Background="#00000000" BorderThickness="0" Visibility="Collapsed">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Save_20_Regular}" FontSize="24"/>
+                                    </Button>
+                                    <Button Name="editCurriculumButton" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                                Width="32" Height="32" Padding="0">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}" FontSize="24"/>
+                                        <ui:FlyoutService.Flyout>
+                                            <ui:MenuFlyout>
+                                                <MenuItem Name="MenuChooseTimetableToShow" Header="选择要展示的课表">
+                                                    <MenuItem Name="MenuItemShowMondayTimetable" IsCheckable="True" Header="周一" Click="MenuItemShowMondayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowTuesdayTimetable" IsCheckable="True" Header="周二" Click="MenuItemShowTuesdayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowWednesdayTimetable" IsCheckable="True" Header="周三" Click="MenuItemShowWednesdayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowThursdayTimetable" IsCheckable="True" Header="周四" Click="MenuItemShowThursdayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowFridayTimetable" IsCheckable="True" Header="周五" Click="MenuItemShowFridayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowSaturdayTimetable" IsCheckable="True" Header="周六" Click="MenuItemShowSaturdayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowSundayTimetable" IsCheckable="True" Header="周日" Click="MenuItemShowSundayTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowTempTimetable" IsCheckable="True" Header="临时" Click="MenuItemShowTempTimetable_Click"/>
+                                                </MenuItem>
+                                                <MenuItem Name="MenuItemTimetableAutoScroll" Header="自动滚动" IsCheckable="True" Click="MenuItemTimetableAutoScroll_Click" IsChecked="True"/>
+                                                <MenuItem Header="编辑" Click="editCurriculumButton_Click"/>
+                                            </ui:MenuFlyout>
+                                        </ui:FlyoutService.Flyout>
+                                    </Button>
+                                </ikw:SimpleStackPanel>
                             </Grid>
                         </Border>
                     </Grid>
                 </Border>
 
                 <!--功能菜单-->
-                <Border Grid.Row="3" Grid.Column="1" Height="40" Margin="8,0,8,8" CornerRadius="8" VerticalAlignment="Bottom" Background="{DynamicResource WindowBackgroundColor}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="BorderFunctionMenu" Grid.Row="3" Grid.Column="1" Height="40" Margin="8,0,8,8" CornerRadius="8" VerticalAlignment="Bottom" Background="{DynamicResource WindowBackgroundColor}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <ikw:SimpleStackPanel Margin="8,0" Spacing="8" Opacity="0.75" Orientation="Horizontal" HorizontalAlignment="Right">
                             <ui:FontIcon FontSize="24" Height="22" Width="22" Icon="{x:Static ui:FluentSystemIcons.Clock_20_Regular}" MouseDown="iconShowBigClock_MouseDown" Foreground="{DynamicResource ForegroundColor}"/>
