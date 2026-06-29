@@ -2204,6 +2204,7 @@ namespace ZongziTEK_Blackboard_Sticker
             bool isTimetableOnly = mode == 3;
 
             BorderTopPanel.Visibility = isTimetableOnly ? Visibility.Collapsed : Visibility.Visible;
+            BorderTimetable.Margin = new Thickness(8, isTimetableOnly ? 8 : 0, 8, 8);
             BorderLauncher.Visibility = Settings.Look.IsLauncherEnabled ? Visibility.Visible : Visibility.Collapsed;
         }
 
