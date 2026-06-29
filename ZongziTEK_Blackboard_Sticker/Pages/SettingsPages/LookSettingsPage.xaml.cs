@@ -33,6 +33,17 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         public ObservableCollection<MonitorItem> Monitors { get; set; } = new();
         public ObservableCollection<BackgroundStyleCategoryEditor> BackgroundStyleCategories { get; } = new();
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetWindowScaleMultiplier;
+        private SettingsResetItem resetTheme;
+        private SettingsResetItem resetBackgroundStyle;
+        private SettingsResetItem resetComponentTitleTextHidden;
+        private SettingsResetItem resetLookMode;
+        private SettingsResetItem resetLauncherEnabled;
+        private SettingsResetItem resetWindowHeightAdjustment;
+        private SettingsResetItem resetWindowVerticalAlignment;
+        private SettingsResetItem resetTargetMonitor;
+        private SettingsResetItem resetWindowChromeDisabled;
         private bool isPageReady = false;
 
         public LookSettingsPage()
@@ -42,6 +53,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             LoadMonitors();
             BuildBackgroundStyleCategories();
             DataContext = MainWindow.Settings.Look;
+            InitializeResetItems();
 
             Loaded += LookSettingsPage_Loaded;
             Unloaded += LookSettingsPage_Unloaded;
@@ -104,6 +116,88 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             public int Index { get; set; }
         }
 
+        private void InitializeResetItems()
+        {
+            resetWindowScaleMultiplier = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardWindowScaleMultiplier.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.WindowScaleMultiplier,
+                () => defaultSettings.Look.WindowScaleMultiplier,
+                value => MainWindow.Settings.Look.WindowScaleMultiplier = value,
+                ApplyWindowScaleSettings,
+                SettingsResetItem.AreClose);
+
+            resetTheme = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardTheme.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.Theme,
+                () => defaultSettings.Look.Theme,
+                value => MainWindow.Settings.Look.Theme = value,
+                ApplyThemeSettings);
+
+            resetBackgroundStyle = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardBackgroundStyle.IsResetEnabled = enabled,
+                HasBackgroundStyleChanged,
+                ResetBackgroundStyle,
+                ApplyVisualSettings);
+
+            resetComponentTitleTextHidden = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsComponentTitleTextHidden.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.IsComponentTitleTextHidden,
+                () => defaultSettings.Look.IsComponentTitleTextHidden,
+                value => MainWindow.Settings.Look.IsComponentTitleTextHidden = value,
+                ApplyVisualSettings);
+
+            resetLookMode = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardLookMode.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.LookMode,
+                () => defaultSettings.Look.LookMode,
+                value => MainWindow.Settings.Look.LookMode = value,
+                ApplyLookSettings);
+
+            resetLauncherEnabled = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsLauncherEnabled.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.IsLauncherEnabled,
+                () => defaultSettings.Look.IsLauncherEnabled,
+                value => MainWindow.Settings.Look.IsLauncherEnabled = value,
+                ApplyLookSettings);
+
+            resetWindowHeightAdjustment = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardWindowHeightAdjustment.IsResetEnabled = enabled,
+                HasWindowHeightAdjustmentChanged,
+                ResetWindowHeightAdjustment,
+                ApplyLookSettings);
+
+            resetWindowVerticalAlignment = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardWindowVerticalAlignment.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.WindowVerticalAlignment,
+                () => defaultSettings.Look.WindowVerticalAlignment,
+                value => MainWindow.Settings.Look.WindowVerticalAlignment = value,
+                ApplyLookSettings);
+
+            resetTargetMonitor = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardTargetMonitor.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.TargetMonitor,
+                () => defaultSettings.Look.TargetMonitor,
+                value => MainWindow.Settings.Look.TargetMonitor = value,
+                ApplyLookSettings);
+
+            resetWindowChromeDisabled = SettingsResetItem.Register(
+                resetItems,
+                enabled => ToggleSwitchIsWindowChromeDisabled.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Look.IsWindowChromeDisabled,
+                () => defaultSettings.Look.IsWindowChromeDisabled,
+                value => MainWindow.Settings.Look.IsWindowChromeDisabled = value,
+                ApplyWindowChromeSettings);
+        }
+
         private void ComboBoxMonitor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplyLookSettings();
@@ -160,11 +254,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void SliderWindowScaleMultiplier_ValueChanged(object sender, RoutedEventArgs e)
         {
-            if (!isPageReady) return;
-
-            MainWindow.SaveSettings();
-            MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
-            UpdateResetButtons();
+            ApplyWindowScaleSettings();
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeStart(object sender, RoutedEventArgs e)
@@ -194,6 +284,15 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             UpdateResetButtons();
         }
 
+        private void ApplyWindowScaleSettings()
+        {
+            if (!isPageReady) return;
+
+            MainWindow.SaveSettings();
+            MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
+            UpdateResetButtons();
+        }
+
         private void ApplyVisualSettings()
         {
             if (!isPageReady || mainWindow == null) return;
@@ -214,6 +313,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ToggleSwitchIsWindowChromeDisabled_Toggled(object sender, RoutedEventArgs e)
         {
+            ApplyWindowChromeSettings();
+        }
+
+        private void ApplyWindowChromeSettings()
+        {
             if (!isPageReady) return;
 
             MainWindow.SaveSettings();
@@ -224,24 +328,39 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void UpdateResetButtons()
         {
+            SettingsResetItem.UpdateAll(resetItems);
+        }
+
+        private bool HasBackgroundStyleChanged()
+        {
             Look settings = MainWindow.Settings.Look;
             Look defaults = defaultSettings.Look;
 
-            CardWindowScaleMultiplier.IsResetEnabled = !AreClose(settings.WindowScaleMultiplier, defaults.WindowScaleMultiplier);
-            CardTheme.IsResetEnabled = settings.Theme != defaults.Theme;
-            CardBackgroundStyle.IsResetEnabled = settings.BackgroundStyle != defaults.BackgroundStyle || !AreCustomBackgroundStylesEqual(settings.CustomBackgroundStyle, defaults.CustomBackgroundStyle);
-            CardIsComponentTitleTextHidden.IsResetEnabled = settings.IsComponentTitleTextHidden != defaults.IsComponentTitleTextHidden;
-            CardLookMode.IsResetEnabled = settings.LookMode != defaults.LookMode;
-            CardIsLauncherEnabled.IsResetEnabled = settings.IsLauncherEnabled != defaults.IsLauncherEnabled;
-            CardWindowHeightAdjustment.IsResetEnabled = settings.IsWindowHeightAdjustmentEnabled != defaults.IsWindowHeightAdjustmentEnabled || !AreClose(settings.WindowHeightPercent, defaults.WindowHeightPercent);
-            CardWindowVerticalAlignment.IsResetEnabled = settings.WindowVerticalAlignment != defaults.WindowVerticalAlignment;
-            CardTargetMonitor.IsResetEnabled = settings.TargetMonitor != defaults.TargetMonitor;
-            ToggleSwitchIsWindowChromeDisabled.IsResetEnabled = settings.IsWindowChromeDisabled != defaults.IsWindowChromeDisabled;
+            return settings.BackgroundStyle != defaults.BackgroundStyle ||
+                   !AreCustomBackgroundStylesEqual(settings.CustomBackgroundStyle, defaults.CustomBackgroundStyle);
         }
 
-        private static bool AreClose(double a, double b)
+        private void ResetBackgroundStyle()
         {
-            return Math.Abs(a - b) < 0.0000001;
+            MainWindow.Settings.Look.BackgroundStyle = defaultSettings.Look.BackgroundStyle;
+            MainWindow.Settings.Look.CustomBackgroundStyle = new CustomBackgroundStyle();
+            BuildBackgroundStyleCategories();
+            UpdateCustomBackgroundEditorVisibility();
+        }
+
+        private bool HasWindowHeightAdjustmentChanged()
+        {
+            Look settings = MainWindow.Settings.Look;
+            Look defaults = defaultSettings.Look;
+
+            return settings.IsWindowHeightAdjustmentEnabled != defaults.IsWindowHeightAdjustmentEnabled ||
+                   !SettingsResetItem.AreClose(settings.WindowHeightPercent, defaults.WindowHeightPercent);
+        }
+
+        private void ResetWindowHeightAdjustment()
+        {
+            MainWindow.Settings.Look.IsWindowHeightAdjustmentEnabled = defaultSettings.Look.IsWindowHeightAdjustmentEnabled;
+            MainWindow.Settings.Look.WindowHeightPercent = defaultSettings.Look.WindowHeightPercent;
         }
 
         private static bool AreBackgroundElementStylesEqual(BackgroundElementStyle current, BackgroundElementStyle defaults)
@@ -249,7 +368,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             if (current == null || defaults == null) return current == defaults;
 
             return string.Equals(NormalizeColorText(current.Color, "#FEFEFE"), NormalizeColorText(defaults.Color, "#FEFEFE"), StringComparison.OrdinalIgnoreCase)
-                && AreClose(current.Opacity, defaults.Opacity);
+                && SettingsResetItem.AreClose(current.Opacity, defaults.Opacity);
         }
 
         private static bool AreCustomBackgroundStylesEqual(CustomBackgroundStyle current, CustomBackgroundStyle defaults)
@@ -408,66 +527,52 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void CardWindowScaleMultiplier_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.WindowScaleMultiplier = defaultSettings.Look.WindowScaleMultiplier;
-            SliderWindowScaleMultiplier_ValueChanged(sender, e);
+            resetWindowScaleMultiplier.Reset();
         }
 
         private void CardTheme_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.Theme = defaultSettings.Look.Theme;
-            ApplyThemeSettings();
+            resetTheme.Reset();
         }
 
         private void CardBackgroundStyle_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.BackgroundStyle = defaultSettings.Look.BackgroundStyle;
-            MainWindow.Settings.Look.CustomBackgroundStyle = new CustomBackgroundStyle();
-            BuildBackgroundStyleCategories();
-            UpdateCustomBackgroundEditorVisibility();
-            ApplyVisualSettings();
+            resetBackgroundStyle.Reset();
         }
 
         private void CardIsComponentTitleTextHidden_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.IsComponentTitleTextHidden = defaultSettings.Look.IsComponentTitleTextHidden;
-            ApplyVisualSettings();
+            resetComponentTitleTextHidden.Reset();
         }
 
         private void CardLookMode_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.LookMode = defaultSettings.Look.LookMode;
-            ApplyLookSettings();
+            resetLookMode.Reset();
         }
 
         private void CardIsLauncherEnabled_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.IsLauncherEnabled = defaultSettings.Look.IsLauncherEnabled;
-            ApplyLookSettings();
+            resetLauncherEnabled.Reset();
         }
 
         private void CardWindowHeightAdjustment_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.IsWindowHeightAdjustmentEnabled = defaultSettings.Look.IsWindowHeightAdjustmentEnabled;
-            MainWindow.Settings.Look.WindowHeightPercent = defaultSettings.Look.WindowHeightPercent;
-            ApplyLookSettings();
+            resetWindowHeightAdjustment.Reset();
         }
 
         private void CardWindowVerticalAlignment_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.WindowVerticalAlignment = defaultSettings.Look.WindowVerticalAlignment;
-            ApplyLookSettings();
+            resetWindowVerticalAlignment.Reset();
         }
 
         private void CardTargetMonitor_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.TargetMonitor = defaultSettings.Look.TargetMonitor;
-            ApplyLookSettings();
+            resetTargetMonitor.Reset();
         }
 
         private void ToggleSwitchIsWindowChromeDisabled_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Look.IsWindowChromeDisabled = defaultSettings.Look.IsWindowChromeDisabled;
-            ToggleSwitchIsWindowChromeDisabled_Toggled(sender, e);
+            resetWindowChromeDisabled.Reset();
         }
 
         public class BackgroundStyleCategoryEditor : INotifyPropertyChanged

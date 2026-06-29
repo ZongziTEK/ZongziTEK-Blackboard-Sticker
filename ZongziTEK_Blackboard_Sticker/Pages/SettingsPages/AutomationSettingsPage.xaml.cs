@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
@@ -23,12 +24,15 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     public partial class AutomationSettingsPage : Page
     {
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetAutoHideHugoAssistant;
 
         public AutomationSettingsPage()
         {
             InitializeComponent();
 
             DataContext = MainWindow.Settings.Automation;
+            InitializeResetItems();
             UpdateResetButtons();
         }
 
@@ -38,6 +42,22 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         }
 
         private void ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplyAutoHideHugoAssistantSettings();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetAutoHideHugoAssistant = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsAutoHideHugoAssistantEnabled.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled,
+                () => defaultSettings.Automation.IsAutoHideHugoAssistantEnabled,
+                value => MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled = value,
+                ApplyAutoHideHugoAssistantSettings);
+        }
+
+        private void ApplyAutoHideHugoAssistantSettings()
         {
             MainWindow.SaveSettings();
 
@@ -51,15 +71,12 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void CardIsAutoHideHugoAssistantEnabled_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled = defaultSettings.Automation.IsAutoHideHugoAssistantEnabled;
-            ToggleSwitchIsAutoHideHugoAssistantEnabled_Toggled(sender, e);
+            resetAutoHideHugoAssistant.Reset();
         }
 
         private void UpdateResetButtons()
         {
-            if (CardIsAutoHideHugoAssistantEnabled == null) return;
-
-            CardIsAutoHideHugoAssistantEnabled.IsResetEnabled = MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled != defaultSettings.Automation.IsAutoHideHugoAssistantEnabled;
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

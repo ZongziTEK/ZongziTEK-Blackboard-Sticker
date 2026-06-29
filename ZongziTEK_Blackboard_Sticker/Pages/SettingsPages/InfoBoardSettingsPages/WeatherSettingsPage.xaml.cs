@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 using Page = System.Windows.Controls.Page;
 
@@ -24,12 +25,16 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
     public partial class WeatherSettingsPage : Page
     {
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetWeatherCity;
+        private SettingsResetItem resetRainForecastOnly;
 
         public WeatherSettingsPage()
         {
             InitializeComponent();
 
             DataContext = MainWindow.Settings.InfoBoard;
+            InitializeResetItems();
             UpdateResetButtons();
         }
 
@@ -48,29 +53,47 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void ToggleSwitchIsRainForecastOnly_Toggled(object sender, RoutedEventArgs e)
         {
+            ApplyWeatherSettings();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetWeatherCity = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardWeatherCity.IsResetEnabled = enabled,
+                () => MainWindow.Settings.InfoBoard.WeatherCity,
+                () => defaultSettings.InfoBoard.WeatherCity,
+                value => MainWindow.Settings.InfoBoard.WeatherCity = value,
+                ApplyWeatherSettings);
+
+            resetRainForecastOnly = SettingsResetItem.Register(
+                resetItems,
+                enabled => ToggleSwitchIsRainForecastOnly.IsResetEnabled = enabled,
+                () => MainWindow.Settings.InfoBoard.IsRainForecastOnly,
+                () => defaultSettings.InfoBoard.IsRainForecastOnly,
+                value => MainWindow.Settings.InfoBoard.IsRainForecastOnly = value,
+                ApplyWeatherSettings);
+        }
+
+        private void ApplyWeatherSettings()
+        {
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }
 
         private void CardWeatherCity_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.InfoBoard.WeatherCity = defaultSettings.InfoBoard.WeatherCity;
-            MainWindow.SaveSettings();
-            UpdateResetButtons();
+            resetWeatherCity.Reset();
         }
 
         private void ToggleSwitchIsRainForecastOnly_ResetClicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Settings.InfoBoard.IsRainForecastOnly = defaultSettings.InfoBoard.IsRainForecastOnly;
-            ToggleSwitchIsRainForecastOnly_Toggled(sender, e);
+            resetRainForecastOnly.Reset();
         }
 
         private void UpdateResetButtons()
         {
-            if (CardWeatherCity == null || ToggleSwitchIsRainForecastOnly == null) return;
-
-            CardWeatherCity.IsResetEnabled = MainWindow.Settings.InfoBoard.WeatherCity != defaultSettings.InfoBoard.WeatherCity;
-            ToggleSwitchIsRainForecastOnly.IsResetEnabled = MainWindow.Settings.InfoBoard.IsRainForecastOnly != defaultSettings.InfoBoard.IsRainForecastOnly;
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

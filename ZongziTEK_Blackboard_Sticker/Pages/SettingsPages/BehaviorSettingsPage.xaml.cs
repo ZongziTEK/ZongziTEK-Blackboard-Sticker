@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 {
@@ -21,10 +22,15 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     /// </summary>
     public partial class BehaviorSettingsPage : Page
     {
+        private const string StartupShortcutName = "ZongziTEK_Blackboard_Sticker";
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetRunOnStartup;
+
         public BehaviorSettingsPage()
         {
             InitializeComponent();
 
+            InitializeResetItems();
             LoadSettings();
         }
 
@@ -40,13 +46,32 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ToggleSwitchRunOnStartup_Toggled(object sender, RoutedEventArgs e)
         {
+            ApplyRunOnStartupSetting();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetRunOnStartup = SettingsResetItem.Register(
+                resetItems,
+                enabled => ToggleSwitchRunOnStartup.IsResetEnabled = enabled,
+                () => File.Exists(GetStartupShortcutPath()),
+                () =>
+                {
+                    ToggleSwitchRunOnStartup.IsOn = false;
+                    MainWindow.StartAutomaticallyDel(StartupShortcutName);
+                },
+                UpdateResetButtons);
+        }
+
+        private void ApplyRunOnStartupSetting()
+        {
             if (ToggleSwitchRunOnStartup.IsOn)
             {
-                MainWindow.StartAutomaticallyCreate("ZongziTEK_Blackboard_Sticker");
+                MainWindow.StartAutomaticallyCreate(StartupShortcutName);
             }
             else
             {
-                MainWindow.StartAutomaticallyDel("ZongziTEK_Blackboard_Sticker");
+                MainWindow.StartAutomaticallyDel(StartupShortcutName);
             }
 
             UpdateResetButtons();
@@ -64,14 +89,17 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ToggleSwitchRunOnStartup_ResetClicked(object sender, RoutedEventArgs e)
         {
-            ToggleSwitchRunOnStartup.IsOn = false;
-            MainWindow.StartAutomaticallyDel("ZongziTEK_Blackboard_Sticker");
-            UpdateResetButtons();
+            resetRunOnStartup.Reset();
         }
 
         private void UpdateResetButtons()
         {
-            ToggleSwitchRunOnStartup.IsResetEnabled = File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + "\\ZongziTEK_Blackboard_Sticker" + ".lnk");
+            SettingsResetItem.UpdateAll(resetItems);
+        }
+
+        private static string GetStartupShortcutPath()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.Startup) + "\\" + StartupShortcutName + ".lnk";
         }
     }
 }

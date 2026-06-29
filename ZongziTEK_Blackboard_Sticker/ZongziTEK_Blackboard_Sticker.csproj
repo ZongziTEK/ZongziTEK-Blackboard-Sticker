@@ -95,6 +95,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\CornerRadiusAnimation.cs" />
     <Compile Include="Helpers\ConsoleHelper.cs" />
+    <Compile Include="Helpers\SettingsResetItem.cs" />
     <Compile Include="Helpers\WeatherHelper.cs" />
     <Compile Include="Controls\Cards\GenericSettingsCard.xaml.cs">
       <DependentUpon>GenericSettingsCard.xaml</DependentUpon>

@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Services;
 
@@ -24,6 +25,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     public partial class InteractionsSettingsPage : Page
     {
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetClassIslandConnector;
         public Interactions InteractionsSettings { get; set; }
 
         public InteractionsSettingsPage()
@@ -34,6 +37,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             InteractionsSettings.PropertyChanged += InteractionsSettings_PropertyChanged;
 
             DataContext = this;
+            InitializeResetItems();
             UpdateResetButtons();
         }
 
@@ -62,15 +66,22 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void CardIsClassIslandConnectorEnabled_ResetClicked(object sender, RoutedEventArgs e)
         {
-            InteractionsSettings.IsClassIslandConnectorEnabled = defaultSettings.Interactions.IsClassIslandConnectorEnabled;
-            UpdateResetButtons();
+            resetClassIslandConnector.Reset();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetClassIslandConnector = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsClassIslandConnectorEnabled.IsResetEnabled = enabled,
+                () => InteractionsSettings.IsClassIslandConnectorEnabled,
+                () => defaultSettings.Interactions.IsClassIslandConnectorEnabled,
+                value => InteractionsSettings.IsClassIslandConnectorEnabled = value);
         }
 
         private void UpdateResetButtons()
         {
-            if (CardIsClassIslandConnectorEnabled == null) return;
-
-            CardIsClassIslandConnectorEnabled.IsResetEnabled = InteractionsSettings.IsClassIslandConnectorEnabled != defaultSettings.Interactions.IsClassIslandConnectorEnabled;
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

@@ -26,6 +26,9 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
     public partial class TimetableSpeechSettingsPage : Page
     {
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetSpeechSelection;
+        private SettingsResetItem resetVoice;
 
         public TimetableSpeechSettingsPage()
         {
@@ -63,6 +66,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
             }
             
             isLoaded = true;
+            InitializeResetItems();
             UpdateResetButtons();
         }
 
@@ -71,8 +75,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            MainWindow.SaveSettings();
-            UpdateResetButtons();
+            ApplySpeechSettings();
         }
 
         private class VoiceItem
@@ -87,16 +90,40 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
             if (ComboBoxVoice.SelectedIndex < 0 || ComboBoxVoice.SelectedIndex >= voiceItems.Count) return;
             
             MainWindow.Settings.TimetableSettings.Voice = voiceItems[ComboBoxVoice.SelectedIndex].Index;
+            ApplySpeechSettings();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetSpeechSelection = SettingsResetItem.Register(
+                resetItems,
+                enabled => ButtonResetSpeechSelection.IsEnabled = enabled,
+                HasSpeechSelectionChanged,
+                ResetSpeechSelection,
+                ApplySpeechSettings);
+
+            resetVoice = SettingsResetItem.Register(
+                resetItems,
+                enabled => ButtonResetVoice.IsEnabled = enabled,
+                () => MainWindow.Settings.TimetableSettings.Voice,
+                () => defaultSettings.TimetableSettings.Voice,
+                value =>
+                {
+                    SetSelectedVoice(value);
+                    MainWindow.Settings.TimetableSettings.Voice = value;
+                },
+                ApplySpeechSettings);
+        }
+
+        private void ApplySpeechSettings()
+        {
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }
 
         private void ButtonResetVoice_Click(object sender, RoutedEventArgs e)
         {
-            SetSelectedVoice(defaultSettings.TimetableSettings.Voice);
-            MainWindow.Settings.TimetableSettings.Voice = defaultSettings.TimetableSettings.Voice;
-            MainWindow.SaveSettings();
-            UpdateResetButtons();
+            resetVoice.Reset();
             e.Handled = true;
         }
 
@@ -107,11 +134,23 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
 
         private void ButtonResetSpeechSelection_Click(object sender, RoutedEventArgs e)
         {
+            resetSpeechSelection.Reset();
+            e.Handled = true;
+        }
+
+        private bool HasSpeechSelectionChanged()
+        {
+            TimetableSettings settings = MainWindow.Settings.TimetableSettings;
+            TimetableSettings defaults = defaultSettings.TimetableSettings;
+
+            return settings.IsBeginSpeechEnabled != defaults.IsBeginSpeechEnabled ||
+                   settings.IsOverSpeechEnabled != defaults.IsOverSpeechEnabled;
+        }
+
+        private void ResetSpeechSelection()
+        {
             MainWindow.Settings.TimetableSettings.IsBeginSpeechEnabled = defaultSettings.TimetableSettings.IsBeginSpeechEnabled;
             MainWindow.Settings.TimetableSettings.IsOverSpeechEnabled = defaultSettings.TimetableSettings.IsOverSpeechEnabled;
-            MainWindow.SaveSettings();
-            UpdateResetButtons();
-            e.Handled = true;
         }
 
         private void SetSelectedVoice(int voiceIndex)
@@ -128,15 +167,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
 
         private void UpdateResetButtons()
         {
-            if (ButtonResetSpeechSelection == null || ButtonResetVoice == null) return;
-
-            TimetableSettings settings = MainWindow.Settings.TimetableSettings;
-            TimetableSettings defaults = defaultSettings.TimetableSettings;
-
-            ButtonResetSpeechSelection.IsEnabled =
-                settings.IsBeginSpeechEnabled != defaults.IsBeginSpeechEnabled ||
-                settings.IsOverSpeechEnabled != defaults.IsOverSpeechEnabled;
-            ButtonResetVoice.IsEnabled = settings.Voice != defaults.Voice;
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

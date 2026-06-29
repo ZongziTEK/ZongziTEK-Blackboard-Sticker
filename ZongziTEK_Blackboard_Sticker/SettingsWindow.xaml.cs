@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using iNKORE.UI.WPF.Modern;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,17 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             InitializeComponent();
 
+            ConfigureNavigationViewPane();
             NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[0];
+        }
+
+        private void ConfigureNavigationViewPane()
+        {
+            Brush paneBackground = TryFindResource(ThemeKeys.LayerOnMicaBaseAltFillColorDefaultBrushKey) as Brush
+                ?? Brushes.Transparent;
+
+            NavigationViewRoot.Resources[ThemeKeys.NavigationViewDefaultPaneBackgroundKey] = paneBackground;
+            NavigationViewRoot.Resources[ThemeKeys.NavigationViewExpandedPaneBackgroundKey] = paneBackground;
         }
 
         private List<Type> pages = new()

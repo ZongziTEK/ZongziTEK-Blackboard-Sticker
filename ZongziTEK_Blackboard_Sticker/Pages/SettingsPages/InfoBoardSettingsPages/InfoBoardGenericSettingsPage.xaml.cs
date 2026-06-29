@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPages
@@ -22,12 +23,16 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
     public partial class InfoBoardGenericSettingsPage : Page
     {
         private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetSwitchInterval;
+        private SettingsResetItem resetInfoPages;
 
         public InfoBoardGenericSettingsPage()
         {
             InitializeComponent();
 
             DataContext = MainWindow.Settings.InfoBoard;
+            InitializeResetItems();
 
             CheckBoxes = new List<CheckBox>
             {
@@ -44,15 +49,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void SliderSwitchInterval_ValueChanged(object sender, RoutedEventArgs e)
         {
-            MainWindow.SaveSettings();
-            (Application.Current.MainWindow as MainWindow)?.ApplyInfoBoardSwitchInterval();
-            UpdateResetButtons();
+            ApplySwitchIntervalSettings();
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            MainWindow.SaveSettings();
-
             bool HasNoCheckBoxSelected = true;
 
             foreach (CheckBox checkBox in CheckBoxes)
@@ -70,47 +71,75 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
                 return;
             }
 
+            ApplyInfoPagesSettings();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetSwitchInterval = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardSwitchInterval.IsResetEnabled = enabled,
+                () => MainWindow.Settings.InfoBoard.SwitchIntervalSeconds,
+                () => defaultSettings.InfoBoard.SwitchIntervalSeconds,
+                value => MainWindow.Settings.InfoBoard.SwitchIntervalSeconds = value,
+                ApplySwitchIntervalSettings,
+                SettingsResetItem.AreClose);
+
+            resetInfoPages = SettingsResetItem.Register(
+                resetItems,
+                enabled => ButtonResetInfoPages.IsEnabled = enabled,
+                HasInfoPagesChanged,
+                ResetInfoPages,
+                ApplyInfoPagesSettings);
+        }
+
+        private void ApplySwitchIntervalSettings()
+        {
+            MainWindow.SaveSettings();
+            (Application.Current.MainWindow as MainWindow)?.ApplyInfoBoardSwitchInterval();
+            UpdateResetButtons();
+        }
+
+        private void ApplyInfoPagesSettings()
+        {
+            MainWindow.SaveSettings();
             (Application.Current.MainWindow as MainWindow).LoadFrameInfoPagesList();
             UpdateResetButtons();
         }
 
-        private void CardSwitchInterval_ResetClicked(object sender, RoutedEventArgs e)
+        private bool HasInfoPagesChanged()
         {
-            MainWindow.Settings.InfoBoard.SwitchIntervalSeconds = defaultSettings.InfoBoard.SwitchIntervalSeconds;
-            SliderSwitchInterval_ValueChanged(sender, e);
+            InfoBoard settings = MainWindow.Settings.InfoBoard;
+            InfoBoard defaults = defaultSettings.InfoBoard;
+
+            return settings.isDatePageEnabled != defaults.isDatePageEnabled ||
+                   settings.isCountdownPageEnabled != defaults.isCountdownPageEnabled ||
+                   settings.isWeatherPageEnabled != defaults.isWeatherPageEnabled ||
+                   settings.isWeatherForecastPageEnabled != defaults.isWeatherForecastPageEnabled;
         }
 
-        private void ButtonResetInfoPages_Click(object sender, RoutedEventArgs e)
+        private void ResetInfoPages()
         {
             MainWindow.Settings.InfoBoard.isDatePageEnabled = defaultSettings.InfoBoard.isDatePageEnabled;
             MainWindow.Settings.InfoBoard.isCountdownPageEnabled = defaultSettings.InfoBoard.isCountdownPageEnabled;
             MainWindow.Settings.InfoBoard.isWeatherPageEnabled = defaultSettings.InfoBoard.isWeatherPageEnabled;
             MainWindow.Settings.InfoBoard.isWeatherForecastPageEnabled = defaultSettings.InfoBoard.isWeatherForecastPageEnabled;
+        }
 
-            MainWindow.SaveSettings();
-            (Application.Current.MainWindow as MainWindow).LoadFrameInfoPagesList();
-            UpdateResetButtons();
+        private void CardSwitchInterval_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            resetSwitchInterval.Reset();
+        }
+
+        private void ButtonResetInfoPages_Click(object sender, RoutedEventArgs e)
+        {
+            resetInfoPages.Reset();
             e.Handled = true;
         }
 
         private void UpdateResetButtons()
         {
-            if (CardSwitchInterval == null || ButtonResetInfoPages == null) return;
-
-            InfoBoard settings = MainWindow.Settings.InfoBoard;
-            InfoBoard defaults = defaultSettings.InfoBoard;
-
-            CardSwitchInterval.IsResetEnabled = !AreClose(settings.SwitchIntervalSeconds, defaults.SwitchIntervalSeconds);
-            ButtonResetInfoPages.IsEnabled =
-                settings.isDatePageEnabled != defaults.isDatePageEnabled ||
-                settings.isCountdownPageEnabled != defaults.isCountdownPageEnabled ||
-                settings.isWeatherPageEnabled != defaults.isWeatherPageEnabled ||
-                settings.isWeatherForecastPageEnabled != defaults.isWeatherForecastPageEnabled;
-        }
-
-        private static bool AreClose(double a, double b)
-        {
-            return Math.Abs(a - b) < 0.0000001;
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }
