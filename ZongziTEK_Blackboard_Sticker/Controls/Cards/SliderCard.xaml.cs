@@ -1,18 +1,7 @@
-﻿using iNKORE.UI.WPF.Modern.Common.IconKeys;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using iNKORE.UI.WPF.Modern.Common.IconKeys;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 
 namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 {
@@ -26,22 +15,13 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             InitializeComponent();
         }
 
-        bool isLoaded = false;
-
-        private void SliderCard_Loaded(object sender, RoutedEventArgs e)
-        {
-            MainSlider.Minimum = Minimum;
-            MainSlider.Maximum = Maximum;
-            MainSlider.TickFrequency = TickFrequency;
-            MainSlider.Value = Value;
-
-            isLoaded = true;
-        }
-
         public void SetValue(double value)
         {
             Value = value;
-            MainSlider.Value = value;
+            if (MainEditor != null)
+            {
+                MainEditor.Value = value;
+            }
         }
 
         public string Header
@@ -50,10 +30,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(HeaderProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Header.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HeaderProperty =
             DependencyProperty.Register("Header", typeof(string), typeof(SliderCard), new PropertyMetadata(""));
-
 
         public string Tip
         {
@@ -61,7 +39,6 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(TipProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Tip.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TipProperty =
             DependencyProperty.Register("Tip", typeof(string), typeof(SliderCard), new PropertyMetadata(""));
 
@@ -71,7 +48,6 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(IconProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Icon.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IconProperty =
             DependencyProperty.Register("Icon", typeof(FontIconData), typeof(SliderCard), new PropertyMetadata(FluentSystemIcons.EmojiLaugh_20_Regular));
 
@@ -81,7 +57,6 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(ValueProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(SliderCard), new PropertyMetadata((double)0));
 
@@ -91,7 +66,6 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(MinimumProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Minimum.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinimumProperty =
             DependencyProperty.Register("Minimum", typeof(double), typeof(SliderCard), new PropertyMetadata((double)0));
 
@@ -101,7 +75,6 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(MaximumProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Maximum.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MaximumProperty =
             DependencyProperty.Register("Maximum", typeof(double), typeof(SliderCard), new PropertyMetadata((double)1));
 
@@ -111,12 +84,54 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             set { SetValue(TickFrequencyProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for TickFrequency.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TickFrequencyProperty =
             DependencyProperty.Register("TickFrequency", typeof(double), typeof(SliderCard), new PropertyMetadata(0.1));
 
+        public string Unit
+        {
+            get { return (string)GetValue(UnitProperty); }
+            set { SetValue(UnitProperty, value); }
+        }
 
-        // ValueChanged Event
+        public static readonly DependencyProperty UnitProperty =
+            DependencyProperty.Register("Unit", typeof(string), typeof(SliderCard), new PropertyMetadata(""));
+
+        public string NumberFormat
+        {
+            get { return (string)GetValue(NumberFormatProperty); }
+            set { SetValue(NumberFormatProperty, value); }
+        }
+
+        public static readonly DependencyProperty NumberFormatProperty =
+            DependencyProperty.Register("NumberFormat", typeof(string), typeof(SliderCard), new PropertyMetadata("0.##"));
+
+        public double InputWidth
+        {
+            get { return (double)GetValue(InputWidthProperty); }
+            set { SetValue(InputWidthProperty, value); }
+        }
+
+        public static readonly DependencyProperty InputWidthProperty =
+            DependencyProperty.Register("InputWidth", typeof(double), typeof(SliderCard), new PropertyMetadata((double)80));
+
+        public bool IsResetButtonVisible
+        {
+            get { return (bool)GetValue(IsResetButtonVisibleProperty); }
+            set { SetValue(IsResetButtonVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetButtonVisibleProperty =
+            DependencyProperty.Register("IsResetButtonVisible", typeof(bool), typeof(SliderCard), new PropertyMetadata(false));
+
+        public bool IsResetEnabled
+        {
+            get { return (bool)GetValue(IsResetEnabledProperty); }
+            set { SetValue(IsResetEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsResetEnabledProperty =
+            DependencyProperty.Register("IsResetEnabled", typeof(bool), typeof(SliderCard), new PropertyMetadata(true));
+
         public static readonly RoutedEvent ValueChangedEvent = EventManager.RegisterRoutedEvent("ValueChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SliderCard));
 
         public event RoutedEventHandler ValueChanged
@@ -125,17 +140,14 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             remove { RemoveHandler(ValueChangedEvent, value); }
         }
 
-        private void MainSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void MainEditor_ValueChanged(object sender, RoutedEventArgs e)
         {
-            if (!isLoaded) return;
-            
-            Value = MainSlider.Value;
+            Value = MainEditor.Value;
+            if (SettingsResetItem.IsResetting) return;
 
-            RoutedEventArgs routedEventArgs = new RoutedEventArgs(ValueChangedEvent, this);
-            RaiseEvent(routedEventArgs);
+            RaiseEvent(new RoutedEventArgs(ValueChangedEvent, this));
         }
 
-        // ValueChangeStart Event
         public static readonly RoutedEvent ValueChangeStartEvent = EventManager.RegisterRoutedEvent("ValueChangeStart", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SliderCard));
 
         public event RoutedEventHandler ValueChangeStart
@@ -144,13 +156,11 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             remove { RemoveHandler(ValueChangeStartEvent, value); }
         }
 
-        private void MainSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void MainEditor_ValueChangeStart(object sender, RoutedEventArgs e)
         {
-            RoutedEventArgs routedEventArgs = new RoutedEventArgs(ValueChangeStartEvent, this);
-            RaiseEvent(routedEventArgs);
+            RaiseEvent(new RoutedEventArgs(ValueChangeStartEvent, this));
         }
 
-        // ValueChangeEnd Event
         public static readonly RoutedEvent ValueChangeEndEvent = EventManager.RegisterRoutedEvent("ValueChangeEnd", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SliderCard));
 
         public event RoutedEventHandler ValueChangeEnd
@@ -159,10 +169,22 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
             remove { RemoveHandler(ValueChangeEndEvent, value); }
         }
 
-        private void MainSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        private void MainEditor_ValueChangeEnd(object sender, RoutedEventArgs e)
         {
-            RoutedEventArgs routedEventArgs = new RoutedEventArgs(ValueChangeEndEvent, this);
-            RaiseEvent(routedEventArgs);
+            RaiseEvent(new RoutedEventArgs(ValueChangeEndEvent, this));
+        }
+
+        public static readonly RoutedEvent ResetClickedEvent = EventManager.RegisterRoutedEvent("ResetClicked", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SliderCard));
+
+        public event RoutedEventHandler ResetClicked
+        {
+            add { AddHandler(ResetClickedEvent, value); }
+            remove { RemoveHandler(ResetClickedEvent, value); }
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            RaiseEvent(new RoutedEventArgs(ResetClickedEvent, this));
         }
     }
 }

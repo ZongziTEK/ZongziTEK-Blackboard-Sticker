@@ -14,12 +14,34 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="信息看板" Margin="12,8" FontWeight="Bold"/>
+                <card:SliderCard x:Name="CardSwitchInterval" Icon="{x:Static ui:FluentSystemIcons.Clock_20_Regular}" Header="切换频率"
+                                 Value="{Binding SwitchIntervalSeconds, Mode=TwoWay}"
+                                 Minimum="1" Maximum="60" TickFrequency="1" Unit="秒" NumberFormat="0"
+                                 IsResetButtonVisible="True" ResetClicked="CardSwitchInterval_ResetClicked"
+                                 ValueChanged="SliderSwitchInterval_ValueChanged"/>
                 <Border HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
                         CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0">
                     <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ui:ControlHelper.CornerRadius="4" 
                               Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}" Style="{DynamicResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" IsExpanded="True">
                         <Expander.Header>
-                            <Label Content="选择要显示的信息看板页面"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="选择要显示的信息看板页面"/>
+                                <Button x:Name="ButtonResetInfoPages"
+                                        Grid.Column="1"
+                                        Width="32"
+                                        Height="32"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="恢复默认"
+                                        Click="ButtonResetInfoPages_Click">
+                                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowReset_20_Regular}" FontSize="18"/>
+                                </Button>
+                            </Grid>
                         </Expander.Header>
 
                         <ikw:SimpleStackPanel Spacing="16">

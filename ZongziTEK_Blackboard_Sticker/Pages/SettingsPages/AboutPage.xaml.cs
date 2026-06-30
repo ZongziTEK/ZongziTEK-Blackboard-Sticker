@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK_Blackboard_Sticker.Models;
 
 namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 {
@@ -22,6 +24,10 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     /// </summary>
     public partial class AboutPage : Page
     {
+        private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetAutoUpdate;
+
         public AboutPage()
         {
             InitializeComponent();
@@ -30,6 +36,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             TextBlockVersion.Text = version.ToString();
+            InitializeResetItems();
+            UpdateResetButtons();
         }
 
         private void Hyperlink_Click(object sender, RoutedEventArgs e)
@@ -39,12 +47,42 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ToggleSwitchAutoUpdate_Toggled(object sender, RoutedEventArgs e)
         {
+            ApplyAutoUpdateSettings();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetAutoUpdate = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsUpdateAutomatic.IsResetEnabled = enabled,
+                () => MainWindow.Settings.Update.IsUpdateAutomatic,
+                () => defaultSettings.Update.IsUpdateAutomatic,
+                value => MainWindow.Settings.Update.IsUpdateAutomatic = value,
+                ApplyAutoUpdateSettings);
+        }
+
+        private void ApplyAutoUpdateSettings()
+        {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
 
             if (MainWindow.Settings.Update.IsUpdateAutomatic)
             {
                 MainWindow.CheckUpdate();
             }
+
+            UpdateResetButtons();
+        }
+
+        private void CardIsUpdateAutomatic_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            resetAutoUpdate.Reset();
+        }
+
+        private void UpdateResetButtons()
+        {
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

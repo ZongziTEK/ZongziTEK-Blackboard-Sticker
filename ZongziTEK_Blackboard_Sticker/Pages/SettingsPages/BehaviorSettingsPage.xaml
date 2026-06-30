@@ -25,7 +25,9 @@
                         </ikw:SimpleStackPanel>
                     </card:GenericSettingsCard.CardContent>
                 </card:GenericSettingsCard>
-                <card:ToggleSwitchCard x:Name="ToggleSwitchRunOnStartup" Icon="{x:Static ui:FluentSystemIcons.Rocket_20_Regular}" Header="开机时运行" OnContent="启用" OffContent="禁用" Toggled="ToggleSwitchRunOnStartup_Toggled"/>
+                <card:ToggleSwitchCard x:Name="ToggleSwitchRunOnStartup" Icon="{x:Static ui:FluentSystemIcons.Rocket_20_Regular}" Header="开机时运行" OnContent="启用" OffContent="禁用"
+                                       IsResetButtonVisible="True" ResetClicked="ToggleSwitchRunOnStartup_ResetClicked"
+                                       Toggled="ToggleSwitchRunOnStartup_Toggled"/>
             </ikw:SimpleStackPanel>
         </ui:ScrollViewerEx>
     </Grid>

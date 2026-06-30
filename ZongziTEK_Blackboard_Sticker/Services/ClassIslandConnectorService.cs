@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using dotnetCampus.Ipc.Context;
-using ZongziTEK_Blackboard_Sticker.Models;
+using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Interfaces;
-using ZongziTEK_Blackboard_Sticker.Shared.IPC;
+using ZongziTEK.BlackboardSticker.Shared.IPC;
 
 namespace ZongziTEK_Blackboard_Sticker.Services
 {
@@ -24,8 +24,11 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private IConnectService? _connectService;
         private JsonIpcDirectRoutedProvider? _ipcDirectRoutedProvider;
 
+        private const double DefaultIslandLineSpacing = 5d;
+
         private bool _isConnected;
         private bool _isTimetableSyncEnabled;
+        private bool _isConnecting;
         private List<Lesson> _timetableShared = new();
 
         private void RegisterNotificationHandlers()
@@ -56,30 +59,26 @@ namespace ZongziTEK_Blackboard_Sticker.Services
             ConsoleHelper.WriteLog("订阅 IslandTerritoryChanged 事件", "info");
         }
 
-        public async Task StartAsync(CancellationToken _)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             _ipcProvider = new IpcProvider("ZongziTEK_Blackboard_Sticker", new IpcConfiguration { AutoReconnectPeers = true });
             _ipcDirectRoutedProvider = new JsonIpcDirectRoutedProvider(_ipcProvider);
 
-            // add notify handler
             RegisterNotificationHandlers();
 
-            // connect
             _ipcDirectRoutedProvider.StartServer();
             ConsoleHelper.WriteLog("启动 IPC 服务器", "info");
 
-            ConsoleHelper.WriteLog("开始连接 ClassIsland 插件", "info");
-            _peerProxy = await _ipcProvider.GetAndConnectToPeerAsync("ZongziTEK_Blackboard_Sticker_Connector");
-            _connectService = _ipcProvider.CreateIpcProxy<IConnectService>(_peerProxy);
-            ConsoleHelper.WriteLog("连接到 ClassIsland 成功", "info");
-            _isConnected = true;
+            if (cancellationToken.IsCancellationRequested) return;
 
-            // get initial value
-            _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
-
-            // call methods once
-            UpdateMainWindowTimetable();
-            OnIslandTerritoryChanged();
+            if (await TryConnectAsync())
+            {
+                await RefreshClassIslandStateAndUi();
+            }
+            else
+            {
+                RestoreMainWindowToLocalState();
+            }
         }
 
         public async Task StopAsync(CancellationToken _)
@@ -96,15 +95,31 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private async Task OnClassIslandPluginConnectionStarted() // 接收到通知时触发
         {
             ConsoleHelper.WriteLog("ClassIsland 插件 ConnectService 启动完毕事件触发", "info");
-            _isConnected = true;
+
+            if (_isConnecting)
+            {
+                return;
+            }
+
+            if (await TryConnectAsync())
+            {
+                await RefreshClassIslandStateAndUi();
+            }
+            else
+            {
+                RestoreMainWindowToLocalState();
+            }
         }
 
         private void OnClassIslandPluginConnectionStopped() // 接收到通知时触发
         {
             ConsoleHelper.WriteLog("ClassIsland 插件 ConnectService 停止事件触发", "info");
-            _isConnected = false;
+            ResetConnectionState();
+            RestoreMainWindowToLocalState();
+        }
 
-            // 还原为展示本地课程表
+        private void RestoreMainWindowToLocalState()
+        {
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
@@ -128,36 +143,192 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private async void OnIsTimetableSyncEnabledChanged()
         {
             ConsoleHelper.WriteLog("IsTimetableSyncEnabled 变化", "info");
-            _isTimetableSyncEnabled = await _connectService.GetIsTimetableSyncEnabled();
+            _isTimetableSyncEnabled = await InvokeConnectService(
+                service => service.GetIsTimetableSyncEnabled(),
+                false,
+                nameof(IConnectService.GetIsTimetableSyncEnabled));
 
             await UpdateMainWindowTimetable();
         }
 
-        private async void OnIslandTerritoryChanged()
+        private async Task OnIslandTerritoryChanged()
         {
-            var islandTerritoryHeight = await _connectService.GetIslandTerritoryHeight();
-            var islandDockingLocation = await _connectService.GetIslandDockingLocation();
+            var islandTerritoryHeight = await InvokeConnectService(
+                service => service.GetIslandTerritoryHeight(),
+                0d,
+                nameof(IConnectService.GetIslandTerritoryHeight));
+            var islandDockingLocation = await InvokeConnectService(
+                service => service.GetIslandDockingLocation(),
+                0,
+                nameof(IConnectService.GetIslandDockingLocation));
+            var islandLineSpacing = await InvokeOptionalConnectService(
+                service => service.GetIslandLineSpacing(),
+                DefaultIslandLineSpacing,
+                nameof(IConnectService.GetIslandLineSpacing));
+            double avoidance = _isConnected
+                ? NormalizeAvoidanceValue(islandTerritoryHeight) + NormalizeAvoidanceValue(islandLineSpacing)
+                : 0d;
             bool isTop = islandDockingLocation <= 2;
 
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
-                mainWindow.Creep(islandTerritoryHeight - 16, isTop);
+                if (mainWindow == null) return;
+
+                mainWindow.Creep(avoidance, isTop);
             });
 
             ConsoleHelper.WriteLog("黑板贴避让 ClassIsland 主界面", "info");
         }
 
+        public Task RefreshIslandTerritory()
+        {
+            return OnIslandTerritoryChanged();
+        }
+
+        private async Task<bool> TryConnectAsync()
+        {
+            if (_ipcProvider == null)
+            {
+                ResetConnectionState();
+                return false;
+            }
+
+            if (_isConnecting)
+            {
+                return false;
+            }
+
+            try
+            {
+                _isConnecting = true;
+                ConsoleHelper.WriteLog("开始连接 ClassIsland 插件", "info");
+                Task<PeerProxy> connectTask = _ipcProvider.GetAndConnectToPeerAsync("ZongziTEK_Blackboard_Sticker_Connector");
+                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
+                Task completedTask = await Task.WhenAny(connectTask, timeoutTask);
+                if (completedTask != connectTask)
+                {
+                    _ = connectTask.ContinueWith(task => _ = task.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                    throw new TimeoutException("连接 ClassIsland 插件超时");
+                }
+
+                _peerProxy = await connectTask;
+                _connectService = _ipcProvider.CreateIpcProxy<IConnectService>(_peerProxy);
+                _isConnected = true;
+                ConsoleHelper.WriteLog("连接到 ClassIsland 成功", "info");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ResetConnectionState();
+                ConsoleHelper.WriteLog("连接 ClassIsland 插件失败，等待插件启动通知后重试", "warn");
+                Console.WriteLine("--- 错误信息 ---");
+                Console.WriteLine(ex);
+                Console.WriteLine("--- 错误信息末尾 ---");
+                return false;
+            }
+            finally
+            {
+                _isConnecting = false;
+            }
+        }
+
         private async Task UpdateMainWindowTimetable()
         {
-            if (_connectService != null) _timetableShared = await _connectService.GetCurrentTimetable();
+            _timetableShared = await InvokeConnectService(
+                service => service.GetCurrentTimetable(),
+                _timetableShared,
+                nameof(IConnectService.GetCurrentTimetable));
 
             App.Current.Dispatcher.Invoke(() =>
             {
                 var mainWindow = App.Current.MainWindow as MainWindow;
+                if (mainWindow == null) return;
+
                 mainWindow.LoadTimetableOrCurriculum();
                 ConsoleHelper.WriteLog("由 ClassIsland Connector 更新正在显示的课程表", "info");
             });
+        }
+
+        private async Task RefreshClassIslandState()
+        {
+            _isTimetableSyncEnabled = await InvokeConnectService(
+                service => service.GetIsTimetableSyncEnabled(),
+                false,
+                nameof(IConnectService.GetIsTimetableSyncEnabled));
+        }
+
+        private async Task RefreshClassIslandStateAndUi()
+        {
+            await RefreshClassIslandState();
+            await UpdateMainWindowTimetable();
+            await OnIslandTerritoryChanged();
+        }
+
+        private void ResetConnectionState()
+        {
+            _isConnected = false;
+            _isTimetableSyncEnabled = false;
+            _isConnecting = false;
+            _connectService = null;
+            _peerProxy = null;
+        }
+
+        private async Task<T> InvokeConnectService<T>(
+            Func<IConnectService, Task<T>> invocation,
+            T fallbackValue,
+            string operationName)
+        {
+            if (_connectService == null)
+            {
+                return fallbackValue;
+            }
+
+            try
+            {
+                var value = await invocation(_connectService);
+                _isConnected = true;
+                return value;
+            }
+            catch (Exception ex)
+            {
+                ResetConnectionState();
+                ConsoleHelper.WriteLog($"ClassIsland Connector IPC 调用失败：{operationName}", "warn");
+                Console.WriteLine("--- 错误信息 ---");
+                Console.WriteLine(ex);
+                Console.WriteLine("--- 错误信息末尾 ---");
+                return fallbackValue;
+            }
+        }
+
+        private async Task<T> InvokeOptionalConnectService<T>(
+            Func<IConnectService, Task<T>> invocation,
+            T fallbackValue,
+            string operationName)
+        {
+            if (_connectService == null)
+            {
+                return fallbackValue;
+            }
+
+            try
+            {
+                return await invocation(_connectService);
+            }
+            catch (Exception ex)
+            {
+                ConsoleHelper.WriteLog($"ClassIsland Connector 可选 IPC 调用失败，使用默认值：{operationName}", "warn");
+                Console.WriteLine("--- 错误信息 ---");
+                Console.WriteLine(ex);
+                Console.WriteLine("--- 错误信息末尾 ---");
+                return fallbackValue;
+            }
+        }
+
+        private static double NormalizeAvoidanceValue(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0) return 0d;
+            return value;
         }
     }
 }

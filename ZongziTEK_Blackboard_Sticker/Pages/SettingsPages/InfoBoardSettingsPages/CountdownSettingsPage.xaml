@@ -14,14 +14,20 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="倒数日" Margin="12,8" FontWeight="Bold"/>
-                <card:TextBoxCard x:Name="TextBoxName" Icon="{x:Static ui:FluentSystemIcons.Rename_20_Regular}" Header="倒数日名称" Text="{Binding CountdownName, Mode=TwoWay}" TextChanged="TextBoxName_TextChanged"/>
-                <card:GenericSettingsCard Icon="{x:Static ui:FluentSystemIcons.CalendarLtr_20_Regular}" Header="倒数日日期">
+                <card:TextBoxCard x:Name="TextBoxName" Icon="{x:Static ui:FluentSystemIcons.Rename_20_Regular}" Header="倒数日名称" Text="{Binding CountdownName, Mode=TwoWay}"
+                                  IsResetButtonVisible="True" ResetClicked="TextBoxName_ResetClicked"
+                                  TextChanged="TextBoxName_TextChanged"/>
+                <card:GenericSettingsCard x:Name="CardCountdownDate" Icon="{x:Static ui:FluentSystemIcons.CalendarLtr_20_Regular}" Header="倒数日日期"
+                                          IsResetButtonVisible="True" ResetClicked="CardCountdownDate_ResetClicked">
                     <card:GenericSettingsCard.CardContent>
                         <DatePicker Width="200" SelectedDate="{Binding CountdownDate, Mode=TwoWay}" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
                     </card:GenericSettingsCard.CardContent>
                 </card:GenericSettingsCard>
-                <card:SliderCard Icon="{x:Static ui:FluentSystemIcons.Warning_20_Regular}" Header="倒数日警告阈值" Tip="当与倒数日的距离小于此阈值时，倒数日页面的数字会变成红色"
-                                 Minimum="1" Maximum="60" TickFrequency="1" Value="{Binding CountdownWarnDays, Mode=TwoWay}" ValueChanged="SliderWarnThreshold_ValueChanged"/>
+                <card:SliderCard x:Name="CardCountdownWarnDays" Icon="{x:Static ui:FluentSystemIcons.Warning_20_Regular}" Header="倒数日警告阈值" Tip="当与倒数日的距离小于此阈值时，倒数日页面的数字会变成红色"
+                                 Minimum="1" Maximum="60" TickFrequency="1" Unit="天" NumberFormat="0"
+                                 Value="{Binding CountdownWarnDays, Mode=TwoWay}"
+                                 IsResetButtonVisible="True" ResetClicked="CardCountdownWarnDays_ResetClicked"
+                                 ValueChanged="SliderWarnThreshold_ValueChanged"/>
             </ikw:SimpleStackPanel>
         </ui:ScrollViewerEx>
     </Grid>

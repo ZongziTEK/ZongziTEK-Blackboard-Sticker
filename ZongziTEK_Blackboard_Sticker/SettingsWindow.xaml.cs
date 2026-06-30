@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using iNKORE.UI.WPF.Modern;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,17 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             InitializeComponent();
 
+            ConfigureNavigationViewPane();
             NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[0];
+        }
+
+        public void ConfigureNavigationViewPane()
+        {
+            Brush paneBackground = TryFindResource(ThemeKeys.LayerOnMicaBaseAltFillColorDefaultBrushKey) as Brush
+                ?? Brushes.Transparent;
+
+            NavigationViewRoot.Resources[ThemeKeys.NavigationViewDefaultPaneBackgroundKey] = paneBackground;
+            NavigationViewRoot.Resources[ThemeKeys.NavigationViewExpandedPaneBackgroundKey] = paneBackground;
         }
 
         private List<Type> pages = new()
@@ -41,8 +52,14 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void NavigationViewRoot_SelectionChanged(iNKORE.UI.WPF.Modern.Controls.NavigationView sender, iNKORE.UI.WPF.Modern.Controls.NavigationViewSelectionChangedEventArgs args)
         {
-            int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(NavigationViewRoot.SelectedItem);
-            if (currentPageIndex == -1) currentPageIndex = 6;
+            int currentPageIndex = NavigationViewRoot.MenuItems.IndexOf(args.SelectedItem);
+            if (currentPageIndex == -1)
+            {
+                int footerPageIndex = NavigationViewRoot.FooterMenuItems.IndexOf(args.SelectedItem);
+                if (footerPageIndex == -1) return;
+
+                currentPageIndex = NavigationViewRoot.MenuItems.Count + footerPageIndex;
+            }
 
             FrameRoot.Navigate(pages[currentPageIndex]);
         }

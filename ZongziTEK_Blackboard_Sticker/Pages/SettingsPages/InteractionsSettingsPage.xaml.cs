@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Services;
 
@@ -23,6 +24,9 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
     /// </summary>
     public partial class InteractionsSettingsPage : Page
     {
+        private readonly Settings defaultSettings = new Settings();
+        private readonly List<SettingsResetItem> resetItems = new List<SettingsResetItem>();
+        private SettingsResetItem resetClassIslandConnector;
         public Interactions InteractionsSettings { get; set; }
 
         public InteractionsSettingsPage()
@@ -33,6 +37,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             InteractionsSettings.PropertyChanged += InteractionsSettings_PropertyChanged;
 
             DataContext = this;
+            InitializeResetItems();
+            UpdateResetButtons();
         }
 
         private void InteractionsSettings_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -50,11 +56,32 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             }
 
             MainWindow.SaveSettings();
+            UpdateResetButtons();
         }
 
         private void InteractionsSettingsPage_OnUnloaded(object sender, RoutedEventArgs e)
         {
             InteractionsSettings.PropertyChanged -= InteractionsSettings_PropertyChanged;
+        }
+
+        private void CardIsClassIslandConnectorEnabled_ResetClicked(object sender, RoutedEventArgs e)
+        {
+            resetClassIslandConnector.Reset();
+        }
+
+        private void InitializeResetItems()
+        {
+            resetClassIslandConnector = SettingsResetItem.Register(
+                resetItems,
+                enabled => CardIsClassIslandConnectorEnabled.IsResetEnabled = enabled,
+                () => InteractionsSettings.IsClassIslandConnectorEnabled,
+                () => defaultSettings.Interactions.IsClassIslandConnectorEnabled,
+                value => InteractionsSettings.IsClassIslandConnectorEnabled = value);
+        }
+
+        private void UpdateResetButtons()
+        {
+            SettingsResetItem.UpdateAll(resetItems);
         }
     }
 }

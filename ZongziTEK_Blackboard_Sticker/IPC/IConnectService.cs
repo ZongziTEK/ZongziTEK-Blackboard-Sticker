@@ -1,9 +1,9 @@
 ﻿using dotnetCampus.Ipc.CompilerServices.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ZongziTEK_Blackboard_Sticker.Models;
+using ZongziTEK.BlackboardSticker.Models;
 
-namespace ZongziTEK_Blackboard_Sticker.Shared.IPC;
+namespace ZongziTEK.BlackboardSticker.Shared.IPC;
 
 [IpcPublic(IgnoresIpcException = true)]
 public interface IConnectService
@@ -12,4 +12,5 @@ public interface IConnectService
     Task<bool> GetIsTimetableSyncEnabled();
     Task<double> GetIslandTerritoryHeight();
     Task<int> GetIslandDockingLocation();
+    Task<double> GetIslandLineSpacing();
 }

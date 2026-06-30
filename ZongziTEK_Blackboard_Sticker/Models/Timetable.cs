@@ -3,7 +3,7 @@ using CsesSharp.Models;
 using System;
 using System.Collections.Generic;
 
-namespace ZongziTEK_Blackboard_Sticker.Models
+namespace ZongziTEK.BlackboardSticker.Models
 {
     public class Timetable
     {

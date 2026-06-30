@@ -14,8 +14,10 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="关于" Margin="12,8" FontWeight="Bold"/>
-                <card:ToggleSwitchCard Icon="{x:Static ui:FluentSystemIcons.ArrowClockwise_20_Regular}" Header="启动时检查更新" OnContent="启用" OffContent="禁用"
-                                       IsOn="{Binding IsUpdateAutomatic, Mode=TwoWay}" Toggled="ToggleSwitchAutoUpdate_Toggled"/>
+                <card:ToggleSwitchCard x:Name="CardIsUpdateAutomatic" Icon="{x:Static ui:FluentSystemIcons.ArrowClockwise_20_Regular}" Header="启动时检查更新" OnContent="启用" OffContent="禁用"
+                                       IsOn="{Binding IsUpdateAutomatic, Mode=TwoWay}"
+                                       IsResetButtonVisible="True" ResetClicked="CardIsUpdateAutomatic_ResetClicked"
+                                       Toggled="ToggleSwitchAutoUpdate_Toggled"/>
                 <Border HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
                         CornerRadius="4" BorderBrush="{DynamicResource {x:Static ui:ThemeKeys.CardStrokeColorDefaultBrushKey}}" BorderThickness="1">
                     <ikw:SimpleStackPanel Margin="16" Spacing="12">

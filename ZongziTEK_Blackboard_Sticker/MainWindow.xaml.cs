@@ -22,6 +22,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Pages;
 using ZongziTEK_Blackboard_Sticker.Services;
@@ -97,10 +98,9 @@ namespace ZongziTEK_Blackboard_Sticker
             clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
             clockTimer.Start();
 
-            LoadFrameInfoPagesList();
             frameInfoNavigationTimer.Tick += FrameInfoNavigationTimer_Tick;
-            frameInfoNavigationTimer.Interval = TimeSpan.FromSeconds(4);
-            frameInfoNavigationTimer.Start();
+            ApplyInfoBoardSwitchInterval();
+            LoadFrameInfoPagesList();
 
             // 课程表
             timetableTimer = new DispatcherTimer();
@@ -217,8 +217,16 @@ namespace ZongziTEK_Blackboard_Sticker
 
         public void Creep(double marginVertical, bool isTop)
         {
+            if (Settings.Look.IsWindowHeightAdjustmentEnabled)
+            {
+                GridRoot.BeginAnimation(MarginProperty, null);
+                GridRoot.Margin = new Thickness(0);
+                return;
+            }
+
             var previousMargin = GridRoot.Margin;
-            var newMargin = isTop ? new Thickness(0, marginVertical, 0, 0) : new Thickness(0, 0, 0, marginVertical);
+            var compensatedMarginVertical = GetCompensatedCreepMargin(marginVertical, isTop);
+            var newMargin = isTop ? new Thickness(0, compensatedMarginVertical, 0, 0) : new Thickness(0, 0, 0, compensatedMarginVertical);
 
             ThicknessAnimation marginAnimation = new()
             {
@@ -229,6 +237,21 @@ namespace ZongziTEK_Blackboard_Sticker
             };
 
             GridRoot.BeginAnimation(MarginProperty, marginAnimation);
+        }
+
+        private double GetCompensatedCreepMargin(double marginVertical, bool isTop)
+        {
+            if (double.IsNaN(marginVertical) || double.IsInfinity(marginVertical) || marginVertical < 0) return 0;
+
+            Thickness mainPanelMargin = BorderMain?.Margin ?? new Thickness(0);
+            double visualInset = isTop ? mainPanelMargin.Top : mainPanelMargin.Bottom;
+            if (double.IsNaN(visualInset) || double.IsInfinity(visualInset) || visualInset < 0) visualInset = 0;
+
+            double scaleY = windowScale?.ScaleY ?? 1;
+            if (double.IsNaN(scaleY) || double.IsInfinity(scaleY) || scaleY <= 0) scaleY = 1;
+            visualInset *= scaleY;
+
+            return Math.Max(0, marginVertical - visualInset);
         }
 
         private async void iconSwitchLeft_MouseDown(object sender, MouseButtonEventArgs e)
@@ -437,6 +460,8 @@ namespace ZongziTEK_Blackboard_Sticker
 
                 eraserButton.Visibility = Visibility.Visible;
             }
+
+            ApplyComponentTitleBarSettings();
         }
 
         private void BorderLockBlackboard_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1209,6 +1234,7 @@ namespace ZongziTEK_Blackboard_Sticker
 
                 saveCurriculumButton.Visibility = Visibility.Visible;
                 ScrollViewerCurriculum.Visibility = Visibility.Visible;
+                ApplyComponentTitleBarSettings();
             }
         }
 
@@ -1228,6 +1254,7 @@ namespace ZongziTEK_Blackboard_Sticker
             saveCurriculumButton.Visibility = Visibility.Collapsed;
             ScrollViewerCurriculum.Visibility = Visibility.Collapsed;
 
+            ApplyComponentTitleBarSettings();
             LoadTimetableOrCurriculum();
         }
         #endregion
@@ -1842,6 +1869,9 @@ namespace ZongziTEK_Blackboard_Sticker
 
             if (Settings.Automation.IsAutoHideHugoAssistantEnabled) timerHideSeewoServiceAssistant.Start();
 
+            ApplyInfoBoardSwitchInterval();
+            ApplyVisualSettings();
+
             isSettingsLoaded = true;
         }
         public static Settings Settings = new Settings();
@@ -2003,13 +2033,24 @@ namespace ZongziTEK_Blackboard_Sticker
             SwitchFrameInfoPage();
         }
 
+        public void ApplyInfoBoardSwitchInterval()
+        {
+            double switchIntervalSeconds = ClampRange(Settings.InfoBoard.SwitchIntervalSeconds, 1, 60, 4);
+            Settings.InfoBoard.SwitchIntervalSeconds = switchIntervalSeconds;
+            frameInfoNavigationTimer.Interval = TimeSpan.FromSeconds(switchIntervalSeconds);
+        }
+
         public void SwitchFrameInfoPage()
         {
-            if (frameInfoPages.Count == 0) return;
+            if (frameInfoPages.Count == 0)
+            {
+                frameInfoNavigationTimer.Stop();
+                return;
+            }
 
             frameInfoNavigationTimer.Stop();
 
-            FrameInfo.NavigationService.RemoveBackEntry();
+            ClearFrameInfoBackStack();
 
             frameInfoPageIndex++;
             if (frameInfoPageIndex >= frameInfoPages.Count) frameInfoPageIndex = 0;
@@ -2018,8 +2059,19 @@ namespace ZongziTEK_Blackboard_Sticker
             if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
         }
 
+        private void ClearFrameInfoBackStack()
+        {
+            if (FrameInfo.NavigationService == null) return;
+
+            while (FrameInfo.NavigationService.RemoveBackEntry() != null)
+            {
+            }
+        }
+
         public void LoadFrameInfoPagesList()
         {
+            frameInfoNavigationTimer.Stop();
+            frameInfoPageIndex = 0;
             frameInfoPages.Clear();
 
             if (Settings.InfoBoard.isDatePageEnabled) frameInfoPages.Add(new DatePage());
@@ -2030,6 +2082,7 @@ namespace ZongziTEK_Blackboard_Sticker
             if (frameInfoPages.Count == 0) return;
 
             FrameInfo.Navigate(frameInfoPages[0]);
+            ClearFrameInfoBackStack();
 
             if (frameInfoPages.Count == 1)
             {
@@ -2084,6 +2137,207 @@ namespace ZongziTEK_Blackboard_Sticker
             window.windowScale.ScaleY = Multiplier;
         }
 
+        private static double ClampRange(double value, double minimum, double maximum, double defaultValue)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value)) return defaultValue;
+            if (value < minimum) return minimum;
+            if (value > maximum) return maximum;
+            return value;
+        }
+
+        private static void RestorePanelBackground(Border border, object backgroundResourceKey, double borderThickness)
+        {
+            border.SetResourceReference(Border.BackgroundProperty, backgroundResourceKey);
+            border.SetResourceReference(Border.BorderBrushProperty, "BorderBrush");
+            border.BorderThickness = new Thickness(borderThickness);
+        }
+
+        private static void MakePanelTransparent(Border border)
+        {
+            border.Background = Brushes.Transparent;
+            border.BorderThickness = new Thickness(0);
+        }
+
+        private static Color GetResourceColor(object backgroundResourceKey, Color fallbackColor)
+        {
+            object resource = Application.Current.TryFindResource(backgroundResourceKey);
+
+            if (resource is SolidColorBrush solidColorBrush) return solidColorBrush.Color;
+            if (resource is Color color) return color;
+
+            return fallbackColor;
+        }
+
+        private static Color ParseBackgroundColor(string colorText, Color fallbackColor)
+        {
+            if (string.IsNullOrWhiteSpace(colorText)) return fallbackColor;
+
+            try
+            {
+                object convertedColor = ColorConverter.ConvertFromString(colorText.Trim());
+                if (convertedColor is Color color)
+                {
+                    return Color.FromRgb(color.R, color.G, color.B);
+                }
+            }
+            catch
+            {
+            }
+
+            return Color.FromRgb(fallbackColor.R, fallbackColor.G, fallbackColor.B);
+        }
+
+        private static byte GetOpacityByte(double opacity)
+        {
+            double normalizedOpacity = ClampRange(opacity, 0, 100, 60);
+            return (byte)Math.Round(normalizedOpacity * 255 / 100);
+        }
+
+        private static void ApplyCustomPanelBackground(Border border, BackgroundElementStyle style, object fallbackResourceKey, double borderThickness)
+        {
+            Color fallbackColor = GetResourceColor(fallbackResourceKey, Colors.Transparent);
+            Color color = ParseBackgroundColor(style?.Color, fallbackColor);
+            byte alpha = GetOpacityByte(style?.Opacity ?? 60);
+
+            border.Background = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+            border.SetResourceReference(Border.BorderBrushProperty, "BorderBrush");
+            border.BorderThickness = alpha == 0 ? new Thickness(0) : new Thickness(borderThickness);
+        }
+
+        private void ApplyCustomBackgroundStyle()
+        {
+            CustomBackgroundStyle customStyle = Settings.Look.CustomBackgroundStyle;
+
+            ApplyCustomPanelBackground(BorderMain, customStyle.MainPanel, "WindowBackgroundColor", 0);
+            ApplyCustomPanelBackground(BorderTopPanel, customStyle.TopPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderBlackboard, customStyle.BlackboardPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderLauncher, customStyle.LauncherPanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderTimetable, customStyle.TimetablePanel, "WindowBackgroundColor", 1);
+            ApplyCustomPanelBackground(BorderFunctionMenu, customStyle.FunctionMenu, "WindowBackgroundColor", 1);
+
+            ApplyCustomPanelBackground(BorderBlackboardTitleBar, customStyle.BlackboardTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            ApplyCustomPanelBackground(BorderLauncherTitleBar, customStyle.LauncherTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            ApplyCustomPanelBackground(BorderTimetableTitleBar, customStyle.TimetableTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+        }
+
+        private void MakeComponentPanelsTransparent()
+        {
+            MakePanelTransparent(BorderTopPanel);
+            MakePanelTransparent(BorderBlackboard);
+            MakePanelTransparent(BorderLauncher);
+            MakePanelTransparent(BorderTimetable);
+            MakePanelTransparent(BorderFunctionMenu);
+        }
+
+        public void ApplyBackgroundStyle()
+        {
+            int backgroundStyle = Convert.ToInt32(ClampRange(Settings.Look.BackgroundStyle, 0, 4, 0));
+            Settings.Look.BackgroundStyle = backgroundStyle;
+
+            RestorePanelBackground(BorderMain, "WindowBackgroundColor", 0);
+            RestorePanelBackground(BorderTopPanel, "WindowBackgroundColor", 1);
+            RestorePanelBackground(BorderBlackboard, "WindowBackgroundColor", 1);
+            RestorePanelBackground(BorderLauncher, "WindowBackgroundColor", 1);
+            RestorePanelBackground(BorderTimetable, "WindowBackgroundColor", 1);
+            RestorePanelBackground(BorderFunctionMenu, "WindowBackgroundColor", 1);
+
+            RestorePanelBackground(BorderBlackboardTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            RestorePanelBackground(BorderLauncherTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            RestorePanelBackground(BorderTimetableTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+
+            if (backgroundStyle == 4)
+            {
+                ApplyCustomBackgroundStyle();
+                return;
+            }
+
+            if (backgroundStyle >= 1)
+            {
+                MakePanelTransparent(BorderBlackboardTitleBar);
+                MakePanelTransparent(BorderLauncherTitleBar);
+                MakePanelTransparent(BorderTimetableTitleBar);
+            }
+
+            if (backgroundStyle >= 2)
+            {
+                MakePanelTransparent(BorderMain);
+            }
+
+            if (backgroundStyle == 1 || backgroundStyle >= 3)
+            {
+                MakeComponentPanelsTransparent();
+            }
+        }
+
+        private double GetVisibleElementWidth(FrameworkElement element)
+        {
+            if (element.Visibility != Visibility.Visible) return 0;
+
+            element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            double width = element.DesiredSize.Width;
+            if (double.IsNaN(width) || width <= 0) width = element.ActualWidth;
+            if (double.IsNaN(width) || width <= 0) width = element.Width;
+            if (double.IsNaN(width) || width <= 0) width = 32;
+
+            Thickness margin = element.Margin;
+            return width + margin.Left + margin.Right;
+        }
+
+        private double GetCompactTitleBarWidth(Border titleBar, double fallbackWidth, params FrameworkElement[] actionElements)
+        {
+            double maxWidth = 0;
+            int visibleCount = 0;
+
+            foreach (FrameworkElement actionElement in actionElements)
+            {
+                double elementWidth = GetVisibleElementWidth(actionElement);
+                if (elementWidth <= 0) continue;
+
+                maxWidth += elementWidth;
+                visibleCount++;
+            }
+
+            if (visibleCount > 1) maxWidth += (visibleCount - 1) * 8;
+
+            Thickness padding = titleBar.Padding;
+            double compactWidth = maxWidth + padding.Left + padding.Right;
+            return compactWidth > padding.Left + padding.Right ? Math.Ceiling(compactWidth) : fallbackWidth;
+        }
+
+        private static void ApplyTitleBarWidth(Border titleBar, bool isCompact, double compactWidth)
+        {
+            if (isCompact)
+            {
+                titleBar.HorizontalAlignment = HorizontalAlignment.Right;
+                titleBar.Width = compactWidth;
+                return;
+            }
+
+            titleBar.HorizontalAlignment = HorizontalAlignment.Stretch;
+            titleBar.ClearValue(WidthProperty);
+        }
+
+        public void ApplyComponentTitleBarSettings()
+        {
+            bool isTitleTextHidden = Settings.Look.IsComponentTitleTextHidden;
+            Visibility titleTextVisibility = isTitleTextHidden ? Visibility.Collapsed : Visibility.Visible;
+
+            LabelBlackboardTitle.Visibility = titleTextVisibility;
+            LabelLauncherTitle.Visibility = titleTextVisibility;
+            LabelTimetableTitle.Visibility = titleTextVisibility;
+
+            ApplyTitleBarWidth(BorderBlackboardTitleBar, isTitleTextHidden, GetCompactTitleBarWidth(BorderBlackboardTitleBar, 48, penButton, eraserButton, clearButton, ToggleButtonLock));
+            ApplyTitleBarWidth(BorderLauncherTitleBar, isTitleTextHidden, GetCompactTitleBarWidth(BorderLauncherTitleBar, 48, ButtonLauncherTitleActions));
+            ApplyTitleBarWidth(BorderTimetableTitleBar, isTitleTextHidden, GetCompactTitleBarWidth(BorderTimetableTitleBar, 48, saveCurriculumButton, editCurriculumButton));
+        }
+
+        public void ApplyVisualSettings()
+        {
+            ApplyBackgroundStyle();
+            ApplyComponentTitleBarSettings();
+        }
+
         public static void SetTheme()
         {
             MainWindow window = Application.Current.MainWindow as MainWindow;
@@ -2129,6 +2383,16 @@ namespace ZongziTEK_Blackboard_Sticker
                     {
                         stroke.DrawingAttributes.Color = Colors.White;
                     }
+                }
+            }
+
+            window?.ApplyVisualSettings();
+
+            foreach (Window currentWindow in Application.Current.Windows)
+            {
+                if (currentWindow is SettingsWindow settingsWindow)
+                {
+                    settingsWindow.ConfigureNavigationViewPane();
                 }
             }
         }
@@ -2192,12 +2456,40 @@ namespace ZongziTEK_Blackboard_Sticker
             return monitorWorkAreas[targetIndex];
         }
 
+        private void ApplyPanelVisibility(int mode)
+        {
+            bool isTimetableOnly = mode == 3;
+
+            BorderTopPanel.Visibility = isTimetableOnly ? Visibility.Collapsed : Visibility.Visible;
+            BorderTimetable.Margin = new Thickness(8, isTimetableOnly ? 8 : 0, 8, 8);
+            BorderLauncher.Visibility = Settings.Look.IsLauncherEnabled ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ApplyWindowBounds(Rect targetWorkArea)
+        {
+            double targetHeight = targetWorkArea.Height;
+            if (Settings.Look.IsWindowHeightAdjustmentEnabled)
+            {
+                double heightPercent = Settings.Look.WindowHeightPercent;
+                if (double.IsNaN(heightPercent) || heightPercent <= 0) heightPercent = 100;
+                heightPercent = Math.Max(30, Math.Min(100, heightPercent));
+                targetHeight = targetWorkArea.Height * heightPercent / 100;
+            }
+
+            Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
+            Top = Settings.Look.IsWindowHeightAdjustmentEnabled && Settings.Look.WindowVerticalAlignment == 1
+                ? targetWorkArea.Top + targetWorkArea.Height - targetHeight
+                : targetWorkArea.Top;
+            Height = targetHeight;
+        }
+
         public void SwitchLookMode(int mode)
         {
             BeginAnimation(LeftProperty, null);
 
             Rect targetWorkArea = GetTargetWorkArea();
             Left = targetWorkArea.Left;
+            ApplyPanelVisibility(mode);
 
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
@@ -2213,7 +2505,7 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnClock.Width = GridLength.Auto;
 
                     SwitchFrameInfoPage();
-                    frameInfoNavigationTimer.Start();
+                    if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
 
                     Width = targetWorkArea.Width / 2;
                     break;
@@ -2245,7 +2537,23 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnInfoBoard.Width = new GridLength(1, GridUnitType.Star);
 
                     SwitchFrameInfoPage();
-                    frameInfoNavigationTimer.Start();
+                    if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
+
+                    Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
+                    break;
+
+                case 3: // 简约（仅课程表）
+                    BorderMain.Width = liteModeWidth;
+                    BorderMain.HorizontalAlignment = HorizontalAlignment.Right;
+                    iconSwitchLeft.Visibility = Visibility.Collapsed;
+                    iconSwitchRight.Visibility = Visibility.Collapsed;
+
+                    ColumnCanvas.Width = new GridLength(0);
+                    ColumnClock.Width = new GridLength(0);
+                    ColumnInfoBoard.Width = new GridLength(0);
+
+                    frameInfoNavigationTimer.Stop();
+                    if (frameInfoPages.Count > 0) FrameInfo.Navigate(frameInfoPages[0]);  // 切换到日期页面防止继续调用天气 API
 
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
                     break;
@@ -2253,12 +2561,14 @@ namespace ZongziTEK_Blackboard_Sticker
 
             UpdateLayout();
 
-            Dispatcher.BeginInvoke(new Action(() =>
+            Action alignWindowToTarget = () =>
             {
-                Left = targetWorkArea.Left + (targetWorkArea.Width - ActualWidth);
-                Top = targetWorkArea.Top;
-                Height = targetWorkArea.Height;
-            }), DispatcherPriority.Render);
+                ApplyWindowBounds(targetWorkArea);
+            };
+
+            alignWindowToTarget();
+
+            Dispatcher.BeginInvoke(alignWindowToTarget, DispatcherPriority.Render);
         }
 
         public static bool GetIsLightTheme()
