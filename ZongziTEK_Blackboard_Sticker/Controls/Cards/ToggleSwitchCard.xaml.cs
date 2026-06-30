@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 
 namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 {
@@ -122,6 +123,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 
         private void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
+            if (SettingsResetItem.IsResetting) return;
+
             RoutedEventArgs routedEventArgs = new RoutedEventArgs(ToggledEvent, this);
             RaiseEvent(routedEventArgs);
         }

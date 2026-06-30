@@ -59,6 +59,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyAutoHideHugoAssistantSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
 
             if (MainWindow.Settings.Automation.IsAutoHideHugoAssistantEnabled && MainWindow.isSeewoServiceAssistantHided == false)

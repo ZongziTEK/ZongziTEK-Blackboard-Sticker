@@ -95,6 +95,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void ApplySwitchIntervalSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             (Application.Current.MainWindow as MainWindow)?.ApplyInfoBoardSwitchInterval();
             UpdateResetButtons();
@@ -102,6 +104,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void ApplyInfoPagesSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             (Application.Current.MainWindow as MainWindow).LoadFrameInfoPagesList();
             UpdateResetButtons();

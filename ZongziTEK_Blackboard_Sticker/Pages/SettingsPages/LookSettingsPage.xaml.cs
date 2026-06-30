@@ -273,6 +273,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyLookSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady || mainWindow == null) return;
 
             MainWindow.SaveSettings();
@@ -286,6 +287,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyWindowScaleSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady) return;
 
             MainWindow.SaveSettings();
@@ -295,6 +297,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyVisualSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady || mainWindow == null) return;
 
             MainWindow.SaveSettings();
@@ -304,6 +307,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyThemeSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady) return;
 
             MainWindow.SaveSettings();
@@ -318,6 +322,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyWindowChromeSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady) return;
 
             MainWindow.SaveSettings();
@@ -367,7 +372,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         {
             if (current == null || defaults == null) return current == defaults;
 
-            return string.Equals(NormalizeColorText(current.Color, "#FEFEFE"), NormalizeColorText(defaults.Color, "#FEFEFE"), StringComparison.OrdinalIgnoreCase)
+            return string.Equals(NormalizeColorText(current.Color, BackgroundElementStyle.DefaultPanelColor), NormalizeColorText(defaults.Color, BackgroundElementStyle.DefaultPanelColor), StringComparison.OrdinalIgnoreCase)
                 && SettingsResetItem.AreClose(current.Opacity, defaults.Opacity);
         }
 
@@ -426,37 +431,12 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private static string NormalizeColorText(string colorText, string fallbackColor)
         {
-            string fallback = string.IsNullOrWhiteSpace(fallbackColor) ? "#FEFEFE" : fallbackColor.Trim();
-            string normalizedText = colorText?.Trim();
-
-            if (string.IsNullOrWhiteSpace(normalizedText)) return fallback;
-
-            if (!normalizedText.StartsWith("#") && (normalizedText.Length == 3 || normalizedText.Length == 6 || normalizedText.Length == 8))
-            {
-                normalizedText = "#" + normalizedText;
-            }
-
-            try
-            {
-                object convertedColor = ColorConverter.ConvertFromString(normalizedText);
-                if (convertedColor is Color color)
-                {
-                    return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-                }
-            }
-            catch
-            {
-            }
-
-            return fallback;
+            return BackgroundElementStyle.NormalizeColor(colorText, fallbackColor);
         }
 
         private static double ClampOpacity(double opacity)
         {
-            if (double.IsNaN(opacity) || double.IsInfinity(opacity)) return 60;
-            if (opacity < 0) return 0;
-            if (opacity > 100) return 100;
-            return opacity;
+            return BackgroundElementStyle.ClampOpacity(opacity);
         }
 
         private void CommitCustomBackgroundColorTextBox(TextBox textBox)
@@ -504,7 +484,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         {
             if (!(sender is FrameworkElement element) || !(element.DataContext is BackgroundStyleCategoryEditor category)) return;
 
-            category.BatchColor = NormalizeColorText(category.BatchColor, "#FEFEFE");
+            category.BatchColor = NormalizeColorText(category.BatchColor, BackgroundElementStyle.DefaultPanelColor);
             category.BatchOpacity = ClampOpacity(category.BatchOpacity);
 
             foreach (BackgroundStyleItemEditor item in category.Items)
@@ -518,6 +498,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void SaveCustomBackgroundStyle()
         {
+            if (SettingsResetItem.IsResetting) return;
             if (!isPageReady || mainWindow == null) return;
 
             MainWindow.SaveSettings();
@@ -596,7 +577,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             public string Header { get; }
             public ObservableCollection<BackgroundStyleItemEditor> Items { get; } = new ObservableCollection<BackgroundStyleItemEditor>();
 
-            private string _batchColor = "#FEFEFE";
+            private string _batchColor = BackgroundElementStyle.DefaultPanelColor;
             public string BatchColor
             {
                 get => _batchColor;

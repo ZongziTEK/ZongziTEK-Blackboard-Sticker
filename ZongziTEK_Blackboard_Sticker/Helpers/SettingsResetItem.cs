@@ -5,6 +5,7 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers
 {
     public sealed class SettingsResetItem
     {
+        private static int resetDepth;
         private readonly Action<bool> setEnabled;
         private readonly Func<bool> hasChanged;
         private readonly Action resetValue;
@@ -18,6 +19,8 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers
             this.applyValue = applyValue;
         }
 
+        public static bool IsResetting => resetDepth > 0;
+
         public void UpdateEnabled()
         {
             setEnabled(hasChanged());
@@ -25,7 +28,16 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers
 
         public void Reset()
         {
-            resetValue();
+            try
+            {
+                resetDepth++;
+                resetValue();
+            }
+            finally
+            {
+                resetDepth--;
+            }
+
             applyValue?.Invoke();
         }
 

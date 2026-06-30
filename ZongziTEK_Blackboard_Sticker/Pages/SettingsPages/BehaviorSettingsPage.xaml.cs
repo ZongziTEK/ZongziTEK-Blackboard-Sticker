@@ -65,6 +65,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyRunOnStartupSetting()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             if (ToggleSwitchRunOnStartup.IsOn)
             {
                 MainWindow.StartAutomaticallyCreate(StartupShortcutName);

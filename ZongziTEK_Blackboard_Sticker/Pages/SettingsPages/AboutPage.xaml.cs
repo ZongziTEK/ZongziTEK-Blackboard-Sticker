@@ -63,6 +63,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyAutoUpdateSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
 
             if (MainWindow.Settings.Update.IsUpdateAutomatic)

@@ -81,6 +81,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void ApplyCountdownSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }

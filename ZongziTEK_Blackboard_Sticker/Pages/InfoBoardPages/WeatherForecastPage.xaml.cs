@@ -104,23 +104,25 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
                 forecastWeather = xiaomiWeather.ForecastDaily;
                 lastCityCode = MainWindow.Settings.InfoBoard.WeatherCity;
 
-                Dispatcher.BeginInvoke(() =>
-                {
-                    if (MainWindow.Settings.InfoBoard.IsRainForecastOnly)
-                    {
-                        ShowRainForecast();
-                        ViewboxRainForecast.Visibility = Visibility.Visible;
-                        ViewboxFullForecast.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        ShowFullForecast();
-                        ViewboxRainForecast.Visibility = Visibility.Collapsed;
-                        ViewboxFullForecast.Visibility = Visibility.Visible;
-                    }
-                });
+                Dispatcher.BeginInvoke(RefreshForecastView);
             });
             timer.Start();
+        }
+
+        private void RefreshForecastView()
+        {
+            if (MainWindow.Settings.InfoBoard.IsRainForecastOnly)
+            {
+                ShowRainForecast();
+                ViewboxRainForecast.Visibility = Visibility.Visible;
+                ViewboxFullForecast.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                ShowFullForecast();
+                ViewboxRainForecast.Visibility = Visibility.Collapsed;
+                ViewboxFullForecast.Visibility = Visibility.Visible;
+            }
         }
 
         private void ShowFullForecast()
@@ -242,7 +244,14 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
 
         private void InfoBoard_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Timer_Tick(null, null);
+            if (e.PropertyName == nameof(MainWindow.Settings.InfoBoard.WeatherCity))
+            {
+                Timer_Tick(null, null);
+            }
+            else if (e.PropertyName == nameof(MainWindow.Settings.InfoBoard.IsRainForecastOnly))
+            {
+                RefreshForecastView();
+            }
         }
 
         private void Page_Unloaded(object sender, EventArgs e)

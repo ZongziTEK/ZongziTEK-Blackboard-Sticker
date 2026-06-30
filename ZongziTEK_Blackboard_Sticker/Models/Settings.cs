@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 
 namespace ZongziTEK_Blackboard_Sticker.Models
 {
@@ -166,6 +167,19 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class Look : INotifyPropertyChanged
     {
+        private static int NormalizeOption(int value, int min, int max, int fallback)
+        {
+            return value < min || value > max ? fallback : value;
+        }
+
+        private static double ClampRange(double value, double min, double max, double fallback)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value)) return fallback;
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
         private double _windowScaleMultiplier = 1;
         public double WindowScaleMultiplier
         {
@@ -214,9 +228,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _lookMode;
             set
             {
-                if (_lookMode != value)
+                int normalizedValue = NormalizeOption(value, 0, 3, 0);
+                if (_lookMode != normalizedValue)
                 {
-                    _lookMode = value;
+                    _lookMode = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -256,9 +271,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _windowHeightPercent;
             set
             {
-                if (_windowHeightPercent != value)
+                double normalizedValue = ClampRange(value, 30, 100, 100);
+                if (_windowHeightPercent != normalizedValue)
                 {
-                    _windowHeightPercent = value;
+                    _windowHeightPercent = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -270,9 +286,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _windowVerticalAlignment;
             set
             {
-                if (_windowVerticalAlignment != value)
+                int normalizedValue = NormalizeOption(value, 0, 1, 0);
+                if (_windowVerticalAlignment != normalizedValue)
                 {
-                    _windowVerticalAlignment = value;
+                    _windowVerticalAlignment = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -298,9 +315,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _backgroundStyle;
             set
             {
-                if (_backgroundStyle != value)
+                int normalizedValue = NormalizeOption(value, 0, 4, 0);
+                if (_backgroundStyle != normalizedValue)
                 {
-                    _backgroundStyle = value;
+                    _backgroundStyle = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -362,7 +380,17 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class CustomBackgroundStyle : INotifyPropertyChanged
     {
-        private BackgroundElementStyle _mainPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        private static BackgroundElementStyle CreatePanelStyle()
+        {
+            return new BackgroundElementStyle(BackgroundElementStyle.DefaultPanelColor, BackgroundElementStyle.DefaultPanelOpacity);
+        }
+
+        private static BackgroundElementStyle CreateTitleBarStyle()
+        {
+            return new BackgroundElementStyle(BackgroundElementStyle.DefaultTitleBarColor, BackgroundElementStyle.DefaultTitleBarOpacity);
+        }
+
+        private BackgroundElementStyle _mainPanel = CreatePanelStyle();
         public BackgroundElementStyle MainPanel
         {
             get => _mainPanel;
@@ -370,13 +398,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_mainPanel != value)
                 {
-                    _mainPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _mainPanel = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _topPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        private BackgroundElementStyle _topPanel = CreatePanelStyle();
         public BackgroundElementStyle TopPanel
         {
             get => _topPanel;
@@ -384,13 +412,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_topPanel != value)
                 {
-                    _topPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _topPanel = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _blackboardPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        private BackgroundElementStyle _blackboardPanel = CreatePanelStyle();
         public BackgroundElementStyle BlackboardPanel
         {
             get => _blackboardPanel;
@@ -398,13 +426,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_blackboardPanel != value)
                 {
-                    _blackboardPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _blackboardPanel = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _launcherPanel = new BackgroundElementStyle("#FEFEFE", 60);
+        private BackgroundElementStyle _launcherPanel = CreatePanelStyle();
         public BackgroundElementStyle LauncherPanel
         {
             get => _launcherPanel;
@@ -412,13 +440,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_launcherPanel != value)
                 {
-                    _launcherPanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _launcherPanel = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _timetablePanel = new BackgroundElementStyle("#FEFEFE", 60);
+        private BackgroundElementStyle _timetablePanel = CreatePanelStyle();
         public BackgroundElementStyle TimetablePanel
         {
             get => _timetablePanel;
@@ -426,13 +454,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_timetablePanel != value)
                 {
-                    _timetablePanel = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _timetablePanel = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _functionMenu = new BackgroundElementStyle("#FEFEFE", 60);
+        private BackgroundElementStyle _functionMenu = CreatePanelStyle();
         public BackgroundElementStyle FunctionMenu
         {
             get => _functionMenu;
@@ -440,13 +468,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_functionMenu != value)
                 {
-                    _functionMenu = value ?? new BackgroundElementStyle("#FEFEFE", 60);
+                    _functionMenu = value ?? CreatePanelStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _blackboardTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        private BackgroundElementStyle _blackboardTitleBar = CreateTitleBarStyle();
         public BackgroundElementStyle BlackboardTitleBar
         {
             get => _blackboardTitleBar;
@@ -454,13 +482,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_blackboardTitleBar != value)
                 {
-                    _blackboardTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    _blackboardTitleBar = value ?? CreateTitleBarStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _launcherTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        private BackgroundElementStyle _launcherTitleBar = CreateTitleBarStyle();
         public BackgroundElementStyle LauncherTitleBar
         {
             get => _launcherTitleBar;
@@ -468,13 +496,13 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_launcherTitleBar != value)
                 {
-                    _launcherTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    _launcherTitleBar = value ?? CreateTitleBarStyle();
                     OnPropertyChanged();
                 }
             }
         }
 
-        private BackgroundElementStyle _timetableTitleBar = new BackgroundElementStyle("#FFFFFF", 80);
+        private BackgroundElementStyle _timetableTitleBar = CreateTitleBarStyle();
         public BackgroundElementStyle TimetableTitleBar
         {
             get => _timetableTitleBar;
@@ -482,7 +510,7 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             {
                 if (_timetableTitleBar != value)
                 {
-                    _timetableTitleBar = value ?? new BackgroundElementStyle("#FFFFFF", 80);
+                    _timetableTitleBar = value ?? CreateTitleBarStyle();
                     OnPropertyChanged();
                 }
             }
@@ -498,39 +526,81 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class BackgroundElementStyle : INotifyPropertyChanged
     {
+        public const string DefaultPanelColor = "#FEFEFE";
+        public const double DefaultPanelOpacity = 60;
+        public const string DefaultTitleBarColor = "#FFFFFF";
+        public const double DefaultTitleBarOpacity = 80;
+
         public BackgroundElementStyle()
         {
         }
 
         public BackgroundElementStyle(string color, double opacity)
         {
-            _color = color;
-            _opacity = opacity;
+            _color = NormalizeColor(color, DefaultPanelColor);
+            _opacity = ClampOpacity(opacity);
         }
 
-        private string _color = "#FEFEFE";
+        public static string NormalizeColor(string colorText, string fallbackColor = DefaultPanelColor)
+        {
+            string fallback = string.IsNullOrWhiteSpace(fallbackColor) ? DefaultPanelColor : fallbackColor.Trim();
+            string normalizedText = colorText?.Trim();
+
+            if (string.IsNullOrWhiteSpace(normalizedText)) return fallback;
+
+            if (!normalizedText.StartsWith("#") && (normalizedText.Length == 3 || normalizedText.Length == 6 || normalizedText.Length == 8))
+            {
+                normalizedText = "#" + normalizedText;
+            }
+
+            try
+            {
+                object convertedColor = ColorConverter.ConvertFromString(normalizedText);
+                if (convertedColor is Color color)
+                {
+                    return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+                }
+            }
+            catch
+            {
+            }
+
+            return fallback;
+        }
+
+        public static double ClampOpacity(double opacity)
+        {
+            if (double.IsNaN(opacity) || double.IsInfinity(opacity)) return DefaultPanelOpacity;
+            if (opacity < 0) return 0;
+            if (opacity > 100) return 100;
+            return opacity;
+        }
+
+        private string _color = DefaultPanelColor;
         public string Color
         {
             get => _color;
             set
             {
-                if (_color != value)
+                string normalizedValue = NormalizeColor(value, _color);
+                if (_color != normalizedValue)
                 {
-                    _color = value;
+                    _color = normalizedValue;
                     OnPropertyChanged();
                 }
             }
         }
 
-        private double _opacity = 60;
+        private double _opacity = DefaultPanelOpacity;
         public double Opacity
         {
             get => _opacity;
             set
             {
-                if (_opacity != value)
+                double normalizedValue = ClampOpacity(value);
+                if (_opacity != normalizedValue)
                 {
-                    _opacity = value;
+                    _opacity = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -720,6 +790,14 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class InfoBoard : INotifyPropertyChanged
     {
+        private static double ClampRange(double value, double min, double max, double fallback)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value)) return fallback;
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
         private bool _isCountdownPageEnabled = true;
         public bool isCountdownPageEnabled
         {
@@ -852,9 +930,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _switchIntervalSeconds;
             set
             {
-                if (_switchIntervalSeconds != value)
+                double normalizedValue = ClampRange(value, 1, 60, 4);
+                if (_switchIntervalSeconds != normalizedValue)
                 {
-                    _switchIntervalSeconds = value;
+                    _switchIntervalSeconds = normalizedValue;
                     OnPropertyChanged();
                 }
             }

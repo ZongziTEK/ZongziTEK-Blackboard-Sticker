@@ -68,6 +68,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyStorageSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }

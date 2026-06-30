@@ -1,6 +1,7 @@
 using iNKORE.UI.WPF.Modern.Common.IconKeys;
 using System.Windows;
 using System.Windows.Controls;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 
 namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 {
@@ -142,6 +143,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         private void MainEditor_ValueChanged(object sender, RoutedEventArgs e)
         {
             Value = MainEditor.Value;
+            if (SettingsResetItem.IsResetting) return;
+
             RaiseEvent(new RoutedEventArgs(ValueChangedEvent, this));
         }
 

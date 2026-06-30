@@ -141,6 +141,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
 
         private void ApplyTimetableDisplaySettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             (Application.Current.MainWindow as MainWindow).LoadTimetableOrCurriculum();
             UpdateResetButtons();
@@ -148,6 +150,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
 
         private void ApplyTimetableSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }

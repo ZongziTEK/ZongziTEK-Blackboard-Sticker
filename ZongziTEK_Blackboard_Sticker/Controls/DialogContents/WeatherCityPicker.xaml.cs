@@ -17,12 +17,20 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.DialogContents
     public partial class WeatherCityPicker : UserControl
     {
         public WeatherCityPicker()
+            : this(MainWindow.Settings.InfoBoard.WeatherCity)
+        {
+        }
+
+        public WeatherCityPicker(string selectedCityCode)
         {
             InitializeComponent();
 
+            SelectedCityCode = selectedCityCode;
             LoadCityData();
             FilterCitiesAsync();
         }
+
+        public string SelectedCityCode { get; private set; }
 
         private WeatherCityData weatherCityData = new();
         private List<City> filteredCities = new();
@@ -92,10 +100,11 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.DialogContents
                         RadioButton radioButton = new()
                         {
                             Content = city.Name,
-                            GroupName = "WeatherCity"
+                            GroupName = "WeatherCity",
+                            Tag = city.CityCode
                         };
 
-                        if (city.CityCode == MainWindow.Settings.InfoBoard.WeatherCity)
+                        if (city.CityCode == SelectedCityCode)
                         {
                             radioButton.IsChecked = true;
                             expander.IsExpanded = true;
@@ -134,13 +143,10 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.DialogContents
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
-            string cityName = (sender as RadioButton).Content.ToString();
-            City city = weatherCityData.Cities
-                .FirstOrDefault(c => c.Name == cityName);
-            string cityCode = city.CityCode;
-
-            MainWindow.Settings.InfoBoard.WeatherCity = cityCode;
-            MainWindow.SaveSettings();
+            if (sender is RadioButton radioButton && radioButton.Tag is string cityCode)
+            {
+                SelectedCityCode = cityCode;
+            }
         }
     }
 }

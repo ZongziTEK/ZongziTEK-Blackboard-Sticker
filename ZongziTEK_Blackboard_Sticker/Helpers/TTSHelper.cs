@@ -22,7 +22,31 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers
 
         private static async Task EdgeTTSPlayText(string text)
         {
-            var voice = Edge_tts.GetVoice()[MainWindow.Settings.TimetableSettings.Voice];
+            var voices = Edge_tts.GetVoice();
+            if (voices.Count == 0)
+            {
+                SysTTSPlayText(text);
+                return;
+            }
+
+            int voiceIndex = MainWindow.Settings.TimetableSettings.Voice;
+
+            if (voiceIndex < 0 || voiceIndex >= voices.Count)
+            {
+                voiceIndex = 0;
+                for (int i = 0; i < voices.Count; i++)
+                {
+                    if ((voices[i].Locale ?? string.Empty).Contains("zh"))
+                    {
+                        voiceIndex = i;
+                        break;
+                    }
+                }
+
+                MainWindow.Settings.TimetableSettings.Voice = voiceIndex;
+            }
+
+            var voice = voices[voiceIndex];
 
             PlayOption option = new()
             {

@@ -29,7 +29,7 @@ namespace ZongziTEK_Blackboard_Sticker
             NavigationViewRoot.SelectedItem = NavigationViewRoot.MenuItems[0];
         }
 
-        private void ConfigureNavigationViewPane()
+        public void ConfigureNavigationViewPane()
         {
             Brush paneBackground = TryFindResource(ThemeKeys.LayerOnMicaBaseAltFillColorDefaultBrushKey) as Brush
                 ?? Brushes.Transparent;

@@ -40,14 +40,24 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private async void ButtonEditWeatherCity_Click(object sender, RoutedEventArgs e)
         {
+            Controls.DialogContents.WeatherCityPicker weatherCityPicker = new(MainWindow.Settings.InfoBoard.WeatherCity);
             ContentDialog weatherCityPickerDialog = new()
             {
                 Title = "选择城市或行政区",
                 CloseButtonText = "完成",
                 DefaultButton = ContentDialogButton.Close,
-                Content = new Controls.DialogContents.WeatherCityPicker()
+                Content = weatherCityPicker
             };
             await weatherCityPickerDialog.ShowAsync();
+
+            if (!string.IsNullOrWhiteSpace(weatherCityPicker.SelectedCityCode)
+                && weatherCityPicker.SelectedCityCode != MainWindow.Settings.InfoBoard.WeatherCity)
+            {
+                MainWindow.Settings.InfoBoard.WeatherCity = weatherCityPicker.SelectedCityCode;
+                ApplyWeatherSettings();
+                return;
+            }
+
             UpdateResetButtons();
         }
 
@@ -77,6 +87,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.InfoBoardSettingsPage
 
         private void ApplyWeatherSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }

@@ -224,6 +224,8 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
 
         private void InfoBoard_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            if (e.PropertyName != nameof(MainWindow.Settings.InfoBoard.WeatherCity)) return;
+
             Timer_Tick(null, null);
         }
 

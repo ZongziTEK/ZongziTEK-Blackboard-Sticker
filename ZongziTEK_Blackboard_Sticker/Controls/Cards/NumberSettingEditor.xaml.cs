@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 
 namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 {
@@ -13,6 +14,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
     {
         private bool isLoaded = false;
         private bool isUpdating = false;
+        private bool isSliderChanging = false;
+        private double sliderChangeStartValue;
 
         public NumberSettingEditor()
         {
@@ -156,27 +159,52 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             if (!isLoaded || isUpdating) return;
 
-            ApplyValue(MainSlider.Value, true);
+            ApplyValue(MainSlider.Value, !isSliderChanging);
         }
 
         private void MainSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(ValueChangeStartEvent, this));
+            BeginSliderChange();
         }
 
         private void MainSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(ValueChangeEndEvent, this));
+            EndSliderChange();
         }
 
         private void MainSlider_PreviewTouchDown(object sender, TouchEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(ValueChangeStartEvent, this));
+            BeginSliderChange();
         }
 
         private void MainSlider_PreviewTouchUp(object sender, TouchEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(ValueChangeEndEvent, this));
+            EndSliderChange();
+        }
+
+        private void BeginSliderChange()
+        {
+            if (SettingsResetItem.IsResetting) return;
+
+            isSliderChanging = true;
+            sliderChangeStartValue = Value;
+            RaiseEvent(new RoutedEventArgs(ValueChangeStartEvent, this));
+        }
+
+        private void EndSliderChange()
+        {
+            bool shouldCommit = isSliderChanging && !AreClose(Value, sliderChangeStartValue);
+            isSliderChanging = false;
+
+            if (shouldCommit)
+            {
+                RaiseEvent(new RoutedEventArgs(ValueChangedEvent, this));
+            }
+
+            if (!SettingsResetItem.IsResetting)
+            {
+                RaiseEvent(new RoutedEventArgs(ValueChangeEndEvent, this));
+            }
         }
 
         private void CommitTextValue()
@@ -205,6 +233,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 
             if (raiseChanged && hasChanged)
             {
+                if (SettingsResetItem.IsResetting) return;
+
                 RaiseEvent(new RoutedEventArgs(ValueChangedEvent, this));
             }
         }

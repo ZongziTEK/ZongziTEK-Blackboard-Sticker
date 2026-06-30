@@ -2033,7 +2033,7 @@ namespace ZongziTEK_Blackboard_Sticker
 
             frameInfoNavigationTimer.Stop();
 
-            FrameInfo.NavigationService.RemoveBackEntry();
+            ClearFrameInfoBackStack();
 
             frameInfoPageIndex++;
             if (frameInfoPageIndex >= frameInfoPages.Count) frameInfoPageIndex = 0;
@@ -2042,8 +2042,19 @@ namespace ZongziTEK_Blackboard_Sticker
             if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
         }
 
+        private void ClearFrameInfoBackStack()
+        {
+            if (FrameInfo.NavigationService == null) return;
+
+            while (FrameInfo.NavigationService.RemoveBackEntry() != null)
+            {
+            }
+        }
+
         public void LoadFrameInfoPagesList()
         {
+            frameInfoNavigationTimer.Stop();
+            frameInfoPageIndex = 0;
             frameInfoPages.Clear();
 
             if (Settings.InfoBoard.isDatePageEnabled) frameInfoPages.Add(new DatePage());
@@ -2054,6 +2065,7 @@ namespace ZongziTEK_Blackboard_Sticker
             if (frameInfoPages.Count == 0) return;
 
             FrameInfo.Navigate(frameInfoPages[0]);
+            ClearFrameInfoBackStack();
 
             if (frameInfoPages.Count == 1)
             {
@@ -2358,6 +2370,14 @@ namespace ZongziTEK_Blackboard_Sticker
             }
 
             window?.ApplyVisualSettings();
+
+            foreach (Window currentWindow in Application.Current.Windows)
+            {
+                if (currentWindow is SettingsWindow settingsWindow)
+                {
+                    settingsWindow.ConfigureNavigationViewPane();
+                }
+            }
         }
 
         private void Hyperlink_Click(object sender, RoutedEventArgs e)
@@ -2451,6 +2471,7 @@ namespace ZongziTEK_Blackboard_Sticker
             BeginAnimation(LeftProperty, null);
 
             Rect targetWorkArea = GetTargetWorkArea();
+            Left = targetWorkArea.Left;
             ApplyPanelVisibility(mode);
 
             double liteModeWidth = ColumnLauncher.ActualWidth;

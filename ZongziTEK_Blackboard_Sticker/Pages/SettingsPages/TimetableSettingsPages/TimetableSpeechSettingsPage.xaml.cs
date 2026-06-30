@@ -58,12 +58,10 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
                 };
 
                 ComboBoxVoice.Items.Add(item);
-
-                if(voiceItem.Index == MainWindow.Settings.TimetableSettings.Voice)
-                {
-                    ComboBoxVoice.SelectedItem = item;
-                }
             }
+
+            int selectedVoice = SetSelectedVoice(MainWindow.Settings.TimetableSettings.Voice);
+            MainWindow.Settings.TimetableSettings.Voice = selectedVoice;
             
             isLoaded = true;
             InitializeResetItems();
@@ -106,17 +104,18 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
                 resetItems,
                 enabled => ButtonResetVoice.IsEnabled = enabled,
                 () => MainWindow.Settings.TimetableSettings.Voice,
-                () => defaultSettings.TimetableSettings.Voice,
+                () => ResolveVoiceIndex(defaultSettings.TimetableSettings.Voice),
                 value =>
                 {
-                    SetSelectedVoice(value);
-                    MainWindow.Settings.TimetableSettings.Voice = value;
+                    MainWindow.Settings.TimetableSettings.Voice = SetSelectedVoice(value);
                 },
                 ApplySpeechSettings);
         }
 
         private void ApplySpeechSettings()
         {
+            if (SettingsResetItem.IsResetting) return;
+
             MainWindow.SaveSettings();
             UpdateResetButtons();
         }
@@ -153,16 +152,34 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
             MainWindow.Settings.TimetableSettings.IsOverSpeechEnabled = defaultSettings.TimetableSettings.IsOverSpeechEnabled;
         }
 
-        private void SetSelectedVoice(int voiceIndex)
+        private int ResolveVoiceIndex(int voiceIndex)
         {
-            for (int i = 0; i < voiceItems.Count; i++)
+            foreach (VoiceItem voiceItem in voiceItems)
             {
-                if (voiceItems[i].Index == voiceIndex)
+                if (voiceItem.Index == voiceIndex)
                 {
-                    ComboBoxVoice.SelectedIndex = i;
-                    return;
+                    return voiceIndex;
                 }
             }
+
+            return voiceItems.Count > 0 ? voiceItems[0].Index : voiceIndex;
+        }
+
+        private int SetSelectedVoice(int voiceIndex)
+        {
+            int resolvedVoiceIndex = ResolveVoiceIndex(voiceIndex);
+
+            for (int i = 0; i < voiceItems.Count; i++)
+            {
+                if (voiceItems[i].Index == resolvedVoiceIndex)
+                {
+                    ComboBoxVoice.SelectedIndex = i;
+                    return resolvedVoiceIndex;
+                }
+            }
+
+            ComboBoxVoice.SelectedIndex = -1;
+            return resolvedVoiceIndex;
         }
 
         private void UpdateResetButtons()
