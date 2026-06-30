@@ -255,9 +255,9 @@
                         </ui:ScrollViewerEx>
                         <Border x:Name="BorderTimetableTitleBar" Grid.Row="1" Height="40" Margin="8" Padding="8,0" CornerRadius="4" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <Grid>
-                                <Label x:Name="LabelTimetableTitle" Content="课程表" 
-                                           VerticalAlignment="Center" 
-                                           Margin="0" 
+                                <Label x:Name="LabelTimetableTitle" Content="课程表"
+                                           VerticalAlignment="Center"
+                                           Margin="0"
                                            FontSize="20"/>
                                 <ikw:SimpleStackPanel x:Name="StackPanelTimetableTitleButtons" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0">
                                     <Button x:Name="saveCurriculumButton" Click="saveCurriculumButton_Click" Width="32" Height="32" Padding="0" Background="#00000000" BorderThickness="0" Visibility="Collapsed">

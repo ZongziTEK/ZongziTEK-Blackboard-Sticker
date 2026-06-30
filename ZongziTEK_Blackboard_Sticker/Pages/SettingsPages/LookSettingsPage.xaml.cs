@@ -45,6 +45,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         private SettingsResetItem resetTargetMonitor;
         private SettingsResetItem resetWindowChromeDisabled;
         private bool isPageReady = false;
+        private bool isWindowScaleSliderChanging = false;
 
         public LookSettingsPage()
         {
@@ -261,13 +262,20 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         {
             if (!isPageReady || mainWindow == null) return;
 
+            isWindowScaleSliderChanging = true;
+
             if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(0);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeEnd(object sender, RoutedEventArgs e)
         {
-            if (!isPageReady || mainWindow == null) return;
+            if (!isPageReady || mainWindow == null)
+            {
+                isWindowScaleSliderChanging = false;
+                return;
+            }
 
+            isWindowScaleSliderChanging = false;
             if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
         }
 
@@ -292,6 +300,12 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
             MainWindow.SaveSettings();
             MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
+
+            if (!isWindowScaleSliderChanging && mainWindow != null && MainWindow.Settings.Look.LookMode != 0)
+            {
+                mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+            }
+
             UpdateResetButtons();
         }
 

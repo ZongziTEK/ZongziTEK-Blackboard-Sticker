@@ -37,7 +37,7 @@
                                  Value="{Binding OverNotificationTime, Mode=TwoWay}" Unit="秒" NumberFormat="0"
                                  IsResetButtonVisible="True" ResetClicked="CardOverNotificationTime_ResetClicked"
                                  ValueChanged="SliderOverNotificationTime_ValueChanged"/>
-                    <card:SliderCard x:Name="CardTimeOffset" Icon="{x:Static ui:FluentSystemIcons.ShiftsActivity_20_Regular}" 
+                    <card:SliderCard x:Name="CardTimeOffset" Icon="{x:Static ui:FluentSystemIcons.ShiftsActivity_20_Regular}"
                                  Header="时间补偿" Tip="当学校铃声时间与黑板贴上下课提醒出现时间不一致时，请修改此值。正值为提前，负值为延后"
                                  Minimum="-30" Maximum="30" TickFrequency="1"
                                  Value="{Binding TimeOffset, Mode=TwoWay}" Unit="秒" NumberFormat="0"

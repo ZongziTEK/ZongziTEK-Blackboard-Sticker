@@ -20,7 +20,7 @@
         <ui:ScrollViewerEx>
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Content="天气" Margin="12,8" FontWeight="Bold"/>
-                <card:GenericSettingsCard x:Name="CardWeatherCity" Icon="{x:Static ui:FluentSystemIcons.Location_20_Regular}" 
+                <card:GenericSettingsCard x:Name="CardWeatherCity" Icon="{x:Static ui:FluentSystemIcons.Location_20_Regular}"
                                           Header="天气城市" 
                                           Tip="选择用于查询天气的城市或行政区"
                                           IsResetButtonVisible="True" ResetClicked="CardWeatherCity_ResetClicked">

@@ -133,10 +133,10 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
 
             ForecastWeatherItemDatas.Clear();
 
-            if(forecastWeather == null || forecastWeather.Temperature.Values.Length == 0)
-                return;
+            int itemCount = GetForecastItemCount(countLimit);
+            if (itemCount == 0) return;
 
-            for (int i = 0; i < countLimit; i++)
+            for (int i = 0; i < itemCount; i++)
             {
                 ForecastWeatherItemData itemData = new()
                 {
@@ -174,7 +174,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
 
         private void ShowRainForecast()
         {
-            if (forecastWeather != null && forecastWeather.Weather.Values.Length != 0)
+            if (forecastWeather?.Weather?.Values != null && forecastWeather.Weather.Values.Length != 0)
             {
                 string rainDays = "";
 
@@ -212,6 +212,16 @@ namespace ZongziTEK_Blackboard_Sticker.Pages
             {
                 TextRainyDays.Text = "暂无天气预报信息";
             }
+        }
+
+        private int GetForecastItemCount(int limit)
+        {
+            if (forecastWeather?.Temperature?.Values == null || forecastWeather?.Weather?.Values == null)
+            {
+                return 0;
+            }
+
+            return Math.Min(limit, Math.Min(forecastWeather.Temperature.Values.Length, forecastWeather.Weather.Values.Length));
         }
 
         private string TransformIndexToDay(int index)

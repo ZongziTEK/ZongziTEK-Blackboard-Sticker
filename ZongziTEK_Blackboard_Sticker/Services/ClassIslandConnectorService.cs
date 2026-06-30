@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using dotnetCampus.Ipc.Context;
-using ZongziTEK_Blackboard_Sticker.Models;
+using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Interfaces;
-using ZongziTEK_Blackboard_Sticker.Shared.IPC;
+using ZongziTEK.BlackboardSticker.Shared.IPC;
 
 namespace ZongziTEK_Blackboard_Sticker.Services
 {
@@ -23,6 +23,8 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         private PeerProxy? _peerProxy;
         private IConnectService? _connectService;
         private JsonIpcDirectRoutedProvider? _ipcDirectRoutedProvider;
+
+        private const double DefaultIslandLineSpacing = 5d;
 
         private bool _isConnected;
         private bool _isTimetableSyncEnabled;
@@ -153,12 +155,19 @@ namespace ZongziTEK_Blackboard_Sticker.Services
         {
             var islandTerritoryHeight = await InvokeConnectService(
                 service => service.GetIslandTerritoryHeight(),
-                16d,
+                0d,
                 nameof(IConnectService.GetIslandTerritoryHeight));
             var islandDockingLocation = await InvokeConnectService(
                 service => service.GetIslandDockingLocation(),
                 0,
                 nameof(IConnectService.GetIslandDockingLocation));
+            var islandLineSpacing = await InvokeOptionalConnectService(
+                service => service.GetIslandLineSpacing(),
+                DefaultIslandLineSpacing,
+                nameof(IConnectService.GetIslandLineSpacing));
+            double avoidance = _isConnected
+                ? NormalizeAvoidanceValue(islandTerritoryHeight) + NormalizeAvoidanceValue(islandLineSpacing)
+                : 0d;
             bool isTop = islandDockingLocation <= 2;
 
             App.Current.Dispatcher.Invoke(() =>
@@ -166,7 +175,7 @@ namespace ZongziTEK_Blackboard_Sticker.Services
                 var mainWindow = App.Current.MainWindow as MainWindow;
                 if (mainWindow == null) return;
 
-                mainWindow.Creep(islandTerritoryHeight - 16, isTop);
+                mainWindow.Creep(avoidance, isTop);
             });
 
             ConsoleHelper.WriteLog("黑板贴避让 ClassIsland 主界面", "info");
@@ -290,6 +299,36 @@ namespace ZongziTEK_Blackboard_Sticker.Services
                 Console.WriteLine("--- 错误信息末尾 ---");
                 return fallbackValue;
             }
+        }
+
+        private async Task<T> InvokeOptionalConnectService<T>(
+            Func<IConnectService, Task<T>> invocation,
+            T fallbackValue,
+            string operationName)
+        {
+            if (_connectService == null)
+            {
+                return fallbackValue;
+            }
+
+            try
+            {
+                return await invocation(_connectService);
+            }
+            catch (Exception ex)
+            {
+                ConsoleHelper.WriteLog($"ClassIsland Connector 可选 IPC 调用失败，使用默认值：{operationName}", "warn");
+                Console.WriteLine("--- 错误信息 ---");
+                Console.WriteLine(ex);
+                Console.WriteLine("--- 错误信息末尾 ---");
+                return fallbackValue;
+            }
+        }
+
+        private static double NormalizeAvoidanceValue(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0) return 0d;
+            return value;
         }
     }
 }

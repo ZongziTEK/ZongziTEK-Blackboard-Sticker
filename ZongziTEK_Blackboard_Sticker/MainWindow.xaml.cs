@@ -22,6 +22,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ZongziTEK_Blackboard_Sticker.Helpers;
+using ZongziTEK.BlackboardSticker.Models;
 using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Pages;
 using ZongziTEK_Blackboard_Sticker.Services;
@@ -224,7 +225,8 @@ namespace ZongziTEK_Blackboard_Sticker
             }
 
             var previousMargin = GridRoot.Margin;
-            var newMargin = isTop ? new Thickness(0, marginVertical, 0, 0) : new Thickness(0, 0, 0, marginVertical);
+            var compensatedMarginVertical = GetCompensatedCreepMargin(marginVertical, isTop);
+            var newMargin = isTop ? new Thickness(0, compensatedMarginVertical, 0, 0) : new Thickness(0, 0, 0, compensatedMarginVertical);
 
             ThicknessAnimation marginAnimation = new()
             {
@@ -235,6 +237,21 @@ namespace ZongziTEK_Blackboard_Sticker
             };
 
             GridRoot.BeginAnimation(MarginProperty, marginAnimation);
+        }
+
+        private double GetCompensatedCreepMargin(double marginVertical, bool isTop)
+        {
+            if (double.IsNaN(marginVertical) || double.IsInfinity(marginVertical) || marginVertical < 0) return 0;
+
+            Thickness mainPanelMargin = BorderMain?.Margin ?? new Thickness(0);
+            double visualInset = isTop ? mainPanelMargin.Top : mainPanelMargin.Bottom;
+            if (double.IsNaN(visualInset) || double.IsInfinity(visualInset) || visualInset < 0) visualInset = 0;
+
+            double scaleY = windowScale?.ScaleY ?? 1;
+            if (double.IsNaN(scaleY) || double.IsInfinity(scaleY) || scaleY <= 0) scaleY = 1;
+            visualInset *= scaleY;
+
+            return Math.Max(0, marginVertical - visualInset);
         }
 
         private async void iconSwitchLeft_MouseDown(object sender, MouseButtonEventArgs e)

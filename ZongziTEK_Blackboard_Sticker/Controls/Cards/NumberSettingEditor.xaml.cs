@@ -26,7 +26,7 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             isLoaded = true;
             UpdateSliderRange();
-            UpdateInterfaceFromValue();
+            ApplyValue(Value, false);
         }
 
         public double Value
@@ -43,6 +43,15 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             NumberSettingEditor editor = (NumberSettingEditor)d;
             if (editor.isUpdating) return;
+            if (!editor.isLoaded) return;
+
+            double normalizedValue = editor.NormalizeValue((double)e.NewValue);
+            if (!AreClose((double)e.NewValue, normalizedValue))
+            {
+                editor.isUpdating = true;
+                editor.SetCurrentValue(ValueProperty, normalizedValue);
+                editor.isUpdating = false;
+            }
 
             editor.UpdateInterfaceFromValue();
         }
@@ -81,7 +90,14 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             NumberSettingEditor editor = (NumberSettingEditor)d;
             editor.UpdateSliderRange();
-            editor.UpdateInterfaceFromValue();
+            if (editor.isLoaded)
+            {
+                editor.ApplyValue(editor.Value, false);
+            }
+            else
+            {
+                editor.UpdateInterfaceFromValue();
+            }
         }
 
         public string Unit
@@ -243,6 +259,12 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             double minimum = Math.Min(Minimum, Maximum);
             double maximum = Math.Max(Minimum, Maximum);
+
+            if (!IsFinite(value))
+            {
+                value = IsFinite(Value) ? Value : minimum;
+            }
+
             double result = Math.Max(minimum, Math.Min(maximum, value));
 
             if (TickFrequency > 0)
@@ -251,6 +273,8 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
                 result = minimum + steps * TickFrequency;
                 result = Math.Max(minimum, Math.Min(maximum, result));
             }
+
+            if (!IsFinite(result)) return minimum;
 
             return Math.Round(result, 10);
         }
@@ -270,12 +294,13 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 
             isUpdating = true;
             UpdateSliderRange();
-            MainSlider.Value = Math.Max(MainSlider.Minimum, Math.Min(MainSlider.Maximum, Value));
+            double normalizedValue = NormalizeValue(Value);
+            MainSlider.Value = normalizedValue;
             SliderValueTextBlock.Text = FormatValue(MainSlider.Value);
 
             if (!ValueTextBox.IsKeyboardFocusWithin)
             {
-                UpdateTextBox(Value);
+                UpdateTextBox(normalizedValue);
             }
 
             isUpdating = false;
@@ -294,17 +319,22 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 
         private bool TryParseNumber(string text, out double value)
         {
-            if (double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out value))
+            if (double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out value) && IsFinite(value))
             {
                 return true;
             }
 
-            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value) && IsFinite(value);
         }
 
         private static bool AreClose(double a, double b)
         {
             return Math.Abs(a - b) < 0.0000001;
+        }
+
+        private static bool IsFinite(double value)
+        {
+            return !double.IsNaN(value) && !double.IsInfinity(value);
         }
     }
 }
