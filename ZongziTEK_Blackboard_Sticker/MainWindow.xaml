@@ -15,7 +15,7 @@
 
     <Grid Name="GridRoot">
         <Grid.LayoutTransform>
-            <ScaleTransform x:Name="windowScale" ScaleX="{Binding WindowScaleMultiplier}" ScaleY="{Binding WindowScaleMultiplier}"/>
+            <ScaleTransform x:Name="windowScale" ScaleX="1" ScaleY="1"/>
         </Grid.LayoutTransform>
 
         <Border Name="BorderMain" Margin="8" CornerRadius="8" Background="{DynamicResource WindowBackgroundColor}">

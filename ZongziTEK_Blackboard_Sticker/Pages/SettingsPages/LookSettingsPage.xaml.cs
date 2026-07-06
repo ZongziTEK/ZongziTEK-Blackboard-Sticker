@@ -255,7 +255,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void SliderWindowScaleMultiplier_ValueChanged(object sender, RoutedEventArgs e)
         {
-            ApplyWindowScaleSettings();
+            ApplyWindowScaleSettings(!isWindowScaleSliderChanging);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeStart(object sender, RoutedEventArgs e)
@@ -263,8 +263,6 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             if (!isPageReady || mainWindow == null) return;
 
             isWindowScaleSliderChanging = true;
-
-            if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(0);
         }
 
         private void SliderWindowScaleMultiplier_ValueChangeEnd(object sender, RoutedEventArgs e)
@@ -276,7 +274,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             }
 
             isWindowScaleSliderChanging = false;
-            if (MainWindow.Settings.Look.LookMode != 0) mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+            ApplyWindowScaleSettings(true);
         }
 
         private void ApplyLookSettings()
@@ -295,15 +293,20 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ApplyWindowScaleSettings()
         {
+            ApplyWindowScaleSettings(true);
+        }
+
+        private void ApplyWindowScaleSettings(bool shouldCommitLayout)
+        {
             if (SettingsResetItem.IsResetting) return;
             if (!isPageReady) return;
 
-            MainWindow.SaveSettings();
             MainWindow.SetWindowScaleTransform(MainWindow.Settings.Look.WindowScaleMultiplier);
 
-            if (!isWindowScaleSliderChanging && mainWindow != null && MainWindow.Settings.Look.LookMode != 0)
+            if (shouldCommitLayout)
             {
-                mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
+                MainWindow.SaveSettings();
+                if (mainWindow != null) mainWindow.SwitchLookMode(MainWindow.Settings.Look.LookMode);
             }
 
             UpdateResetButtons();
@@ -399,6 +402,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
                 && AreBackgroundElementStylesEqual(current.BlackboardPanel, defaults.BlackboardPanel)
                 && AreBackgroundElementStylesEqual(current.LauncherPanel, defaults.LauncherPanel)
                 && AreBackgroundElementStylesEqual(current.TimetablePanel, defaults.TimetablePanel)
+                && AreBackgroundElementStylesEqual(current.TimetableLessonCard, defaults.TimetableLessonCard)
                 && AreBackgroundElementStylesEqual(current.FunctionMenu, defaults.FunctionMenu)
                 && AreBackgroundElementStylesEqual(current.BlackboardTitleBar, defaults.BlackboardTitleBar)
                 && AreBackgroundElementStylesEqual(current.LauncherTitleBar, defaults.LauncherTitleBar)
@@ -419,6 +423,7 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
                 new BackgroundStyleItemEditor("小黑板", customStyle.BlackboardPanel),
                 new BackgroundStyleItemEditor("启动台", customStyle.LauncherPanel),
                 new BackgroundStyleItemEditor("课程表", customStyle.TimetablePanel),
+                new BackgroundStyleItemEditor("课程表卡片", customStyle.TimetableLessonCard),
                 new BackgroundStyleItemEditor("功能菜单", customStyle.FunctionMenu)));
 
             BackgroundStyleCategories.Add(new BackgroundStyleCategoryEditor("标题栏",

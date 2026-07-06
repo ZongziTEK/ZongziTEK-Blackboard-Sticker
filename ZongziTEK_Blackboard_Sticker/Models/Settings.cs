@@ -186,9 +186,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             get => _windowScaleMultiplier;
             set
             {
-                if (_windowScaleMultiplier != value)
+                double normalizedValue = ClampRange(value, 0.5, 2, 1);
+                if (_windowScaleMultiplier != normalizedValue)
                 {
-                    _windowScaleMultiplier = value;
+                    _windowScaleMultiplier = normalizedValue;
                     OnPropertyChanged();
                 }
             }
@@ -390,6 +391,11 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             return new BackgroundElementStyle(BackgroundElementStyle.DefaultTitleBarColor, BackgroundElementStyle.DefaultTitleBarOpacity);
         }
 
+        private static BackgroundElementStyle CreateCardStyle()
+        {
+            return new BackgroundElementStyle(BackgroundElementStyle.DefaultTitleBarColor, BackgroundElementStyle.DefaultTitleBarOpacity);
+        }
+
         private BackgroundElementStyle _mainPanel = CreatePanelStyle();
         public BackgroundElementStyle MainPanel
         {
@@ -455,6 +461,20 @@ namespace ZongziTEK_Blackboard_Sticker.Models
                 if (_timetablePanel != value)
                 {
                     _timetablePanel = value ?? CreatePanelStyle();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private BackgroundElementStyle _timetableLessonCard = CreateCardStyle();
+        public BackgroundElementStyle TimetableLessonCard
+        {
+            get => _timetableLessonCard;
+            set
+            {
+                if (_timetableLessonCard != value)
+                {
+                    _timetableLessonCard = value ?? CreateCardStyle();
                     OnPropertyChanged();
                 }
             }

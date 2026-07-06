@@ -9,7 +9,8 @@
              d:DesignHeight="44" d:DesignWidth="200" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Loaded="UserControl_Loaded" Height="44">
     <Grid>
         <Grid>
-            <Border Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" 
+            <Border x:Name="BorderLessonCard"
+                Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}"
                 CornerRadius="4" BorderBrush="{DynamicResource {x:Static ui:ThemeKeys.CardStrokeColorDefaultBrushKey}}" BorderThickness="1" MinHeight="44">
                 <Grid>
                     <Grid.ColumnDefinitions>

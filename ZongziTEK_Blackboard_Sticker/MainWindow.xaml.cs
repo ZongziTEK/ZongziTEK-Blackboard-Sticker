@@ -66,6 +66,7 @@ namespace ZongziTEK_Blackboard_Sticker
 
             // 加载文件
             LoadSettings();
+            DataContext = Settings;
             LoadStrokes();
             Task.Run(() =>
             {
@@ -147,7 +148,6 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void window_Loaded(object sender, RoutedEventArgs e)
         {
-            SwitchLookMode(0);
             SwitchLookMode(Settings.Look.LookMode);
 
             if (Settings.Look.IsAnimationEnhanced)
@@ -1354,6 +1354,7 @@ namespace ZongziTEK_Blackboard_Sticker
                         Subject = lesson.Subject,
                         Time = lesson.StartTime.ToString(@"hh\:mm")
                     };
+                    ApplyTimetableLessonCardStyle(timetableLesson, Settings.Look.BackgroundStyle);
                     if (lesson.IsSplitBelow)
                     {
                         timetableLesson.Margin = new Thickness(0, 0, 0, 8);
@@ -1373,41 +1374,45 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             timetableTimer.Stop();
 
-            if (lastDay != DateTime.Now.DayOfWeek)
+            DateTime now = DateTime.Now;
+            if (lastDay != now.DayOfWeek)
             {
-                lastDay = DateTime.Now.DayOfWeek;
+                lastDay = now.DayOfWeek;
 
-                timetableToShow_index = (int)DateTime.Now.DayOfWeek;
+                timetableToShow_index = (int)now.DayOfWeek;
                 LoadTimetable();
             }
 
             TimeSpan currentTime = new TimeSpan
-                (DateTime.Now.TimeOfDay.Hours, DateTime.Now.TimeOfDay.Minutes, DateTime.Now.TimeOfDay.Seconds) + TimeSpan.FromSeconds(Settings.TimetableSettings.TimeOffset);
+                (now.TimeOfDay.Hours, now.TimeOfDay.Minutes, now.TimeOfDay.Seconds) + TimeSpan.FromSeconds(Settings.TimetableSettings.TimeOffset);
 
             if (timetableCurrent != null && timetableCurrent.Count != 0)
             {
                 // 获取上课状态 lessonIndex 和 isInClass
-                foreach (var lesson in timetableCurrent)
+                lessonIndex = -1;
+                isInClass = false;
+                for (int i = 0; i < timetableCurrent.Count; i++)
                 {
+                    Lesson lesson = timetableCurrent[i];
                     if (currentTime >= lesson.StartTime) // 在这节课开始后
                     {
-                        if (timetableCurrent.IndexOf(lesson) + 1 < timetableCurrent.Count) // 不是最后一节课
+                        if (i + 1 < timetableCurrent.Count) // 不是最后一节课
                         {
-                            if (currentTime < timetableCurrent[timetableCurrent.IndexOf(lesson) + 1].StartTime) // 在下一节课上课前
+                            if (currentTime < timetableCurrent[i + 1].StartTime) // 在下一节课上课前
                             {
-                                lessonIndex = timetableCurrent.IndexOf(lesson);
+                                lessonIndex = i;
                                 isInClass = currentTime < lesson.EndTime;
                                 break;
                             }
                         }
                         else // 是最后一节课
                         {
-                            lessonIndex = timetableCurrent.Count - 1;
+                            lessonIndex = i;
                             isInClass = currentTime < lesson.EndTime;
                             break;
                         }
                     }
-                    else if (timetableCurrent.IndexOf(lesson) == 0) // 在第一节课开始前
+                    else if (i == 0) // 在第一节课开始前
                     {
                         lessonIndex = -1;
                         isInClass = false;
@@ -1447,28 +1452,32 @@ namespace ZongziTEK_Blackboard_Sticker
 
                 if (!(StackPanelShowTimetable.Children[0] is TextBlock))
                 {
-                    foreach (TimetableLesson timetableLesson in StackPanelShowTimetable.Children)
+                    int childCount = Math.Min(StackPanelShowTimetable.Children.Count, timetableCurrent.Count);
+                    for (int i = 0; i < childCount; i++)
                     {
-                        if (StackPanelShowTimetable.Children.IndexOf(timetableLesson) == lessonToHighlightIndex) // 高亮要高亮的课程，在课程开始后显示距离其结束的时间
+                        if (!(StackPanelShowTimetable.Children[i] is TimetableLesson timetableLesson)) continue;
+
+                        string defaultTimeText = timetableCurrent[i].StartTime.ToString(@"hh\:mm");
+                        if (i == lessonToHighlightIndex) // 高亮要高亮的课程，在课程开始后显示距离其结束的时间
                         {
-                            timetableLesson.Activate();
-                            TimeSpan timeLeft = timetableCurrent[lessonToHighlightIndex].EndTime - currentTime;
+                            if (!timetableLesson.IsActive) timetableLesson.Activate();
                             if (isInClass)
                             {
-                                if (timeLeft.Hours == 0)
-                                {
-                                    timetableLesson.Time = timeLeft.ToString(@"mm\:ss");
-                                }
-                                else
-                                {
-                                    timetableLesson.Time = timeLeft.ToString(@"hh\:mm\:ss");
-                                }
+                                TimeSpan timeLeft = timetableCurrent[lessonToHighlightIndex].EndTime - currentTime;
+                                string timeText = timeLeft.Hours == 0
+                                    ? timeLeft.ToString(@"mm\:ss")
+                                    : timeLeft.ToString(@"hh\:mm\:ss");
+                                if (timetableLesson.Time != timeText) timetableLesson.Time = timeText;
+                            }
+                            else if (timetableLesson.Time != defaultTimeText)
+                            {
+                                timetableLesson.Time = defaultTimeText;
                             }
                         }
                         else // 取消高亮不要高亮的课程，并恢复时间显示
                         {
-                            timetableLesson.Deactivate();
-                            timetableLesson.Time = timetableCurrent[StackPanelShowTimetable.Children.IndexOf(timetableLesson)].StartTime.ToString(@"hh\:mm");
+                            if (timetableLesson.IsActive) timetableLesson.Deactivate();
+                            if (timetableLesson.Time != defaultTimeText) timetableLesson.Time = defaultTimeText;
                         }
                     }
                 }
@@ -2129,12 +2138,15 @@ namespace ZongziTEK_Blackboard_Sticker
             return path;
         }
 
-        public static void SetWindowScaleTransform(double Multiplier)
+        public static void SetWindowScaleTransform(double multiplier)
         {
             MainWindow window = Application.Current.MainWindow as MainWindow;
+            if (window == null) return;
 
-            window.windowScale.ScaleX = Multiplier;
-            window.windowScale.ScaleY = Multiplier;
+            double normalizedMultiplier = ClampRange(multiplier, 0.5, 2, 1);
+
+            window.windowScale.ScaleX = normalizedMultiplier;
+            window.windowScale.ScaleY = normalizedMultiplier;
         }
 
         private static double ClampRange(double value, double minimum, double maximum, double defaultValue)
@@ -2193,13 +2205,18 @@ namespace ZongziTEK_Blackboard_Sticker
             return (byte)Math.Round(normalizedOpacity * 255 / 100);
         }
 
-        private static void ApplyCustomPanelBackground(Border border, BackgroundElementStyle style, object fallbackResourceKey, double borderThickness)
+        private static SolidColorBrush CreateCustomBackgroundBrush(BackgroundElementStyle style, object fallbackResourceKey, out byte alpha)
         {
             Color fallbackColor = GetResourceColor(fallbackResourceKey, Colors.Transparent);
             Color color = ParseBackgroundColor(style?.Color, fallbackColor);
-            byte alpha = GetOpacityByte(style?.Opacity ?? 60);
+            alpha = GetOpacityByte(style?.Opacity ?? 60);
 
-            border.Background = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+            return new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+        }
+
+        private static void ApplyCustomPanelBackground(Border border, BackgroundElementStyle style, object fallbackResourceKey, double borderThickness)
+        {
+            border.Background = CreateCustomBackgroundBrush(style, fallbackResourceKey, out byte alpha);
             border.SetResourceReference(Border.BorderBrushProperty, "BorderBrush");
             border.BorderThickness = alpha == 0 ? new Thickness(0) : new Thickness(borderThickness);
         }
@@ -2218,6 +2235,7 @@ namespace ZongziTEK_Blackboard_Sticker
             ApplyCustomPanelBackground(BorderBlackboardTitleBar, customStyle.BlackboardTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
             ApplyCustomPanelBackground(BorderLauncherTitleBar, customStyle.LauncherTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
             ApplyCustomPanelBackground(BorderTimetableTitleBar, customStyle.TimetableTitleBar, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, 1);
+            ApplyCustomTimetableLessonCardStyle(customStyle.TimetableLessonCard);
         }
 
         private void MakeComponentPanelsTransparent()
@@ -2227,6 +2245,54 @@ namespace ZongziTEK_Blackboard_Sticker
             MakePanelTransparent(BorderLauncher);
             MakePanelTransparent(BorderTimetable);
             MakePanelTransparent(BorderFunctionMenu);
+        }
+
+        private void ApplyTimetableLessonCardStyle(int backgroundStyle)
+        {
+            foreach (UIElement element in StackPanelShowTimetable.Children)
+            {
+                if (element is TimetableLesson timetableLesson)
+                {
+                    ApplyTimetableLessonCardStyle(timetableLesson, backgroundStyle);
+                }
+            }
+        }
+
+        private void ApplyTimetableLessonCardStyle(TimetableLesson timetableLesson, int backgroundStyle)
+        {
+            if (backgroundStyle == 4)
+            {
+                ApplyCustomTimetableLessonCardStyle(timetableLesson, Settings.Look.CustomBackgroundStyle.TimetableLessonCard);
+                return;
+            }
+
+            if (backgroundStyle == 3)
+            {
+                timetableLesson.MakeCardBackgroundTransparent();
+                return;
+            }
+
+            timetableLesson.RestoreCardBackground();
+        }
+
+        private void ApplyCustomTimetableLessonCardStyle(BackgroundElementStyle style)
+        {
+            foreach (UIElement element in StackPanelShowTimetable.Children)
+            {
+                if (element is TimetableLesson timetableLesson)
+                {
+                    ApplyCustomTimetableLessonCardStyle(timetableLesson, style);
+                }
+            }
+        }
+
+        private static void ApplyCustomTimetableLessonCardStyle(TimetableLesson timetableLesson, BackgroundElementStyle style)
+        {
+            Brush background = CreateCustomBackgroundBrush(style, ThemeKeys.CardBackgroundFillColorDefaultBrushKey, out byte alpha);
+            Thickness borderThickness = alpha == 0 ? new Thickness(0) : new Thickness(1);
+            object borderBrushResourceKey = alpha == 0 ? null : ThemeKeys.CardStrokeColorDefaultBrushKey;
+
+            timetableLesson.ApplyCustomCardBackground(background, borderBrushResourceKey, borderThickness);
         }
 
         public void ApplyBackgroundStyle()
@@ -2250,6 +2316,8 @@ namespace ZongziTEK_Blackboard_Sticker
                 ApplyCustomBackgroundStyle();
                 return;
             }
+
+            ApplyTimetableLessonCardStyle(backgroundStyle);
 
             if (backgroundStyle >= 1)
             {
@@ -2488,12 +2556,12 @@ namespace ZongziTEK_Blackboard_Sticker
             BeginAnimation(LeftProperty, null);
 
             Rect targetWorkArea = GetTargetWorkArea();
-            Left = targetWorkArea.Left;
             ApplyPanelVisibility(mode);
 
             double liteModeWidth = ColumnLauncher.ActualWidth;
 
-            switch (mode)            {
+            switch (mode)
+            {
                 case 0: // 默认
                     BorderMain.ClearValue(WidthProperty);
                     BorderMain.ClearValue(HorizontalAlignmentProperty);

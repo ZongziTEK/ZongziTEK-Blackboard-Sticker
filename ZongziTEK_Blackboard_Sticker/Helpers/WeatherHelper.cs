@@ -18,6 +18,7 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers.Weather
     {
         public static string xiaomiWeatherFilePath = "Weather/XiaomiWeather.json";
         public static XiaomiWeather xiaomiWeather = new();
+        private static readonly Lazy<Dictionary<int, string>> WeatherNames = new Lazy<Dictionary<int, string>>(LoadWeatherNames);
 
         public static WeatherCityData GetWeatherCityData()
         {
@@ -77,6 +78,16 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers.Weather
 
         public static string GetWeatherName(int weatherCode)
         {
+            if (WeatherNames.Value.TryGetValue(weatherCode, out string weatherName))
+            {
+                return weatherName;
+            }
+
+            return "未知";
+        }
+
+        private static Dictionary<int, string> LoadWeatherNames()
+        {
             string jsonContent;
 
             Uri uri = new Uri("Resources/XiaomiWeather/xiaomi_weather_status.json", UriKind.Relative);
@@ -89,9 +100,9 @@ namespace ZongziTEK_Blackboard_Sticker.Helpers.Weather
             var jObject = JObject.Parse(jsonContent);
 
             List<WeatherInfo> weatherInfos = JsonConvert.DeserializeObject<List<WeatherInfo>>(jObject["weatherinfo"].ToString());
-            WeatherInfo weatherInfo = weatherInfos.Find(w => w.Code == weatherCode);
-
-            return weatherInfo.Name;
+            return weatherInfos
+                .GroupBy(w => w.Code)
+                .ToDictionary(group => group.Key, group => group.First().Name);
         }
 
         public static FontIconData GetWeatherIcon(int weatherCode, bool isNight)

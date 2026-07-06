@@ -30,11 +30,13 @@ namespace ZongziTEK_Blackboard_Sticker
             {
                 // Tells which project in Sentry to send events to:
                 o.Dsn = "https://be9e01f3b4459566b40b8bbc1ce7f8be@o4508149744140288.ingest.de.sentry.io/4508149746040912";
-                // When configuring for the first time, to see what the SDK is doing:
+#if DEBUG
                 o.Debug = true;
-                // Set TracesSampleRate to 1.0 to capture 100% of transactions for tracing.
-                // We recommend adjusting this value in production.
                 o.TracesSampleRate = 1.0;
+#else
+                o.Debug = false;
+                o.TracesSampleRate = 0.0;
+#endif
             });
         }
 

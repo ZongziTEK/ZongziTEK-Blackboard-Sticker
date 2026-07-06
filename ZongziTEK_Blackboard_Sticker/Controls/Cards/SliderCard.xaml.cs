@@ -114,6 +114,15 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         public static readonly DependencyProperty InputWidthProperty =
             DependencyProperty.Register("InputWidth", typeof(double), typeof(SliderCard), new PropertyMetadata((double)80));
 
+        public bool IsLiveValueChangedEnabled
+        {
+            get { return (bool)GetValue(IsLiveValueChangedEnabledProperty); }
+            set { SetValue(IsLiveValueChangedEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsLiveValueChangedEnabledProperty =
+            DependencyProperty.Register("IsLiveValueChangedEnabled", typeof(bool), typeof(SliderCard), new PropertyMetadata(false));
+
         public bool IsResetButtonVisible
         {
             get { return (bool)GetValue(IsResetButtonVisibleProperty); }

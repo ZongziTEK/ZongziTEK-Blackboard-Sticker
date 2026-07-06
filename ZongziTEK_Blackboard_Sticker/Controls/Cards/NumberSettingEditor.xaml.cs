@@ -133,6 +133,15 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         public static readonly DependencyProperty InputWidthProperty =
             DependencyProperty.Register("InputWidth", typeof(double), typeof(NumberSettingEditor), new PropertyMetadata((double)80));
 
+        public bool IsLiveValueChangedEnabled
+        {
+            get { return (bool)GetValue(IsLiveValueChangedEnabledProperty); }
+            set { SetValue(IsLiveValueChangedEnabledProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsLiveValueChangedEnabledProperty =
+            DependencyProperty.Register("IsLiveValueChangedEnabled", typeof(bool), typeof(NumberSettingEditor), new PropertyMetadata(false));
+
         public static readonly RoutedEvent ValueChangedEvent = EventManager.RegisterRoutedEvent("ValueChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(NumberSettingEditor));
 
         public event RoutedEventHandler ValueChanged
@@ -175,7 +184,7 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
         {
             if (!isLoaded || isUpdating) return;
 
-            ApplyValue(MainSlider.Value, !isSliderChanging);
+            ApplyValue(MainSlider.Value, IsLiveValueChangedEnabled || !isSliderChanging);
         }
 
         private void MainSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)

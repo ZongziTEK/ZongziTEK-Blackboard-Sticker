@@ -22,6 +22,11 @@ namespace ZongziTEK_Blackboard_Sticker
     /// </summary>
     public partial class TimetableLesson : UserControl
     {
+        private bool isCustomCardBackgroundApplied = false;
+        private Brush customCardBackground;
+        private object customCardBorderBrushResourceKey;
+        private Thickness customCardBorderThickness;
+
         public TimetableLesson()
         {
             InitializeComponent();
@@ -29,8 +34,72 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            ApplyCardBackgroundVisibility();
+
             if (IsActive) Activate();
             else Deactivate();
+        }
+
+        private void ApplyCardBackgroundVisibility()
+        {
+            if (BorderLessonCard == null) return;
+
+            if (isCustomCardBackgroundApplied)
+            {
+                BorderLessonCard.Background = customCardBackground ?? Brushes.Transparent;
+                if (customCardBorderBrushResourceKey != null)
+                {
+                    BorderLessonCard.SetResourceReference(Border.BorderBrushProperty, customCardBorderBrushResourceKey);
+                }
+                else
+                {
+                    BorderLessonCard.BorderBrush = Brushes.Transparent;
+                }
+                BorderLessonCard.BorderThickness = customCardBorderThickness;
+                return;
+            }
+
+            if (IsCardBackgroundVisible)
+            {
+                BorderLessonCard.SetResourceReference(Border.BackgroundProperty, ThemeKeys.CardBackgroundFillColorDefaultBrushKey);
+                BorderLessonCard.SetResourceReference(Border.BorderBrushProperty, ThemeKeys.CardStrokeColorDefaultBrushKey);
+                BorderLessonCard.BorderThickness = new Thickness(1);
+            }
+            else
+            {
+                BorderLessonCard.Background = Brushes.Transparent;
+                BorderLessonCard.BorderBrush = Brushes.Transparent;
+                BorderLessonCard.BorderThickness = new Thickness(0);
+            }
+        }
+
+        public void RestoreCardBackground()
+        {
+            isCustomCardBackgroundApplied = false;
+            customCardBackground = null;
+            customCardBorderBrushResourceKey = null;
+            customCardBorderThickness = new Thickness(0);
+            if (IsCardBackgroundVisible) ApplyCardBackgroundVisibility();
+            else IsCardBackgroundVisible = true;
+        }
+
+        public void MakeCardBackgroundTransparent()
+        {
+            isCustomCardBackgroundApplied = false;
+            customCardBackground = null;
+            customCardBorderBrushResourceKey = null;
+            customCardBorderThickness = new Thickness(0);
+            if (!IsCardBackgroundVisible) ApplyCardBackgroundVisibility();
+            else IsCardBackgroundVisible = false;
+        }
+
+        public void ApplyCustomCardBackground(Brush background, object borderBrushResourceKey, Thickness borderThickness)
+        {
+            isCustomCardBackgroundApplied = true;
+            customCardBackground = background;
+            customCardBorderBrushResourceKey = borderBrushResourceKey;
+            customCardBorderThickness = borderThickness;
+            ApplyCardBackgroundVisibility();
         }
 
         public void Activate()
@@ -74,5 +143,20 @@ namespace ZongziTEK_Blackboard_Sticker
         // Using a DependencyProperty as the backing store for IsActive.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsActiveProperty =
             DependencyProperty.Register("IsActive", typeof(bool), typeof(TimetableLesson), new PropertyMetadata(false));
+
+        public bool IsCardBackgroundVisible
+        {
+            get { return (bool)GetValue(IsCardBackgroundVisibleProperty); }
+            set { SetValue(IsCardBackgroundVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsCardBackgroundVisibleProperty =
+            DependencyProperty.Register("IsCardBackgroundVisible", typeof(bool), typeof(TimetableLesson),
+                new PropertyMetadata(true, OnIsCardBackgroundVisiblePropertyChanged));
+
+        private static void OnIsCardBackgroundVisiblePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TimetableLesson)d).ApplyCardBackgroundVisibility();
+        }
     }
 }
