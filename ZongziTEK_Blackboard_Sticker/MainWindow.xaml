@@ -154,6 +154,10 @@
                                     <ToggleButton Name="ToggleButtonLock" BorderThickness="0" Width="32" Height="32" Padding="0" Background="#00000000" Click="ToggleButtonLock_Click">
                                         <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.LockClosed_20_Regular}" FontSize="24" Foreground="{Binding Foreground, ElementName=ToggleButtonLock}"/>
                                     </ToggleButton>
+                                    <Button Name="exportButton" Click="exportButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
+                                            Width="32" Height="32" Padding="0" ToolTip="导出为图片">
+                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Image_20_Regular}" FontSize="24"/>
+                                    </Button>
                                 </ikw:SimpleStackPanel>
                             </Grid>
                         </Border>
