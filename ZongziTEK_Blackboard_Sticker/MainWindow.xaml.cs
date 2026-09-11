@@ -41,6 +41,8 @@ namespace ZongziTEK_Blackboard_Sticker
         DrawingAttributes drawingAttributes;
 
         bool isSettingsLoaded = false;
+        StrokeCollection clearedStrokesBackup;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -332,6 +334,11 @@ namespace ZongziTEK_Blackboard_Sticker
         private void btnClearOK_Click(object sender, RoutedEventArgs e)
         {
             //confirmingClear = false;
+
+            if (inkCanvas.Strokes.Count > 0)
+            {
+                clearedStrokesBackup = inkCanvas.Strokes.Clone();
+            }
 
             inkCanvas.Strokes.Clear();
 
@@ -733,6 +740,22 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void inkCanvas_StrokeErased(object sender, RoutedEventArgs e)
         {
+            SaveStrokes();
+        }
+
+        private void undoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (clearedStrokesBackup != null && inkCanvas.Strokes.Count == 0)
+            {
+                inkCanvas.Strokes = clearedStrokesBackup;
+                clearedStrokesBackup = null;
+                SaveStrokes();
+                return;
+            }
+
+            if (inkCanvas.Strokes.Count == 0) return;
+
+            inkCanvas.Strokes.RemoveAt(inkCanvas.Strokes.Count - 1);
             SaveStrokes();
         }
 
