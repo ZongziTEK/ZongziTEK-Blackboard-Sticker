@@ -41,6 +41,8 @@ namespace ZongziTEK_Blackboard_Sticker
         DrawingAttributes drawingAttributes;
 
         bool isSettingsLoaded = false;
+        StrokeCollection clearedStrokesBackup;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -332,6 +334,11 @@ namespace ZongziTEK_Blackboard_Sticker
         private void btnClearOK_Click(object sender, RoutedEventArgs e)
         {
             //confirmingClear = false;
+
+            if (inkCanvas.Strokes.Count > 0)
+            {
+                clearedStrokesBackup = inkCanvas.Strokes.Clone();
+            }
 
             inkCanvas.Strokes.Clear();
 
@@ -734,6 +741,75 @@ namespace ZongziTEK_Blackboard_Sticker
         private void inkCanvas_StrokeErased(object sender, RoutedEventArgs e)
         {
             SaveStrokes();
+        }
+
+        private void undoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (clearedStrokesBackup != null && inkCanvas.Strokes.Count == 0)
+            {
+                inkCanvas.Strokes = clearedStrokesBackup;
+                clearedStrokesBackup = null;
+                SaveStrokes();
+                return;
+            }
+
+            if (inkCanvas.Strokes.Count == 0) return;
+
+            inkCanvas.Strokes.RemoveAt(inkCanvas.Strokes.Count - 1);
+            SaveStrokes();
+        }
+
+        private void exportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (inkCanvas.Strokes.Count == 0)
+            {
+                MessageBox.Show("小黑板上没有内容", "ZongziTEK 黑板贴");
+                return;
+            }
+
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PNG 图片|*.png",
+                DefaultExt = ".png",
+                FileName = "黑板贴_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(inkCanvas);
+                    double dpiScale = 2.0;
+                    var rtb = new RenderTargetBitmap(
+                        (int)(bounds.Width * dpiScale),
+                        (int)(bounds.Height * dpiScale),
+                        96 * dpiScale, 96 * dpiScale,
+                        PixelFormats.Pbgra32);
+
+                    var dv = new DrawingVisual();
+                    using (var ctx = dv.RenderOpen())
+                    {
+                        var bgColor = (System.Windows.Media.Brush)FindResource("WindowBackgroundColor");
+                        ctx.DrawRectangle(bgColor, null, new Rect(bounds.Size));
+                        ctx.DrawRectangle(new VisualBrush(inkCanvas), null, new Rect(bounds.Size));
+                    }
+                    rtb.Render(dv);
+
+                    var pngEncoder = new PngBitmapEncoder();
+                    pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
+
+                    using (var fs = File.Create(saveFileDialog.FileName))
+                    {
+                        pngEncoder.Save(fs);
+                    }
+
+                    MessageBox.Show("已保存到 " + saveFileDialog.FileName, "ZongziTEK 黑板贴");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("导出失败：" + ex.Message, "ZongziTEK 黑板贴");
+                }
+            }
         }
 
         #region Brush effect from WXRIW
