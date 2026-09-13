@@ -48,7 +48,11 @@ namespace ZongziTEK_Blackboard_Sticker
                 catch { }
             }
 
+            Timetable ??= new Timetable();
+            Timetable.EnsureMigrated();
+            LoadScheduleList();
             AutoSelectTimetableToEdit();
+            LoadSelectedScheduleEditor();
         }
 
         #region Window & Controls
@@ -204,8 +208,9 @@ namespace ZongziTEK_Blackboard_Sticker
         #region Load & Save
         private Timetable Timetable = new Timetable();
         private bool isEdited = false;
+        private bool isLoadingConditionEditor = false;
 
-        private async void LoadTimetable()
+        private void LoadTimetable()
         {
             TextBlockLessonCount.Text = GetSelectedDay().Count.ToString();
 
@@ -252,7 +257,6 @@ namespace ZongziTEK_Blackboard_Sticker
                     };
                     item.BeginAnimation(MarginProperty, marginAnimation);
 
-                    await Task.Delay(25);
                 }
             }
 
@@ -338,26 +342,305 @@ namespace ZongziTEK_Blackboard_Sticker
         #region Other Functions
         private List<Lesson> GetSelectedDay()
         {
+            Timetable.EnsureMigrated();
+            TimetableDefinition schedule = GetSelectedSchedule();
+            if (schedule == null)
+            {
+                schedule = new TimetableDefinition { Name = "新课表" };
+                Timetable.Schedules.Add(schedule);
+            }
             switch (ComboBoxDay.SelectedIndex)
             {
                 case 0:
-                    return Timetable.Monday;
+                    return schedule.Monday;
                 case 1:
-                    return Timetable.Tuesday;
+                    return schedule.Tuesday;
                 case 2:
-                    return Timetable.Wednesday;
+                    return schedule.Wednesday;
                 case 3:
-                    return Timetable.Thursday;
+                    return schedule.Thursday;
                 case 4:
-                    return Timetable.Friday;
+                    return schedule.Friday;
                 case 5:
-                    return Timetable.Saturday;
+                    return schedule.Saturday;
                 case 6:
-                    return Timetable.Sunday;
+                    return schedule.Sunday;
                 case 7:
-                    return Timetable.Temp;
+                    return schedule.Monday;
             }
-            return Timetable.Monday;
+            return schedule.Monday;
+        }
+
+        private TimetableDefinition GetSelectedSchedule()
+        {
+            if (ComboBoxSchedule.SelectedIndex >= 0 &&
+                ComboBoxSchedule.SelectedIndex < Timetable.Schedules.Count)
+                return Timetable.Schedules[ComboBoxSchedule.SelectedIndex];
+            return Timetable.Schedules.FirstOrDefault();
+        }
+
+        private void LoadScheduleList(string preferredId = null)
+        {
+            string currentId = preferredId;
+            if (string.IsNullOrEmpty(currentId) &&
+                ComboBoxSchedule.SelectedIndex >= 0 &&
+                ComboBoxSchedule.SelectedIndex < Timetable.Schedules.Count)
+            {
+                currentId = Timetable.Schedules[ComboBoxSchedule.SelectedIndex].Id;
+            }
+            ComboBoxSchedule.SelectionChanged -= ComboBoxSchedule_SelectionChanged;
+            ComboBoxSchedule.Items.Clear();
+            foreach (var schedule in Timetable.Schedules)
+                ComboBoxSchedule.Items.Add(schedule.Name);
+            if (ComboBoxSchedule.Items.Count > 0)
+            {
+                int selectedIndex = 0;
+                if (!string.IsNullOrEmpty(currentId))
+                {
+                    int index = Timetable.Schedules.FindIndex(x => x.Id == currentId);
+                    if (index >= 0) selectedIndex = index;
+                }
+                else
+                {
+                    string selectedId = MainWindow.TimetableSelection?.TimetableId;
+                    if (MainWindow.TimetableSelection != null &&
+                        !MainWindow.TimetableSelection.IsAutomatic &&
+                        !string.IsNullOrEmpty(selectedId))
+                    {
+                        int index = Timetable.Schedules.FindIndex(x => x.Id == selectedId);
+                        if (index >= 0) selectedIndex = index;
+                    }
+                    else
+                    {
+                        TimetableDefinition current = Timetable.ResolveAutomatic(
+                            DateTime.Now,
+                            MainWindow.Settings.TimetableSettings.SchoolStartDate);
+                        int index = current == null ? -1 : Timetable.Schedules.IndexOf(current);
+                        if (index >= 0) selectedIndex = index;
+                    }
+                }
+                ComboBoxSchedule.SelectedIndex = selectedIndex;
+            }
+            ComboBoxSchedule.SelectionChanged += ComboBoxSchedule_SelectionChanged;
+        }
+
+        private void ComboBoxSchedule_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxSchedule.SelectedIndex >= 0)
+                LoadSelectedScheduleEditor();
+        }
+
+        private void LoadSelectedScheduleEditor()
+        {
+            var schedule = GetSelectedSchedule();
+            if (schedule == null) return;
+
+            TextBoxScheduleName.TextChanged -= TextBoxScheduleName_TextChanged;
+            TextBoxScheduleName.Text = schedule.Name;
+            TextBoxScheduleName.TextChanged += TextBoxScheduleName_TextChanged;
+            LoadConditionEditor();
+            LoadTimetable();
+        }
+
+        private void TextBoxScheduleName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var schedule = GetSelectedSchedule();
+            if (schedule == null || string.IsNullOrWhiteSpace(TextBoxScheduleName.Text)) return;
+            schedule.Name = TextBoxScheduleName.Text.Trim();
+            int index = ComboBoxSchedule.SelectedIndex;
+            if (index >= 0 && index < ComboBoxSchedule.Items.Count)
+            {
+                ComboBoxSchedule.SelectionChanged -= ComboBoxSchedule_SelectionChanged;
+                ComboBoxSchedule.Items[index] = schedule.Name;
+                ComboBoxSchedule.SelectionChanged += ComboBoxSchedule_SelectionChanged;
+            }
+            isEdited = true;
+        }
+
+        private void ComboBoxCondition_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (isLoadingConditionEditor) return;
+            var schedule = GetSelectedSchedule();
+            if (schedule == null || ComboBoxCondition.SelectedIndex < 0) return;
+            schedule.ConditionType = (TimetableConditionType)ComboBoxCondition.SelectedIndex;
+            LoadConditionEditor();
+            isEdited = true;
+        }
+
+        private void TextBoxConditionValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (isLoadingConditionEditor) return;
+            if (ComboBoxCondition.SelectedIndex < 0) return;
+            var schedule = GetSelectedSchedule();
+            if (schedule == null) return;
+            try
+            {
+                if (ComboBoxCondition.SelectedIndex == 0 ||
+                    ComboBoxCondition.SelectedIndex == (int)TimetableConditionType.WeekParity)
+                {
+                    schedule.Weekdays = TextBoxConditionValue.Text.Split(',')
+                        .Select(ParseChineseDay).Where(x => x.HasValue).Select(x => x.Value).Distinct().ToList();
+                }
+                else if (ComboBoxCondition.SelectedIndex == 1)
+                {
+                    schedule.Dates = TextBoxConditionValue.Text.Split(',')
+                        .Select(x => DateTime.TryParse(x.Trim(), out var date) ? (DateTime?)date.Date : null)
+                        .Where(x => x.HasValue).Select(x => x.Value).ToList();
+                }
+                isEdited = true;
+            }
+            catch { }
+        }
+
+        private void DatePickerConditionDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (isLoadingConditionEditor || DatePickerConditionDate.SelectedDate == null) return;
+            var schedule = GetSelectedSchedule();
+            if (schedule == null || schedule.ConditionType != TimetableConditionType.Dates) return;
+
+            DateTime selectedDate = DatePickerConditionDate.SelectedDate.Value.Date;
+            schedule.Dates ??= new List<DateTime>();
+            if (!schedule.Dates.Any(x => x.Date == selectedDate))
+            {
+                schedule.Dates.Add(selectedDate);
+                LoadConditionEditor();
+                isEdited = true;
+            }
+        }
+
+        private void ComboBoxWeekParity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (isLoadingConditionEditor || ComboBoxWeekParity.SelectedIndex < 0) return;
+            var schedule = GetSelectedSchedule();
+            if (schedule == null || schedule.ConditionType != TimetableConditionType.WeekParity) return;
+            schedule.WeekParity = ComboBoxWeekParity.SelectedIndex == 0 ? WeekParity.Odd : WeekParity.Even;
+            isEdited = true;
+        }
+
+        private static DayOfWeek? ParseChineseDay(string value) => value.Trim() switch
+        {
+            "一" or "周一" or "星期一" => DayOfWeek.Monday,
+            "二" or "周二" or "星期二" => DayOfWeek.Tuesday,
+            "三" or "周三" or "星期三" => DayOfWeek.Wednesday,
+            "四" or "周四" or "星期四" => DayOfWeek.Thursday,
+            "五" or "周五" or "星期五" => DayOfWeek.Friday,
+            "六" or "周六" or "星期六" => DayOfWeek.Saturday,
+            "日" or "天" or "周日" or "星期日" => DayOfWeek.Sunday,
+            _ => null
+        };
+
+        private void LoadConditionEditor()
+        {
+            var schedule = GetSelectedSchedule();
+            if (schedule == null) return;
+            isLoadingConditionEditor = true;
+            try
+            {
+                ComboBoxCondition.SelectionChanged -= ComboBoxCondition_SelectionChanged;
+                TextBoxConditionValue.TextChanged -= TextBoxConditionValue_TextChanged;
+                DatePickerConditionDate.SelectedDateChanged -= DatePickerConditionDate_SelectedDateChanged;
+                ComboBoxWeekParity.SelectionChanged -= ComboBoxWeekParity_SelectionChanged;
+                ComboBoxCondition.SelectedIndex = (int)schedule.ConditionType;
+                TextBoxConditionValue.Text = schedule.ConditionType switch
+                {
+                    TimetableConditionType.Weekdays or TimetableConditionType.WeekParity =>
+                        string.Join(",", schedule.Weekdays.Select(x => x switch
+                        {
+                            DayOfWeek.Monday => "一", DayOfWeek.Tuesday => "二", DayOfWeek.Wednesday => "三",
+                            DayOfWeek.Thursday => "四", DayOfWeek.Friday => "五", DayOfWeek.Saturday => "六", _ => "日"
+                        })),
+                    TimetableConditionType.Dates => string.Join(",", schedule.Dates.Select(x => x.ToString("yyyy-MM-dd"))),
+                    _ => ""
+                };
+                bool hasWeekdayValue = schedule.ConditionType == TimetableConditionType.Weekdays ||
+                                       schedule.ConditionType == TimetableConditionType.WeekParity;
+                TextBoxConditionValue.IsEnabled = hasWeekdayValue ||
+                                                   schedule.ConditionType == TimetableConditionType.Dates;
+                TextBoxConditionValue.Visibility = hasWeekdayValue ||
+                                                   schedule.ConditionType == TimetableConditionType.Dates
+                    ? Visibility.Visible : Visibility.Collapsed;
+                DatePickerConditionDate.Visibility =
+                    schedule.ConditionType == TimetableConditionType.Dates
+                        ? Visibility.Visible : Visibility.Collapsed;
+                DatePickerConditionDate.SelectedDate = null;
+                ComboBoxWeekParity.Visibility =
+                    schedule.ConditionType == TimetableConditionType.WeekParity
+                        ? Visibility.Visible : Visibility.Collapsed;
+                ComboBoxWeekParity.SelectedIndex = schedule.WeekParity == WeekParity.Odd ? 0 : 1;
+            }
+            finally
+            {
+                ComboBoxCondition.SelectionChanged += ComboBoxCondition_SelectionChanged;
+                TextBoxConditionValue.TextChanged += TextBoxConditionValue_TextChanged;
+                DatePickerConditionDate.SelectedDateChanged += DatePickerConditionDate_SelectedDateChanged;
+                ComboBoxWeekParity.SelectionChanged += ComboBoxWeekParity_SelectionChanged;
+                isLoadingConditionEditor = false;
+            }
+        }
+
+        private void ButtonAddSchedule_Click(object sender, RoutedEventArgs e)
+        {
+            var schedule = new TimetableDefinition
+            {
+                Name = $"新课表 {Timetable.Schedules.Count + 1}",
+                ConditionType = TimetableConditionType.Weekdays,
+                Weekdays = new List<DayOfWeek> { DayOfWeek.Monday }
+            };
+            Timetable.Schedules.Add(schedule);
+            LoadScheduleList(schedule.Id);
+            LoadSelectedScheduleEditor();
+            isEdited = true;
+        }
+
+        private void ButtonDuplicateSchedule_Click(object sender, RoutedEventArgs e)
+        {
+            var source = GetSelectedSchedule();
+            if (source == null) return;
+            var json = JsonConvert.SerializeObject(source);
+            var copy = JsonConvert.DeserializeObject<TimetableDefinition>(json);
+            copy.Id = Guid.NewGuid().ToString("N");
+            copy.Name = source.Name + " 副本";
+            int targetIndex = Math.Max(0, ComboBoxSchedule.SelectedIndex + 1);
+            Timetable.Schedules.Insert(targetIndex, copy);
+            LoadScheduleList(copy.Id);
+            LoadSelectedScheduleEditor();
+            isEdited = true;
+        }
+
+        private void ButtonDeleteSchedule_Click(object sender, RoutedEventArgs e)
+        {
+            if (Timetable.Schedules.Count <= 1) return;
+            int index = ComboBoxSchedule.SelectedIndex;
+            if (index < 0) return;
+            if (MessageBox.Show("确定删除当前课表吗？", "删除课表", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+            Timetable.Schedules.RemoveAt(index);
+            string nextId = Timetable.Schedules[Math.Min(index, Timetable.Schedules.Count - 1)].Id;
+            LoadScheduleList(nextId);
+            LoadSelectedScheduleEditor();
+            isEdited = true;
+        }
+
+        private void ButtonMoveScheduleUp_Click(object sender, RoutedEventArgs e)
+        {
+            MoveSchedule(-1);
+        }
+
+        private void ButtonMoveScheduleDown_Click(object sender, RoutedEventArgs e)
+        {
+            MoveSchedule(1);
+        }
+
+        private void MoveSchedule(int offset)
+        {
+            int index = ComboBoxSchedule.SelectedIndex;
+            int target = index + offset;
+            if (index < 0 || target < 0 || target >= Timetable.Schedules.Count) return;
+            var schedule = Timetable.Schedules[index];
+            Timetable.Schedules.RemoveAt(index);
+            Timetable.Schedules.Insert(target, schedule);
+            LoadScheduleList(schedule.Id);
+            LoadSelectedScheduleEditor();
+            isEdited = true;
         }
 
         private void AutoSelectTimetableToEdit()
@@ -445,7 +728,12 @@ namespace ZongziTEK_Blackboard_Sticker
                         {
                             string text = File.ReadAllText(openFileDialog.FileName);
                             Timetable = JsonConvert.DeserializeObject<Timetable>(text);
-                            LoadTimetable();
+                            Timetable ??= new Timetable();
+                            Timetable.EnsureMigrated();
+                            ComboBoxSchedule.SelectedIndex = -1;
+                            LoadScheduleList();
+                            LoadSelectedScheduleEditor();
+                            isEdited = true;
                         }
                     }
                     catch (Exception ex)
@@ -475,7 +763,11 @@ namespace ZongziTEK_Blackboard_Sticker
                         {
                             string text = File.ReadAllText(openFileDialog.FileName);
                             Timetable = Timetable.ConvertFromCses(text);
-                            LoadTimetable();
+                            Timetable.EnsureMigrated();
+                            ComboBoxSchedule.SelectedIndex = -1;
+                            LoadScheduleList();
+                            LoadSelectedScheduleEditor();
+                            isEdited = true;
                         }
                     }
                     catch (Exception ex)

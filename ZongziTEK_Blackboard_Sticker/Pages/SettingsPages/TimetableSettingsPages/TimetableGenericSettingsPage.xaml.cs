@@ -46,6 +46,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages.TimetableSettingsPage
             ApplyTimetableDisplaySettings();
         }
 
+        private void DatePickerSchoolStartDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            MainWindow.SaveSettings();
+        }
+
         private void ToggleSwitchIsTimetableNotificationEnabled_Toggled(object sender, RoutedEventArgs e)
         {
             ApplyTimetableSettings();

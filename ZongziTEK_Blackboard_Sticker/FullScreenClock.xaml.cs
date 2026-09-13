@@ -74,16 +74,30 @@ namespace ZongziTEK_Blackboard_Sticker
             textBlockBigClock.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
 
             clockTimer = new DispatcherTimer();
-            clockTimer.Tick += new EventHandler(Clock);
-            clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            clockTimer.Tick += Clock;
+            clockTimer.Interval = TimeSpan.FromSeconds(1);
             clockTimer.Start();
         }
+
         private void Clock(object sender, EventArgs e)
         {
-            textBlockBigClock.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
+            string currentTime = DateTime.Now.ToString(("HH':'mm':'ss"));
+            if (textBlockBigClock.Text != currentTime) textBlockBigClock.Text = currentTime;
         }
 
         private DispatcherTimer clockTimer;
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (clockTimer != null)
+            {
+                clockTimer.Stop();
+                clockTimer.Tick -= Clock;
+            }
+
+            base.OnClosed(e);
+        }
+
         bool isBorderToolBarShowing = false;
         private async void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {

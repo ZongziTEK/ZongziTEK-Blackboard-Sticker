@@ -269,14 +269,7 @@
                                         <ui:FlyoutService.Flyout>
                                             <ui:MenuFlyout>
                                                 <MenuItem Name="MenuChooseTimetableToShow" Header="选择要展示的课表">
-                                                    <MenuItem Name="MenuItemShowMondayTimetable" IsCheckable="True" Header="周一" Click="MenuItemShowMondayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowTuesdayTimetable" IsCheckable="True" Header="周二" Click="MenuItemShowTuesdayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowWednesdayTimetable" IsCheckable="True" Header="周三" Click="MenuItemShowWednesdayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowThursdayTimetable" IsCheckable="True" Header="周四" Click="MenuItemShowThursdayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowFridayTimetable" IsCheckable="True" Header="周五" Click="MenuItemShowFridayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowSaturdayTimetable" IsCheckable="True" Header="周六" Click="MenuItemShowSaturdayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowSundayTimetable" IsCheckable="True" Header="周日" Click="MenuItemShowSundayTimetable_Click"/>
-                                                    <MenuItem Name="MenuItemShowTempTimetable" IsCheckable="True" Header="临时" Click="MenuItemShowTempTimetable_Click"/>
+                                                    <MenuItem Name="MenuItemShowAutomaticTimetable" IsCheckable="True" Header="自动选择" Click="MenuItemShowAutomaticTimetable_Click"/>
                                                 </MenuItem>
                                                 <MenuItem Name="MenuItemTimetableAutoScroll" Header="自动滚动" IsCheckable="True" Click="MenuItemTimetableAutoScroll_Click" IsChecked="True"/>
                                                 <MenuItem Header="编辑" Click="editCurriculumButton_Click"/>

@@ -6,7 +6,7 @@
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
         xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker"
         mc:Ignorable="d"
-        Title="ZongziTEK 黑板贴 - 编辑课程表" Height="600" Width="800" MinHeight="450" MinWidth="800"
+        Title="ZongziTEK 黑板贴 - 编辑课程表" Height="600" Width="960" MinHeight="450" MinWidth="900"
         ui:WindowHelper.SystemBackdropType="Mica" ui:WindowHelper.UseModernWindowStyle="True" ui:WindowHelper.FixMaximizedWindow="False"
         ui:TitleBar.Height="48" ui:TitleBar.IsIconVisible="True" ui:TitleBar.ExtendViewIntoTitleBar="True"
         Closing="Window_Closing" WindowStartupLocation="CenterScreen">
@@ -31,8 +31,12 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="260"/>
+            </Grid.ColumnDefinitions>
 
-            <ikw:SimpleStackPanel Grid.Row="0"
+            <ikw:SimpleStackPanel Grid.Row="0" Grid.Column="0"
                                   Spacing="4">
                 <ui:InfoBar Name="InfoBarSharedTimetableEnabled"
                             Grid.Row="0"
@@ -44,12 +48,12 @@
                 <ui:InfoBar Name="InfoBarTempTimetable" 
                             Grid.Row="0" 
                             Title="提示" 
-                            Message="如需展示临时课表，请在课程表菜单中选择。" 
+                            Message="手动课表不会自动生效；如需展示，请在主窗口课表菜单中手动选择。"
                             IsClosable="False"
                             d:IsOpen="True"/>
             </ikw:SimpleStackPanel>
 
-            <Border Height="48" Margin="0,8" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Grid.Row="1">
+            <Border Height="48" Margin="0,8" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Grid.Row="1" Grid.Column="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -62,64 +66,126 @@
                     <TextBlock Grid.Column="2" Text="结束时间" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
-            <ui:ScrollViewerEx Name="ScrollViewerTimetable" PanningMode="VerticalOnly" Grid.Row="2" PreviewMouseWheel="ScrollViewerTimetable_PreviewMouseWheel">
+            <ui:ScrollViewerEx Name="ScrollViewerTimetable" PanningMode="VerticalOnly" Grid.Row="2" Grid.Column="0" PreviewMouseWheel="ScrollViewerTimetable_PreviewMouseWheel">
                 <ikw:SimpleStackPanel x:Name="ListStackPanel" Spacing="4">
                 </ikw:SimpleStackPanel>
             </ui:ScrollViewerEx>
+            <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="8,0,0,0"
+                    CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ikw:SimpleStackPanel Margin="12" Spacing="8">
+                        <TextBlock Text="当前课表属性" FontSize="20"/>
+                        <TextBlock Text="名称" FontSize="12" Opacity="0.7"/>
+                        <TextBox Name="TextBoxScheduleName" TextChanged="TextBoxScheduleName_TextChanged"/>
+                        <TextBlock Text="生效条件" FontSize="16" Margin="0,8,0,0"/>
+                        <ComboBox Name="ComboBoxCondition" SelectionChanged="ComboBoxCondition_SelectionChanged">
+                            <ComboBoxItem Content="星期"/>
+                            <ComboBoxItem Content="具体日期"/>
+                            <ComboBoxItem Content="手动"/>
+                            <ComboBoxItem Content="周数奇偶"/>
+                        </ComboBox>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="TextBoxConditionValue"
+                                     ToolTip="星期：一,二；日期：2026-09-13,2026-09-14"
+                                     TextChanged="TextBoxConditionValue_TextChanged"/>
+                            <DatePicker Grid.Column="1" Name="DatePickerConditionDate"
+                                        Margin="6,0,0,0" Width="124"
+                                        SelectedDateFormat="Short"
+                                        SelectedDateChanged="DatePickerConditionDate_SelectedDateChanged"
+                                        ToolTip="选择生效日期"/>
+                        </Grid>
+                        <ComboBox Name="ComboBoxWeekParity"
+                                  SelectionChanged="ComboBoxWeekParity_SelectionChanged"
+                                  Visibility="Collapsed">
+                            <ComboBoxItem Content="奇周"/>
+                            <ComboBoxItem Content="偶周"/>
+                        </ComboBox>
+                    </ikw:SimpleStackPanel>
+                </ScrollViewer>
+            </Border>
         </Grid>
 
         <Border Grid.Row="1" Height="52" Margin="16,4,16,0" CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                 Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}">
             <Grid Margin="8">
-                <ikw:SimpleStackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                    <ComboBox Name="ComboBoxDay" Width="100" HorizontalAlignment="Left" SelectionChanged="ComboBoxDay_SelectionChanged">
-                        <ComboBoxItem Content="周一"/>
-                        <ComboBoxItem Content="周二"/>
-                        <ComboBoxItem Content="周三"/>
-                        <ComboBoxItem Content="周四"/>
-                        <ComboBoxItem Content="周五"/>
-                        <ComboBoxItem Content="周六"/>
-                        <ComboBoxItem Content="周日"/>
-                        <ComboBoxItem Content="临时"/>
-                    </ComboBox>
-                    <Button Name="ButtonCopy" BorderThickness="0" Background="#00000000" Width="144" Height="32" Padding="10,0" Click="ButtonCopy_Click" HorizontalContentAlignment="Left">
-                        <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
-                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Copy_20_Regular}"/>
-                            <Label Name="LabelCopy" Content="复制该天的课表"/>
-                        </ikw:SimpleStackPanel>
-                    </Button>
-                    <Button Name="ButtonPaste" BorderThickness="0" Background="#00000000" Width="0" Height="32" Padding="0" Click="ButtonPaste_Click">
-                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ClipboardPaste_20_Regular}"/>
-                    </Button>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="190"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <Rectangle Opacity="0.1" Width="1" Fill="{DynamicResource ForegroundColor}"/>
+                <ComboBox Grid.Column="0" Name="ComboBoxSchedule" SelectionChanged="ComboBoxSchedule_SelectionChanged"/>
 
-                    <Button Name="ButtonInsertLesson" BorderThickness="0" Background="#00000000" HorizontalAlignment="Center" Width="120" Height="32" Click="ButtonInsertLesson_Click">
-                        <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
-                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Add_20_Regular}"/>
-                            <Label Content="新建课程"/>
-                        </ikw:SimpleStackPanel>
-                    </Button>
+                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip="新建课表" Click="ButtonAddSchedule_Click">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Add_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip="复制课表" Click="ButtonDuplicateSchedule_Click">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Copy_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip="删除课表" Click="ButtonDeleteSchedule_Click">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Delete_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip="课表上移" Click="ButtonMoveScheduleUp_Click">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowUp_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="5" Width="32" Height="32" Padding="0" ToolTip="课表下移" Click="ButtonMoveScheduleDown_Click">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowDown_20_Regular}"/>
+                </Button>
 
-                    <Rectangle Opacity="0.1" Width="1" Fill="{DynamicResource ForegroundColor}"/>
+                <Rectangle Grid.Column="6" Width="1" Opacity="0.1" Fill="{DynamicResource ForegroundColor}"/>
 
-                    <Button Content="关闭" Visibility="Collapsed" Width="80" Click="ButtonClose_Click" VerticalAlignment="Stretch"/>
-                    <Button Name="ButtonExport" BorderThickness="0" Background="#00000000" Width="32" Height="32" Padding="0" Click="ButtonExport_Click">
-                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowExportRtl_20_Regular}"/>
-                    </Button>
-                    <Button Name="ButtonImport" BorderThickness="0" Background="#00000000" Width="32" Height="32" Padding="0">
-                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowImport_20_Regular}"/>
-
-                        <ui:FlyoutService.Flyout>
-                            <ui:MenuFlyout>
-                                <MenuItem Click="MenuItemImportFromTimetable_Click" Header="导入黑板贴课程表"/>
-                                <MenuItem Click="MenuItemImportFromCses_Click" Header="导入 CSES 档案"/>
-                            </ui:MenuFlyout>
-                        </ui:FlyoutService.Flyout>
-                    </Button>
-                </ikw:SimpleStackPanel>
-                <Button Style="{StaticResource AccentButtonStyle}" Height="32" HorizontalAlignment="Right" Click="ButtonSave_Click">
-                    <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox Grid.Column="7" Name="ComboBoxDay" SelectionChanged="ComboBoxDay_SelectionChanged">
+                    <ComboBoxItem Content="周一"/>
+                    <ComboBoxItem Content="周二"/>
+                    <ComboBoxItem Content="周三"/>
+                    <ComboBoxItem Content="周四"/>
+                    <ComboBoxItem Content="周五"/>
+                    <ComboBoxItem Content="周六"/>
+                    <ComboBoxItem Content="周日"/>
+                    <ComboBoxItem Content="临时"/>
+                </ComboBox>
+                <Button Grid.Column="8" Name="ButtonCopy" BorderThickness="0" Background="#00000000" Width="132" Height="32" Padding="8,0" Click="ButtonCopy_Click" HorizontalContentAlignment="Left">
+                    <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Copy_20_Regular}"/>
+                        <Label Name="LabelCopy" Content="复制当天课程"/>
+                    </ikw:SimpleStackPanel>
+                </Button>
+                <Button Grid.Column="9" Name="ButtonPaste" BorderThickness="0" Background="#00000000" Width="0" Height="32" Padding="0" Click="ButtonPaste_Click" ToolTip="粘贴当天课程">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ClipboardPaste_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="10" Name="ButtonInsertLesson" BorderThickness="0" Background="#00000000" Width="32" Height="32" Padding="0" Click="ButtonInsertLesson_Click" ToolTip="新建课程">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Add_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="11" Name="ButtonExport" BorderThickness="0" Background="#00000000" Width="32" Height="32" Padding="0" Click="ButtonExport_Click" ToolTip="导出课程表">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowExportRtl_20_Regular}"/>
+                </Button>
+                <Button Grid.Column="12" Name="ButtonImport" BorderThickness="0" Background="#00000000" Width="32" Height="32" Padding="0" ToolTip="导入课程表">
+                    <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowImport_20_Regular}"/>
+                    <ui:FlyoutService.Flyout>
+                        <ui:MenuFlyout>
+                            <MenuItem Click="MenuItemImportFromTimetable_Click" Header="导入黑板贴课程表"/>
+                            <MenuItem Click="MenuItemImportFromCses_Click" Header="导入 CSES 档案"/>
+                        </ui:MenuFlyout>
+                    </ui:FlyoutService.Flyout>
+                </Button>
+                <Button Grid.Column="13" Style="{StaticResource AccentButtonStyle}" Height="32" Padding="10,0" Click="ButtonSave_Click">
+                    <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="6">
                         <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Save_20_Regular}"/>
                         <TextBlock Text="保存并排序"/>
                     </ikw:SimpleStackPanel>

@@ -636,6 +636,34 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class TimetableSettings : INotifyPropertyChanged
     {
+        private bool _isTimetableSelectionAutomatic = true;
+        public bool IsTimetableSelectionAutomatic
+        {
+            get => _isTimetableSelectionAutomatic;
+            set { if (_isTimetableSelectionAutomatic != value) { _isTimetableSelectionAutomatic = value; OnPropertyChanged(); } }
+        }
+
+        private string _selectedTimetableId = "";
+        public string SelectedTimetableId
+        {
+            get => _selectedTimetableId;
+            set { if (_selectedTimetableId != value) { _selectedTimetableId = value ?? ""; OnPropertyChanged(); } }
+        }
+
+        private DateTime? _schoolStartDate;
+        public DateTime? SchoolStartDate
+        {
+            get => _schoolStartDate;
+            set
+            {
+                if (_schoolStartDate != value)
+                {
+                    _schoolStartDate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private bool _isTimetableEnabled = true;
         public bool IsTimetableEnabled
         {

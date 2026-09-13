@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -96,8 +97,7 @@ namespace ZongziTEK_Blackboard_Sticker
             textBlockTime.Text = DateTime.Now.ToString(("HH':'mm':'ss"));
             clockTimer = new DispatcherTimer();
             clockTimer.Tick += ClockTimer_Tick;
-            clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
-            clockTimer.Start();
+            clockTimer.Interval = TimeSpan.FromSeconds(1);
 
             frameInfoNavigationTimer.Tick += FrameInfoNavigationTimer_Tick;
             ApplyInfoBoardSwitchInterval();
@@ -163,9 +163,13 @@ namespace ZongziTEK_Blackboard_Sticker
                 BorderMain.BeginAnimation(MarginProperty, marginAnimation);
             }
 
-            timetableScrollTimer.Tick += TimetableScrollTimer_Tick;
-            timetableScrollTimer.Start();
-            ScrollToCurrentLesson();
+            if (!isTimetableScrollTimerAttached)
+            {
+                timetableScrollTimer.Tick += TimetableScrollTimer_Tick;
+                isTimetableScrollTimerAttached = true;
+            }
+            UpdateTimetableAutoScrollTimer();
+            if (timetableScrollTimer.IsEnabled) ScrollToCurrentLesson();
         }
 
         private void window_Activated(object sender, EventArgs e)
@@ -654,6 +658,47 @@ namespace ZongziTEK_Blackboard_Sticker
         }
 
         InkCanvasEditingMode lastEditingMode = new InkCanvasEditingMode();
+        private InkCanvasEditingMode blackboardEditingModeBeforeHidden = InkCanvasEditingMode.Ink;
+        private bool isBlackboardActivitySuspended = false;
+        private bool touchGridWasHitTestVisible = true;
+        private bool touchGridWasManipulationEnabled = false;
+        private bool inkCanvasWasHitTestVisible = true;
+        private bool inkCanvasWasManipulationEnabled = true;
+
+        private void UpdateBlackboardActivity(bool isVisible)
+        {
+            if (isVisible)
+            {
+                if (!isBlackboardActivitySuspended) return;
+
+                touchGrid.IsHitTestVisible = touchGridWasHitTestVisible;
+                touchGrid.IsManipulationEnabled = touchGridWasManipulationEnabled;
+                inkCanvas.IsHitTestVisible = inkCanvasWasHitTestVisible;
+                inkCanvas.IsManipulationEnabled = inkCanvasWasManipulationEnabled;
+                inkCanvas.EditingMode = blackboardEditingModeBeforeHidden;
+                isBlackboardActivitySuspended = false;
+                return;
+            }
+
+            HideColorPicker();
+            borderClearConfirm.Visibility = Visibility.Collapsed;
+
+            if (!isBlackboardActivitySuspended)
+            {
+                blackboardEditingModeBeforeHidden = inkCanvas.EditingMode;
+                touchGridWasHitTestVisible = touchGrid.IsHitTestVisible;
+                touchGridWasManipulationEnabled = touchGrid.IsManipulationEnabled;
+                inkCanvasWasHitTestVisible = inkCanvas.IsHitTestVisible;
+                inkCanvasWasManipulationEnabled = inkCanvas.IsManipulationEnabled;
+                isBlackboardActivitySuspended = true;
+            }
+
+            touchGrid.IsHitTestVisible = false;
+            touchGrid.IsManipulationEnabled = false;
+            inkCanvas.IsHitTestVisible = false;
+            inkCanvas.IsManipulationEnabled = false;
+            inkCanvas.EditingMode = InkCanvasEditingMode.None;
+        }
 
         private void inkCanvas_PreviewTouchDown(object sender, TouchEventArgs e)
         {
@@ -1015,6 +1060,24 @@ namespace ZongziTEK_Blackboard_Sticker
         #region Timetable & Curriculum
 
         public static int timetableToShow_index = (int)DateTime.Today.DayOfWeek;
+        public static TimetableSelection TimetableSelection = new TimetableSelection();
+
+        private void MenuItemShowAutomaticTimetable_Click(object sender, RoutedEventArgs e)
+        {
+            TimetableSelection = new TimetableSelection { IsAutomatic = true };
+            SaveTimetableSelection();
+            LoadTimetableOrCurriculum();
+        }
+
+        private void MenuItemShowSchedule_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem item && item.Tag is string id)
+            {
+                TimetableSelection = new TimetableSelection { IsAutomatic = false, TimetableId = id };
+                SaveTimetableSelection();
+                LoadTimetableOrCurriculum();
+            }
+        }
 
         public void LoadTimetableOrCurriculum()
         {
@@ -1042,90 +1105,47 @@ namespace ZongziTEK_Blackboard_Sticker
             }
 
             CheckTimetableMenuItems();
+            UpdateTimetableAutoScrollTimer();
         }
 
-        private void MenuItemShowMondayTimetable_Click(object sender, RoutedEventArgs e)
+        private static void SaveTimetableSelection()
         {
-            timetableToShow_index = 1;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowTuesdayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 2;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowWednesdayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 3;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowThursdayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 4;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowFridayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 5;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowSaturdayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 6;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowSundayTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 0;
-            LoadTimetableOrCurriculum();
-        }
-
-        private void MenuItemShowTempTimetable_Click(object sender, RoutedEventArgs e)
-        {
-            timetableToShow_index = 7;
-            LoadTimetableOrCurriculum();
+            Settings.TimetableSettings.IsTimetableSelectionAutomatic = TimetableSelection.IsAutomatic;
+            Settings.TimetableSettings.SelectedTimetableId = TimetableSelection.TimetableId;
+            SaveSettings();
         }
 
         private void CheckTimetableMenuItems() // 通过菜单项的 IsChecked 状态来告知用户正在展示哪个课表
         {
-            foreach (MenuItem menuItem in MenuChooseTimetableToShow.Items)
+            foreach (MenuItem menuItem in MenuChooseTimetableToShow.Items.OfType<MenuItem>())
             {
                 menuItem.IsChecked = false;
             }
 
-            switch (timetableToShow_index)
+            Timetable ??= new Timetable();
+            Timetable.EnsureMigrated();
+            while (MenuChooseTimetableToShow.Items.Count > 1)
+                MenuChooseTimetableToShow.Items.RemoveAt(1);
+            foreach (var schedule in Timetable.Schedules)
             {
-                case 1: // 周一
-                    MenuItemShowMondayTimetable.IsChecked = true;
-                    break;
-                case 2: // 周二
-                    MenuItemShowTuesdayTimetable.IsChecked = true;
-                    break;
-                case 3: // 周三
-                    MenuItemShowWednesdayTimetable.IsChecked = true;
-                    break;
-                case 4: // 周四
-                    MenuItemShowThursdayTimetable.IsChecked = true;
-                    break;
-                case 5: // 周五
-                    MenuItemShowFridayTimetable.IsChecked = true;
-                    break;
-                case 6: // 周六
-                    MenuItemShowSaturdayTimetable.IsChecked = true;
-                    break;
-                case 0: // 周日
-                    MenuItemShowSundayTimetable.IsChecked = true;
-                    break;
-                case 7: // 临时
-                    MenuItemShowTempTimetable.IsChecked = true;
-                    break;
+                var item = new MenuItem
+                {
+                    Header = schedule.Name,
+                    IsCheckable = true,
+                    Tag = schedule.Id
+                };
+                item.Click += MenuItemShowSchedule_Click;
+                MenuChooseTimetableToShow.Items.Add(item);
+                if (!TimetableSelection.IsAutomatic && TimetableSelection.TimetableId == schedule.Id)
+                    item.IsChecked = true;
             }
+
+            if (TimetableSelection.IsAutomatic)
+            {
+                MenuItemShowAutomaticTimetable.IsChecked = true;
+                return;
+            }
+
         }
 
         #region Curriculum
@@ -1276,7 +1296,12 @@ namespace ZongziTEK_Blackboard_Sticker
                     try
                     {
                         string text = File.ReadAllText(GetDataPath() + timetableFileName);
-                        Timetable = JsonConvert.DeserializeObject<Timetable>(text);
+                        Timetable = JsonConvert.DeserializeObject<Timetable>(text) ?? new Timetable();
+                        bool wasLegacy = Timetable.IsLegacyFormat;
+                        Timetable?.EnsureMigrated();
+                        if (wasLegacy)
+                            File.WriteAllText(GetDataPath() + timetableFileName,
+                                JsonConvert.SerializeObject(Timetable, Formatting.Indented));
                     }
                     catch (Exception ex)
                     {
@@ -1287,35 +1312,12 @@ namespace ZongziTEK_Blackboard_Sticker
                     }
                 }
 
-                string day = DateTime.Today.DayOfWeek.ToString();
-
-                switch (timetableToShow_index)
-                {
-                    case 1: // 周一
-                        timetableCurrent = Timetable.Monday;
-                        break;
-                    case 2: // 周二
-                        timetableCurrent = Timetable.Tuesday;
-                        break;
-                    case 3: // 周三
-                        timetableCurrent = Timetable.Wednesday;
-                        break;
-                    case 4: // 周四
-                        timetableCurrent = Timetable.Thursday;
-                        break;
-                    case 5: // 周五
-                        timetableCurrent = Timetable.Friday;
-                        break;
-                    case 6: // 周六
-                        timetableCurrent = Timetable.Saturday;
-                        break;
-                    case 0: // 周日
-                        timetableCurrent = Timetable.Sunday;
-                        break;
-                    case 7: // 临时
-                        timetableCurrent = Timetable.Temp;
-                        break;
-                }
+                Timetable ??= new Timetable();
+                Timetable.EnsureMigrated();
+                timetableCurrent = Timetable.GetCurrentTimetable(
+                    DateTime.Now,
+                    TimetableSelection,
+                    Settings.TimetableSettings.SchoolStartDate);
 
                 MenuChooseTimetableToShow.IsEnabled = true;
             }
@@ -1379,7 +1381,7 @@ namespace ZongziTEK_Blackboard_Sticker
             {
                 lastDay = now.DayOfWeek;
 
-                timetableToShow_index = (int)now.DayOfWeek;
+                if (TimetableSelection.IsAutomatic) timetableToShow_index = (int)now.DayOfWeek;
                 LoadTimetable();
             }
 
@@ -1605,6 +1607,7 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             Interval = TimeSpan.FromSeconds(1)
         };
+        private bool isTimetableScrollTimerAttached = false;
 
         private void TimetableScrollTimer_Tick(object sender, EventArgs e)
         {
@@ -1623,10 +1626,21 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void MenuItemTimetableAutoScroll_Click(object sender, RoutedEventArgs e)
         {
-            if (MenuItemTimetableAutoScroll.IsChecked)
+            if (MenuItemTimetableAutoScroll.IsChecked && StackPanelShowTimetable.Visibility == Visibility.Visible) ScrollToCurrentLesson();
+            UpdateTimetableAutoScrollTimer();
+        }
+
+        private void UpdateTimetableAutoScrollTimer()
+        {
+            if (!isTimetableScrollTimerAttached)
             {
-                ScrollToCurrentLesson();
-                timetableScrollTimer.Start();
+                timetableScrollTimer.Stop();
+                return;
+            }
+
+            if (MenuItemTimetableAutoScroll.IsChecked && StackPanelShowTimetable.Visibility == Visibility.Visible)
+            {
+                if (!timetableScrollTimer.IsEnabled) timetableScrollTimer.Start();
             }
             else
             {
@@ -1639,10 +1653,25 @@ namespace ZongziTEK_Blackboard_Sticker
         #region Clock
         private void ClockTimer_Tick(object sender, EventArgs e)
         {
-            textBlockTime.Text = DateTime.Now.ToString("HH':'mm':'ss");
+            string currentTime = DateTime.Now.ToString("HH':'mm':'ss");
+            if (textBlockTime.Text != currentTime) textBlockTime.Text = currentTime;
         }
 
         private DispatcherTimer clockTimer;
+
+        private void UpdateClockTimerForLookMode(int mode)
+        {
+            ClockTimer_Tick(null, null);
+
+            if (IsClockVisibleForLookMode(mode))
+            {
+                if (!clockTimer.IsEnabled) clockTimer.Start();
+            }
+            else
+            {
+                clockTimer.Stop();
+            }
+        }
 
         private void iconShowBigClock_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -1875,6 +1904,11 @@ namespace ZongziTEK_Blackboard_Sticker
             }
 
             ToggleButtonLock.IsChecked = Settings.Blackboard.IsLocked;
+            TimetableSelection = new TimetableSelection
+            {
+                IsAutomatic = Settings.TimetableSettings.IsTimetableSelectionAutomatic,
+                TimetableId = Settings.TimetableSettings.SelectedTimetableId
+            };
 
             if (Settings.Automation.IsAutoHideHugoAssistantEnabled) timerHideSeewoServiceAssistant.Start();
 
@@ -2051,9 +2085,15 @@ namespace ZongziTEK_Blackboard_Sticker
 
         public void SwitchFrameInfoPage()
         {
+            if (!IsInfoBoardVisibleForLookMode(Settings.Look.LookMode))
+            {
+                PauseInfoBoard();
+                return;
+            }
+
             if (frameInfoPages.Count == 0)
             {
-                frameInfoNavigationTimer.Stop();
+                LoadFrameInfoPagesList();
                 return;
             }
 
@@ -2064,8 +2104,55 @@ namespace ZongziTEK_Blackboard_Sticker
             frameInfoPageIndex++;
             if (frameInfoPageIndex >= frameInfoPages.Count) frameInfoPageIndex = 0;
             FrameInfo.Navigate(frameInfoPages[frameInfoPageIndex]);
+            ClearFrameInfoBackStack();
 
             if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
+        }
+
+        private void PauseInfoBoard()
+        {
+            frameInfoNavigationTimer.Stop();
+            if (FrameInfo.Content != null) FrameInfo.Content = null;
+            ClearFrameInfoBackStack();
+        }
+
+        private void ResumeInfoBoard()
+        {
+            if (!IsInfoBoardVisibleForLookMode(Settings.Look.LookMode))
+            {
+                PauseInfoBoard();
+                return;
+            }
+
+            if (frameInfoPages.Count == 0)
+            {
+                LoadFrameInfoPagesList();
+                return;
+            }
+
+            frameInfoNavigationTimer.Stop();
+            NavigateCurrentInfoBoardPage();
+        }
+
+        private void NavigateCurrentInfoBoardPage()
+        {
+            if (frameInfoPages.Count == 0)
+            {
+                frameInfoNavigationTimer.Stop();
+                return;
+            }
+
+            if (frameInfoPageIndex < 0 || frameInfoPageIndex >= frameInfoPages.Count) frameInfoPageIndex = 0;
+
+            if (!ReferenceEquals(FrameInfo.Content, frameInfoPages[frameInfoPageIndex]))
+            {
+                FrameInfo.Navigate(frameInfoPages[frameInfoPageIndex]);
+            }
+
+            ClearFrameInfoBackStack();
+
+            if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
+            else frameInfoNavigationTimer.Stop();
         }
 
         private void ClearFrameInfoBackStack()
@@ -2081,6 +2168,8 @@ namespace ZongziTEK_Blackboard_Sticker
         {
             frameInfoNavigationTimer.Stop();
             frameInfoPageIndex = 0;
+            if (FrameInfo.Content != null) FrameInfo.Content = null;
+            ClearFrameInfoBackStack();
             frameInfoPages.Clear();
 
             if (Settings.InfoBoard.isDatePageEnabled) frameInfoPages.Add(new DatePage());
@@ -2089,18 +2178,9 @@ namespace ZongziTEK_Blackboard_Sticker
             if (Settings.InfoBoard.isWeatherForecastPageEnabled) frameInfoPages.Add(new WeatherForecastPage());
 
             if (frameInfoPages.Count == 0) return;
+            if (!IsInfoBoardVisibleForLookMode(Settings.Look.LookMode)) return;
 
-            FrameInfo.Navigate(frameInfoPages[0]);
-            ClearFrameInfoBackStack();
-
-            if (frameInfoPages.Count == 1)
-            {
-                frameInfoNavigationTimer.Stop();
-            }
-            else
-            {
-                frameInfoNavigationTimer.Start();
-            }
+            NavigateCurrentInfoBoardPage();
         }
         #endregion
 
@@ -2533,6 +2613,32 @@ namespace ZongziTEK_Blackboard_Sticker
             BorderLauncher.Visibility = Settings.Look.IsLauncherEnabled ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private bool IsClockVisibleForLookMode(int mode)
+        {
+            return mode == 0 || mode == 1;
+        }
+
+        private bool IsInfoBoardVisibleForLookMode(int mode)
+        {
+            return mode == 0 || mode == 2;
+        }
+
+        private bool IsBlackboardVisibleForLookMode(int mode)
+        {
+            return mode == 0;
+        }
+
+        private void UpdateRuntimeActivityForLookMode(int mode)
+        {
+            UpdateClockTimerForLookMode(mode);
+
+            if (IsInfoBoardVisibleForLookMode(mode)) ResumeInfoBoard();
+            else PauseInfoBoard();
+
+            UpdateBlackboardActivity(IsBlackboardVisibleForLookMode(mode));
+            UpdateTimetableAutoScrollTimer();
+        }
+
         private void ApplyWindowBounds(Rect targetWorkArea)
         {
             double targetHeight = targetWorkArea.Height;
@@ -2572,9 +2678,6 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnInfoBoard.Width = new GridLength(1, GridUnitType.Star);
                     ColumnClock.Width = GridLength.Auto;
 
-                    SwitchFrameInfoPage();
-                    if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
-
                     Width = targetWorkArea.Width / 2;
                     break;
 
@@ -2587,9 +2690,6 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnCanvas.Width = new GridLength(0);
                     ColumnInfoBoard.Width = new GridLength(0);
                     ColumnClock.Width = new GridLength(1, GridUnitType.Star);
-
-                    frameInfoNavigationTimer.Stop();
-                    if (frameInfoPages.Count > 0) FrameInfo.Navigate(frameInfoPages[0]);  // 切换到日期页面防止继续调用天气 API
 
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
                     break;
@@ -2604,9 +2704,6 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnClock.Width = new GridLength(0);
                     ColumnInfoBoard.Width = new GridLength(1, GridUnitType.Star);
 
-                    SwitchFrameInfoPage();
-                    if (frameInfoPages.Count > 1) frameInfoNavigationTimer.Start();
-
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
                     break;
 
@@ -2620,13 +2717,11 @@ namespace ZongziTEK_Blackboard_Sticker
                     ColumnClock.Width = new GridLength(0);
                     ColumnInfoBoard.Width = new GridLength(0);
 
-                    frameInfoNavigationTimer.Stop();
-                    if (frameInfoPages.Count > 0) FrameInfo.Navigate(frameInfoPages[0]);  // 切换到日期页面防止继续调用天气 API
-
                     Width = (liteModeWidth + BorderMain.Margin.Left + BorderMain.Margin.Right) * windowScale.ScaleX;
                     break;
             }
 
+            UpdateRuntimeActivityForLookMode(mode);
             UpdateLayout();
 
             Action alignWindowToTarget = () =>

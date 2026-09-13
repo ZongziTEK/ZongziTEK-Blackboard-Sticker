@@ -15,6 +15,19 @@
             <ikw:SimpleStackPanel Spacing="8" Margin="24">
                 <Label FontSize="24" Margin="12,8,0,-4" FontWeight="Bold" Content="课程表"/>
                 <Label FontSize="14" Margin="12,0,0,8" Content="常规" Opacity="0.8"/>
+                <Border Padding="12" CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="180"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="开学日期" FontSize="14"/>
+                            <TextBlock Text="用于计算周数奇偶；未设置时周数课表不会自动生效" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <DatePicker Grid.Column="1" SelectedDate="{Binding SchoolStartDate, Mode=TwoWay}" SelectedDateChanged="DatePickerSchoolStartDate_SelectedDateChanged"/>
+                    </Grid>
+                </Border>
                 <card:SliderCard x:Name="CardFontSize" Icon="{x:Static ui:FluentSystemIcons.TextFontSize_20_Regular}" Header="课程表字号" Minimum="18" Maximum="40" TickFrequency="1"
                              Value="{Binding FontSize, Mode=TwoWay}" NumberFormat="0"
                              IsResetButtonVisible="True" ResetClicked="CardFontSize_ResetClicked"
