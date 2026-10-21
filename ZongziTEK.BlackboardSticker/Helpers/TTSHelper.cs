@@ -1,5 +1,4 @@
-﻿using Edge_tts_sharp;
-using Edge_tts_sharp.Model;
+﻿using System;
 using System.Net.NetworkInformation;
 using System.Speech.Synthesis;
 using System.Threading.Tasks;
@@ -16,40 +15,44 @@ namespace ZongziTEK.BlackboardSticker.Helpers
             }
             else
             {
-                SysTTSPlayText(text);
+                Task.Run(() => SysTTSPlayText(text));
             }
         }
 
         private static async Task EdgeTTSPlayText(string text)
         {
-            var voice = Edge_tts.GetVoice()[MainWindow.Settings.TimetableSettings.Voice];
-
-            PlayOption option = new()
+            try
             {
-                Rate = 0,
-                Text = text
-            };
+                var voices = EdgeTtsVoiceHelper.GetVoices();
+                int index = MainWindow.Settings.TimetableSettings.Voice;
 
-            await Edge_tts.PlayTextAsync(option, voice);
+                if (index < 0 || index >= voices.Count)
+                {
+                    throw new IndexOutOfRangeException($"语音序号 {index} 无效。");
+                }
+
+                await EdgeTtsClient.PlayTextAsync(text, voices[index]);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLogToFile("在线语音播放失败：" + ex.Message, LogHelper.LogType.Error);
+                SysTTSPlayText(text);
+            }
         }
 
         private static void SysTTSPlayText(string text)
         {
-            SpeechSynthesizer synthesizer = null;
-
             try
             {
-                synthesizer = new SpeechSynthesizer();
+                using (var synthesizer = new SpeechSynthesizer())
+                {
+                    synthesizer.Volume = 100;
+                    synthesizer.Speak(text);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                // 系统 TTS 不存在
-            }
-
-            if (synthesizer != null)
-            {
-                synthesizer.Volume = 100;
-                synthesizer.SpeakAsync(text);
+                LogHelper.WriteLogToFile("本地语音播放失败：" + ex.Message, LogHelper.LogType.Error);
             }
         }
     }

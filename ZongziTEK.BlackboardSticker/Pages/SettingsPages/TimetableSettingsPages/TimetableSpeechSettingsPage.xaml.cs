@@ -1,6 +1,4 @@
-﻿using Edge_tts_sharp;
-using Edge_tts_sharp.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ZongziTEK.BlackboardSticker.Helpers;
+using ZongziTEK.BlackboardSticker.Models;
 
 namespace ZongziTEK.BlackboardSticker.Pages.SettingsPages.TimetableSettingsPages
 {
@@ -35,8 +34,8 @@ namespace ZongziTEK.BlackboardSticker.Pages.SettingsPages.TimetableSettingsPages
                 ScrollViewerRoot.Visibility = Visibility.Collapsed;
                 LabelTimetableDisabledHint.Visibility = Visibility.Visible;
             }
-            var voices = Edge_tts.GetVoice();
-            foreach (eVoice voice in voices)
+            var voices = EdgeTtsVoiceHelper.GetVoices();
+            foreach (EdgeTtsVoice voice in voices)
             {
                 if (voice.Locale.Contains("zh"))
                 {
@@ -72,7 +71,7 @@ namespace ZongziTEK.BlackboardSticker.Pages.SettingsPages.TimetableSettingsPages
 
         private class VoiceItem
         {
-            public eVoice Voice { get; set; }
+            public EdgeTtsVoice Voice { get; set; }
             public int Index { get; set; }
         }
 
