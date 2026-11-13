@@ -26,8 +26,6 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
         {
             InitializeComponent();
 
-            DataContext = MainWindow.Settings.Update;
-
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             TextBlockVersion.Text = version.ToString();
         }
@@ -37,13 +35,12 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             Process.Start("https://github.com/STBBRD/ZongziTEK-Blackboard-Sticker");
         }
 
-        private void ToggleSwitchAutoUpdate_Toggled(object sender, RoutedEventArgs e)
+        private void OpenForkReleases_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.SaveSettings();
-
-            if (MainWindow.Settings.Update.IsUpdateAutomatic)
+            try { Process.Start("https://github.com/JoshZ-zzx/Blackboard-Sticker/releases"); }
+            catch (System.ComponentModel.Win32Exception ex)
             {
-                MainWindow.CheckUpdate();
+                iNKORE.UI.WPF.Modern.Controls.MessageBox.Show(ex.Message, "无法打开发布页");
             }
         }
     }

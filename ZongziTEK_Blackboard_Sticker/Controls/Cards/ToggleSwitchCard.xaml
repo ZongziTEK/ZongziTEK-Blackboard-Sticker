@@ -21,7 +21,7 @@
                 <TextBlock Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" FontSize="14" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=Header}"/>
                 <TextBlock Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextEmptyToCollapsedConverter}}" Foreground="{DynamicResource {x:Static ui:ThemeKeys.TextControlForegroundKey}}" Opacity="0.75" FontSize="12" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=Tip}"/>
             </ikw:SimpleStackPanel>
-            <ui:ToggleSwitch Grid.Column="2" Toggled="ToggleSwitch_Toggled" OnContent="{Binding Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=OnContent}" OffContent="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=OffContent}" MinWidth="0" Margin="12,0" IsOn="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=IsOn}"/>
+            <ui:ToggleSwitch Grid.Column="2" Toggled="ToggleSwitch_Toggled" OnContent="{Binding Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=OnContent}" OffContent="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=OffContent}" MinWidth="0" Margin="12,0" IsOn="{Binding Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type local:ToggleSwitchCard}, Mode=FindAncestor}, Path=IsOn}"/>
         </Grid>
     </Border>
 </UserControl>

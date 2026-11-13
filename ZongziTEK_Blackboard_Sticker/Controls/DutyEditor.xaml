@@ -1,0 +1,41 @@
+<Window x:Class="ZongziTEK_Blackboard_Sticker.Controls.DutyEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+        Title="值日安排" Width="600" Height="520" MinWidth="360" MinHeight="300"
+        ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource WindowBackgroundColor}" Foreground="{DynamicResource ForegroundColor}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="当前轮换" VerticalAlignment="Center" Target="{Binding ElementName=CurrentWeek}"/>
+            <ComboBox x:Name="CurrentWeek" Width="82" AutomationProperties.Name="当前轮换">
+                <ComboBoxItem Content="单周"/>
+                <ComboBoxItem Content="双周"/>
+            </ComboBox>
+        </StackPanel>
+        <WrapPanel Grid.Row="1" Margin="0,10,0,8">
+            <Label Content="编辑名单" VerticalAlignment="Center" Target="{Binding ElementName=DayPicker}"/>
+            <ComboBox x:Name="DayPicker" Width="82" Margin="0,0,8,0"
+                      AutomationProperties.Name="编辑星期" SelectionChanged="Selection_Changed"/>
+            <ComboBox x:Name="EditWeek" Width="82" Margin="0,0,8,0"
+                      AutomationProperties.Name="编辑单双周" SelectionChanged="Selection_Changed">
+                <ComboBoxItem Content="单周"/>
+                <ComboBoxItem Content="双周"/>
+            </ComboBox>
+            <Button Content="添加职位" MinHeight="36" Click="Add_Click"/>
+        </WrapPanel>
+        <ui:ScrollViewerEx Grid.Row="2" VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly">
+            <StackPanel x:Name="RoleRows"/>
+        </ui:ScrollViewerEx>
+        <StackPanel Grid.Row="3" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="取消" MinWidth="80" MinHeight="36" Margin="0,0,8,0" IsCancel="True"/>
+            <Button Content="保存" MinWidth="80" MinHeight="36" Click="Save_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="WindowBackgroundColor" Color="#99FEFEFE"/>
-    <SolidColorBrush x:Key="InkCanvasBackgroundColor" Color="#55FFFFFF"/>
     <SolidColorBrush x:Key="OtherPanelsBackgroundColor" Color="#FFDDDDDD"/>
     <SolidColorBrush x:Key="ForegroundColor" Color="Black"/>
     <SolidColorBrush x:Key="BorderBrush" Color="#0F000000"/>

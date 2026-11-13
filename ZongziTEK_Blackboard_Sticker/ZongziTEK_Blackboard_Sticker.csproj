@@ -439,9 +439,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autoupdater.NET.Official">
-      <Version>1.9.1</Version>
-    </PackageReference>
     <PackageReference Include="CsesSharp">
       <Version>1.0.0</Version>
     </PackageReference>
@@ -504,5 +501,19 @@
     <Resource Include="Resources\Fonts\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Helpers\AtomicTextFile.cs" />
+    <Compile Include="Helpers\LocalJson.cs" />
+    <Compile Include="Helpers\LauncherLayout.cs" />
+    <Compile Include="Helpers\ScheduleClock.cs" />
+    <Compile Include="Models\DutyRoster.cs" />
+    <Compile Include="Services\DutyRosterStore.cs" />
+    <Compile Include="Controls\DutyPanel.xaml.cs" />
+    <Compile Include="Controls\DutyEditor.xaml.cs" />
+    <Compile Include="Controls\TextBlackboard.xaml.cs" />
+    <Page Include="Controls\DutyPanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Page Include="Controls\DutyEditor.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Page Include="Controls\TextBlackboard.xaml"><Generator>MSBuild:Compile</Generator></Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

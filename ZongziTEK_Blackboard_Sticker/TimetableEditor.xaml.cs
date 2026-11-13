@@ -15,7 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using ZongziTEK_Blackboard_Sticker.Helpers;
 using ZongziTEK_Blackboard_Sticker.Models;
 using ZongziTEK_Blackboard_Sticker.Services;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
@@ -27,6 +27,11 @@ namespace ZongziTEK_Blackboard_Sticker
     /// </summary>
     public partial class TimetableEditor : Window
     {
+        private readonly string storageDirectory;
+        private readonly string timetablePath;
+        private bool loadFailed;
+        private int copiedSource;
+
         public TimetableEditor()
         {
             InitializeComponent();
@@ -37,14 +42,17 @@ namespace ZongziTEK_Blackboard_Sticker
                 InfoBarSharedTimetableEnabled.IsOpen = true;
             }
 
-            if (File.Exists(MainWindow.GetDataPath() + MainWindow.timetableFileName))
+            storageDirectory = MainWindow.GetDataPath();
+            timetablePath = Path.Combine(storageDirectory, MainWindow.timetableFileName);
+            try
             {
-                try
-                {
-                    string text = File.ReadAllText(MainWindow.GetDataPath() + MainWindow.timetableFileName);
-                    Timetable = JsonConvert.DeserializeObject<Timetable>(text);
-                }
-                catch { }
+                Timetable = LocalJson.ReadOrNew<Timetable>(timetablePath);
+                Timetable.Normalize();
+            }
+            catch (Exception ex)
+            {
+                loadFailed = true;
+                MessageBox.Show(ex.Message, "课表读取失败", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             AutoSelectTimetableToEdit();
@@ -60,8 +68,7 @@ namespace ZongziTEK_Blackboard_Sticker
                 e.Cancel = true;
                 if (MessageBox.Show("部分修改仍未保存，是否保存这些更改？", "是否保存更改", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    ButtonSave_Click(null, null);
-                    e.Cancel = false;
+                    e.Cancel = !SaveTimetable();
                 }
                 else
                 {
@@ -73,22 +80,31 @@ namespace ZongziTEK_Blackboard_Sticker
             }
         }
 
-        private void ButtonSave_Click(object sender, RoutedEventArgs e)
-        {
-            Timetable.Sort(Timetable);
+        private void ButtonSave_Click(object sender, RoutedEventArgs e) => SaveTimetable();
 
-            string text = JsonConvert.SerializeObject(Timetable, Formatting.Indented);
+        private bool SaveTimetable()
+        {
             try
             {
-                File.WriteAllText(MainWindow.GetDataPath() + MainWindow.timetableFileName, text);
+                if (loadFailed)
+                {
+                    // Verify that the existing file is readable before replacing it.
+                    LocalJson.ReadOrNew<Timetable>(timetablePath).Normalize();
+                    loadFailed = false;
+                }
+                Timetable.Sort(Timetable);
+                LocalJson.Write(timetablePath, Timetable);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "课程表保存失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
             isEdited = false;
-
             LoadTimetable();
-
-            //isCloseWithoutWarning = true;
-            //Close();
+            if (Application.Current.MainWindow is MainWindow main) main.LoadTimetableOrCurriculum();
+            return true;
         }
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
@@ -266,7 +282,9 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private async void ButtonCopy_Click(object sender, RoutedEventArgs e)
         {
-            ClipBoard = GetSelectedDay().ToList();
+            copiedSource = (ComboBoxDay.SelectedIndex + 1) % 7;
+            if (ComboBoxDay.SelectedIndex == 7) copiedSource = 7;
+            ClipBoard = GetSelectedDay().Select(lesson => lesson.Copy()).ToList();
 
             if (ButtonCopy.ActualWidth > 32)
             {
@@ -314,18 +332,29 @@ namespace ZongziTEK_Blackboard_Sticker
 
         private void ButtonPaste_Click(object sender, RoutedEventArgs e)
         {
-            if (GetSelectedDay().Count > 0)
+            bool copyToTemporary = ComboBoxDay.SelectedIndex == 7 && copiedSource != 7;
+            if (copyToTemporary)
             {
-                if (MessageBox.Show("这里原有的课程将被覆盖", "确定要粘贴吗？", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                if (MessageBox.Show($"用{DutyRoster.SourceNames[copiedSource]}的课程和单双周值日安排替换临时内容？",
+                    "确定要粘贴吗？", MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+                try
                 {
+                    var duty = new DutyRosterStore(storageDirectory).Load().Capture(copiedSource);
+                    Timetable.ReplaceTemporary(ClipBoard, duty);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "读取值日安排失败", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
-
-            GetSelectedDay().Clear();
-            foreach (Lesson lesson in ClipBoard)
+            else
             {
-                GetSelectedDay().Add(lesson);
+                var target = GetSelectedDay();
+                if (target.Count > 0 && MessageBox.Show("这里原有的课程将被覆盖", "确定要粘贴吗？",
+                    MessageBoxButton.OKCancel) != MessageBoxResult.OK) return;
+                target.Clear();
+                target.AddRange(ClipBoard.Select(lesson => lesson.Copy()));
             }
             LoadTimetable();
 
@@ -443,7 +472,10 @@ namespace ZongziTEK_Blackboard_Sticker
                         if (MessageBox.Show("这里原有的课程将被覆盖", "确定要导入吗？", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                         {
                             string text = File.ReadAllText(openFileDialog.FileName);
-                            Timetable = JsonConvert.DeserializeObject<Timetable>(text);
+                            var imported = LocalJson.Parse<Timetable>(text);
+                            imported.Normalize();
+                            Timetable = imported;
+                            isEdited = true;
                             LoadTimetable();
                         }
                     }
@@ -474,6 +506,7 @@ namespace ZongziTEK_Blackboard_Sticker
                         {
                             string text = File.ReadAllText(openFileDialog.FileName);
                             Timetable = Timetable.ConvertFromCses(text);
+                            isEdited = true;
                             LoadTimetable();
                         }
                     }

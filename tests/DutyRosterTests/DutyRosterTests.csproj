@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CsesSharp" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Helpers/AtomicTextFile.cs" Link="AtomicTextFile.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Helpers/LocalJson.cs" Link="LocalJson.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Helpers/ScheduleClock.cs" Link="ScheduleClock.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Helpers/LauncherLayout.cs" Link="LauncherLayout.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Models/DutyRoster.cs" Link="DutyRoster.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Models/Timetable.cs" Link="Timetable.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Models/Curriculums.cs" Link="Curriculums.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Models/Settings.cs" Link="Settings.cs" />
+    <Compile Include="../../ZongziTEK_Blackboard_Sticker/Services/DutyRosterStore.cs" Link="DutyRosterStore.cs" />
+  </ItemGroup>
+</Project>

@@ -1,47 +1,27 @@
-name: .NET Build
-
+name: Build and test
 on:
   push:
-    branches: [ master ]
+    branches: [master, feature/duty-roster-blackboard]
   pull_request:
-    branches: [ master ]
-
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-
   build:
-    runs-on: windows-latest
-
+    runs-on: windows-2022
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    # 安装 NuGet
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
-      with:
-        nuget-version: '5.x'
-
-    # 还原 NuGet 包
-    - name: NuGet restore
-      run: nuget restore
-      
-    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
-    # 编译整个项目
-    - name: Build the solution
-      run: |
-        msbuild -t:restore
-        msbuild /p:Configuration=Release /p:Platform="Any CPU"
-      env:
-        Configuration: ${{ matrix.configuration }}
-        
-    # 上传编译成品
-    - name: Upload to artifact
-      uses: actions/upload-artifact@main
-      with:
-        name: ZongziTEK_Blackboard_Sticker
-        path: ZongziTEK_Blackboard_Sticker/bin/Release
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build .NET Framework WPF application
+        run: msbuild /restore /p:Configuration=Release /p:Platform="Any CPU"
+      - name: Run duty roster, storage and layout checks
+        run: dotnet run --project tests/DutyRosterTests/DutyRosterTests.csproj --configuration Release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Blackboard-Sticker-Windows
+          path: ZongziTEK_Blackboard_Sticker/bin/Release/
+          if-no-files-found: error

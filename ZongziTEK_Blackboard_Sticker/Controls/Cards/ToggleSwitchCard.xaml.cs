@@ -104,6 +104,7 @@ namespace ZongziTEK_Blackboard_Sticker.Controls.Cards
 
         private void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
+            SetCurrentValue(IsOnProperty, ((ToggleSwitch)sender).IsOn);
             RoutedEventArgs routedEventArgs = new RoutedEventArgs(ToggledEvent, this);
             RaiseEvent(routedEventArgs);
         }

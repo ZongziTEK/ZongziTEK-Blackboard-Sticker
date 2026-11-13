@@ -1,0 +1,34 @@
+<UserControl x:Class="ZongziTEK_Blackboard_Sticker.Controls.DutyPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+             Foreground="{DynamicResource ForegroundColor}">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DockPanel Margin="0,0,0,4">
+            <Button DockPanel.Dock="Right" MinWidth="36" MinHeight="36" Padding="6" Click="Edit_Click"
+                    ToolTip="编辑值日安排" AutomationProperties.Name="编辑值日安排">
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Settings_20_Regular}"/>
+            </Button>
+            <TextBlock x:Name="Heading" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        </DockPanel>
+        <ui:ScrollViewerEx Grid.Row="1" PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock x:Name="EmptyState" Opacity="0.7" Margin="0,4" TextWrapping="Wrap"/>
+                <ItemsControl x:Name="Assignments">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,4">
+                                <TextBlock Text="{Binding Role}" Opacity="0.72" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Names}" FontSize="18" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ui:ScrollViewerEx>
+    </Grid>
+</UserControl>
