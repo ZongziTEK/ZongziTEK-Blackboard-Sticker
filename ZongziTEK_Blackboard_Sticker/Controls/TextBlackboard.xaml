@@ -1,0 +1,33 @@
+<UserControl x:Class="ZongziTEK_Blackboard_Sticker.Controls.TextBlackboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+             Foreground="{DynamicResource ForegroundColor}">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel Margin="0,0,0,4">
+            <Button DockPanel.Dock="Right" MinWidth="36" MinHeight="36" Padding="6"
+                    ToolTip="小黑板操作" AutomationProperties.Name="小黑板操作">
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.MoreHorizontal_20_Regular}"/>
+                <ui:FlyoutService.Flyout>
+                    <ui:MenuFlyout>
+                        <MenuItem x:Name="LockMenu" Header="锁定编辑" IsCheckable="True" Click="Lock_Click"/>
+                        <MenuItem x:Name="ImportMenu" Header="导入 TXT" Click="Import_Click"/>
+                        <MenuItem Header="导出 TXT" Click="Export_Click"/>
+                        <MenuItem x:Name="ClearMenu" Header="清空" Click="Clear_Click"/>
+                    </ui:MenuFlyout>
+                </ui:FlyoutService.Flyout>
+            </Button>
+            <TextBlock x:Name="Heading" Text="小黑板" VerticalAlignment="Center" TextWrapping="Wrap"
+                       FontSize="16" FontWeight="SemiBold"/>
+        </DockPanel>
+        <TextBox Grid.Row="1" x:Name="Editor" AcceptsReturn="True" TextWrapping="Wrap" FontSize="18"
+                 VerticalScrollBarVisibility="Auto" ScrollViewer.PanningMode="VerticalOnly"
+                 AllowDrop="False" AutomationProperties.Name="小黑板文本" TextChanged="Editor_TextChanged"/>
+        <TextBlock Grid.Row="2" x:Name="Status" Visibility="Collapsed" Margin="0,4,0,0" TextWrapping="Wrap"/>
+    </Grid>
+</UserControl>

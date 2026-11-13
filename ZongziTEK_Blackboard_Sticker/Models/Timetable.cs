@@ -1,4 +1,5 @@
-﻿using CsesSharp;
+﻿using Newtonsoft.Json;
+using CsesSharp;
 using CsesSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,10 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 {
     public class Timetable
     {
+        // Store the two temporary assignments in the same atomic write as the temporary courses.
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DutySnapshot TemporaryDuty { get; set; }
+
         public List<Lesson> Monday { get; set; } = new();
         public List<Lesson> Tuesday { get; set; } = new();
         public List<Lesson> Wednesday { get; set; } = new();
@@ -15,6 +20,36 @@ namespace ZongziTEK_Blackboard_Sticker.Models
         public List<Lesson> Saturday { get; set; } = new();
         public List<Lesson> Sunday { get; set; } = new();
         public List<Lesson> Temp { get; set; } = new();
+
+        public List<Lesson> GetDay(int source)
+        {
+            switch (source)
+            {
+                case 0: return Sunday;
+                case 1: return Monday;
+                case 2: return Tuesday;
+                case 3: return Wednesday;
+                case 4: return Thursday;
+                case 5: return Friday;
+                case 6: return Saturday;
+                case 7: return Temp;
+                default: throw new ArgumentOutOfRangeException(nameof(source));
+            }
+        }
+
+        public void Normalize()
+        {
+            for (int source = 0; source <= 7; source++)
+                GetDay(source).RemoveAll(lesson => lesson == null);
+        }
+
+        public void ReplaceTemporary(IEnumerable<Lesson> lessons, DutySnapshot duty)
+        {
+            var snapshot = new List<Lesson>();
+            foreach (var lesson in lessons) snapshot.Add(lesson.Copy());
+            Temp = snapshot;
+            TemporaryDuty = duty;
+        }
 
         public string ToCurriculums(List<Lesson> list)
         {
@@ -106,6 +141,8 @@ namespace ZongziTEK_Blackboard_Sticker.Models
             IsSplitBelow = isSplitBelow;
             IsStrongClassOverNotificationEnabled = isStrongClassOverNotificationEnabled;
         }
+
+        public Lesson Copy() => new(Subject, StartTime, EndTime, IsSplitBelow, IsStrongClassOverNotificationEnabled);
 
         public static Lesson ConvertFromCsesClass(ClassInfo classInfo)
         {

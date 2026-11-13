@@ -40,9 +40,11 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
 
         private void ButtonBrowse_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            folderBrowser.ShowDialog();
-            TextBoxDataPath.Text = folderBrowser.SelectedPath;
+            using (var folderBrowser = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                if (folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    TextBoxDataPath.Text = folderBrowser.SelectedPath;
+            }
         }
     }
 }

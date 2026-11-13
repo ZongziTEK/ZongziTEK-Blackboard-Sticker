@@ -3,7 +3,7 @@
              xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker"
-             StartupUri="MainWindow.xaml"
+             StartupUri="MainWindow.xaml" ShutdownMode="OnMainWindowClose"
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
     <Application.Resources>
         <ResourceDictionary>

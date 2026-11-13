@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -75,7 +75,7 @@ namespace ZongziTEK_Blackboard_Sticker
 
             clockTimer = new DispatcherTimer();
             clockTimer.Tick += new EventHandler(Clock);
-            clockTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            clockTimer.Interval = TimeSpan.FromMilliseconds(200);
             clockTimer.Start();
         }
         private void Clock(object sender, EventArgs e)

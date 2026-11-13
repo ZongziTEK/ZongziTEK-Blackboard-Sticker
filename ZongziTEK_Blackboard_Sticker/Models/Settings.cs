@@ -166,6 +166,8 @@ namespace ZongziTEK_Blackboard_Sticker.Models
 
     public class Look : INotifyPropertyChanged
     {
+        public bool ShowLauncher { get; set; } = true;
+
         private double _windowScaleMultiplier = 1;
         public double WindowScaleMultiplier
         {

@@ -31,7 +31,22 @@ namespace ZongziTEK_Blackboard_Sticker.Pages.SettingsPages
             InitializeComponent();
 
             DataContext = MainWindow.Settings.Look;
+            LauncherSwitch.IsOn = MainWindow.Settings.Look.ShowLauncher;
             LoadMonitors();
+        }
+
+        private void LauncherSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (LauncherSwitch == null) return;
+            bool previous = MainWindow.Settings.Look.ShowLauncher;
+            if (LauncherSwitch.IsOn == previous) return;
+            MainWindow.Settings.Look.ShowLauncher = LauncherSwitch.IsOn;
+            if (!MainWindow.TrySaveSettings())
+            {
+                MainWindow.Settings.Look.ShowLauncher = previous;
+                LauncherSwitch.IsOn = previous;
+            }
+            mainWindow.ApplyLauncherVisibility();
         }
 
         private void LoadMonitors()

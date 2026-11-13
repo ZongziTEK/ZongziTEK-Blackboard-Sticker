@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZongziTEK_Blackboard_Sticker"
+        xmlns:controls="clr-namespace:ZongziTEK_Blackboard_Sticker.Controls"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern" xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
         Title="ZongziTEK 黑板贴" Height="1080" Width="960" 
@@ -28,7 +29,7 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColumnCanvas"/>
-                    <ColumnDefinition x:Name="ColumnLauncher" Width="0.425*"/>
+                    <ColumnDefinition x:Name="ColumnLauncher" Width="0.56*"/>
                 </Grid.ColumnDefinitions>
 
                 <!--看板-->
@@ -53,115 +54,22 @@
                     </Grid>
                 </Border>
 
-                <!--小黑板-->
-                <Border Grid.RowSpan="3" Grid.Row="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,0,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-                    <Grid>
-                        <Border x:Name="borderClearConfirm" Visibility="Collapsed">
-                            <ikw:SimpleStackPanel Spacing="24" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="确定清除吗" FontSize="32"/>
-                                <ikw:SimpleStackPanel Spacing="24" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Button x:Name="btnClearCancel" Height="32" Foreground="{DynamicResource ForegroundColor}" Content="取消" Click="btnClearCancel_Click"/>
-                                    <Button x:Name="btnClearOK" Height="32" Style="{StaticResource AccentButtonStyle}" Content="确定" Click="btnClearOK_Click"/>
-                                </ikw:SimpleStackPanel>
-                            </ikw:SimpleStackPanel>
-                        </Border>
-                        <Grid Name="touchGrid" ManipulationStarting="touchGrid_ManipulationStarting" ManipulationDelta="touchGrid_ManipulationDelta" Background="#00000000">
-                            <InkCanvas x:Name="inkCanvas" PreviewTouchDown="inkCanvas_PreviewTouchDown" PreviewTouchUp="inkCanvas_PreviewTouchUp" PreviewMouseDown="inkCanvas_PreviewMouseDown"
-                           StrokeCollected="inkCanvas_StrokeCollected" StrokeErased="inkCanvas_StrokeErased"
-                           IsManipulationEnabled="True" Background="{x:Null}"/>
-                        </Grid>
-                        <Border Name="BorderLockBlackboard" Background="#00000000" Visibility="Collapsed" MouseDown="BorderLockBlackboard_MouseDown">
-                            <ikw:SimpleStackPanel Name="StackPanelHighlightBlackboardLockState" Visibility="Collapsed" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="已锁定" FontSize="64" HorizontalAlignment="Center"/>
-                                <TextBlock Foreground="{DynamicResource ForegroundColor}" Text="请点击工具栏中图标解锁" FontSize="14" Opacity="0.8" HorizontalAlignment="Center"/>
-                            </ikw:SimpleStackPanel>
-                        </Border>
-
-                        <Border Height="40" Margin="8" CornerRadius="4" VerticalAlignment="Bottom" Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-                            <Grid>
-                                <Label Content="小黑板" VerticalAlignment="Center" Margin="8,0" FontSize="20"/>
-                                <ikw:SimpleStackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="8,0">
-                                    <Grid>
-                                        <Button Name="penButton" Click="penButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
-                                                Width="32" Height="32" Padding="0"
-                                                HorizontalAlignment="Right" Visibility="{Binding Visibility, ElementName=eraserButton}">
-                                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Edit_20_Regular}" FontSize="24"/>
-                                        </Button>
-                                        <Border Name="borderColorPicker" Margin="-100,-490,-124,36" CornerRadius="8" Width="246" Height="464" Visibility="Collapsed" d:Visibility="Visible" BorderThickness="1"
-                                                Background="{DynamicResource {x:Static ui:ThemeKeys.CardBackgroundFillColorDefaultBrushKey}}" BorderBrush="{DynamicResource BorderBrush}">
-                                            <ikw:SimpleStackPanel Margin="16" Spacing="8">
-                                                <Grid >
-                                                    <TextBlock Text="设置画笔" FontSize="24" Foreground="{DynamicResource ForegroundColor}"/>
-                                                    <Border Name="borderShowColor" HorizontalAlignment="Right" Width="24" Height="24" CornerRadius="12" Background="White" BorderThickness="1" BorderBrush="#33000000"/>
-                                                </Grid>
-                                                <Label Content="颜色" FontSize="12" Opacity="0.75"/>
-                                                <ikw:SquarePicker Name="squarePicker" Height="222" ColorChanged="squarePicker_ColorChanged" SelectedColor="White" 
-                                                                  PreviewMouseUp="squarePicker_PreviewMouseUp"/>
-                                                <ui:TeachingTip x:Name="TeachingTipColorPicker" Target="{Binding ElementName=squarePicker}" Visibility="Collapsed"
-                                                                Title="提示"
-                                                                Subtitle="当画笔处于黑色或白色时，仅调整色相环是不会改变画笔颜色的，需要调整中间的圆点到右上角的彩色位置"/>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" 
-                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
-                                                            Background="{DynamicResource ForegroundColor}"
-                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            MouseUp="BorderColorSelector_MouseUp"/>
-                                                    <Border Grid.Column="1" Width="36" Height="36" CornerRadius="18" 
-                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
-                                                            Background="#EE00AA"
-                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            MouseUp="BorderColorSelector_MouseUp"/>
-                                                    <Border Grid.Column="2" Width="36" Height="36" CornerRadius="18" 
-                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
-                                                            Background="#EEAA00"
-                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            MouseUp="BorderColorSelector_MouseUp"/>
-                                                    <Border Grid.Column="3" Width="36" Height="36" CornerRadius="18" 
-                                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
-                                                            Background="#00CCCC"
-                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                            MouseUp="BorderColorSelector_MouseUp"/>
-                                                </Grid>
-                                                <Label Content="大小" FontSize="12" Opacity="0.75"/>
-                                                <Slider x:Name="SliderPenThickness" Minimum="1.75" Maximum="4.75" TickFrequency="0.5" IsSnapToTickEnabled="True" TickPlacement="Both" AutoToolTipPlacement="None" Value="1.75"
-                                                        ValueChanged="SliderPenThickness_ValueChanged"/>
-                                                <Button x:Name="btnCloseColorPicker" Content="关闭" HorizontalAlignment="Stretch" Click="btnCloseColorPicker_Click"/>
-                                            </ikw:SimpleStackPanel>
-                                        </Border>
-                                    </Grid>
-                                    <Button Name="eraserButton" Click="eraserButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
-                                            Width="32" Height="32" Padding="0">
-                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Eraser_20_Regular}" FontSize="24"/>
-                                    </Button>
-                                    <Button Name="clearButton" Click="clearButton_Click" BorderThickness="0" Background="#00000000" Foreground="{DynamicResource ForegroundColor}"
-                                            Width="32" Height="32" Padding="0" Visibility="{Binding Visibility, ElementName=eraserButton}">
-                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Delete_20_Regular}" FontSize="24"/>
-                                        <ui:FlyoutService.Flyout>
-                                            <ui:Flyout>
-                                                <ikw:SimpleStackPanel Spacing="8">
-                                                    <TextBlock TextWrapping="Wrap" Text="此操作将清除小黑板上的所有内容，且不可恢复。确定继续吗？"/>
-                                                    <Button Content="确定" Click="btnClearOK_Click"/>
-                                                </ikw:SimpleStackPanel>
-                                            </ui:Flyout>
-                                        </ui:FlyoutService.Flyout>
-                                    </Button>
-                                    <ToggleButton Name="ToggleButtonLock" BorderThickness="0" Width="32" Height="32" Padding="0" Background="#00000000" Click="ToggleButtonLock_Click">
-                                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.LockClosed_20_Regular}" FontSize="24" Foreground="{Binding Foreground, ElementName=ToggleButtonLock}"/>
-                                    </ToggleButton>
-                                </ikw:SimpleStackPanel>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
+                <Grid x:Name="LeftCards" Grid.Row="1" Grid.RowSpan="3" Margin="8,0,0,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="64"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="*" MinHeight="64"/>
+                    </Grid.RowDefinitions>
+                    <Border CornerRadius="8" Background="{DynamicResource WindowBackgroundColor}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <controls:DutyPanel x:Name="DutyCard" EditRequested="DutyCard_EditRequested"/>
+                    </Border>
+                    <Border Grid.Row="2" CornerRadius="8" Background="{DynamicResource WindowBackgroundColor}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <controls:TextBlackboard x:Name="BlackboardCard"/>
+                    </Border>
+                </Grid>
 
                 <!--启动台-->
-                <Border Grid.Row="2" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="LauncherCard" Grid.Row="2" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -198,7 +106,7 @@
                 </Border>
 
                 <!--课程表-->
-                <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Border x:Name="TimetableCard" Grid.Row="1" Grid.Column="1" Background="{DynamicResource WindowBackgroundColor}" Margin="8,0,8,8" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -276,6 +184,8 @@
                                                 <MenuItem Name="MenuItemShowTempTimetable" IsCheckable="True" Header="临时" Click="MenuItemShowTempTimetable_Click"/>
                                             </MenuItem>
                                             <MenuItem Name="MenuItemTimetableAutoScroll" Header="自动滚动" IsCheckable="True" Click="MenuItemTimetableAutoScroll_Click" IsChecked="True"/>
+                                            <MenuItem x:Name="MenuCopyToTemporary" Header="将当前星期复制到临时" Click="CopyToTemporary_Click"/>
+                                            <MenuItem Header="编辑值日安排" Click="DutyCard_EditRequested"/>
                                             <MenuItem Header="编辑" Click="editCurriculumButton_Click"/>
                                         </ui:MenuFlyout>
                                     </ui:FlyoutService.Flyout>
